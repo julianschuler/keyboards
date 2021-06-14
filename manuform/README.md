@@ -1,6 +1,6 @@
 # Manuform
 ## Overview
-The Manuform is the first keyboard I have built. It is a 50% keyboard based on the [ManuForm](https://geekhack.org/index.php?topic=46015.0) by Jeff Gran and is focussed on ergonomic typing with ortholinear (non-staggered) rows and minimal finger movement.
+The Manuform is the first keyboard I have built. It is a 50% keyboard based on the [ManuForm](https://geekhack.org/index.php?topic=46015.0) by Jeff Gran and is focussed on ergonomic typing with ortholinear (non-staggered) columns and minimal finger movement.
 The main differences between the original and this version are:
 * hidden screws by using embedded nuts
 * aluminum bottom plate for extra rigidity
@@ -10,7 +10,7 @@ The main differences between the original and this version are:
 ## Parts list
 * 54 keyboard switches (Cherry MX, Gatheron, etc.)
 * 48 keycaps 1U
-* 6 keycaps 2U
+* 6 keycaps 1.5U
 * ~300g of PETG filament
 * access to a 3D printer
 * access to a CNC router or laser cutter (for the bottom plate, I ordered mine online)
