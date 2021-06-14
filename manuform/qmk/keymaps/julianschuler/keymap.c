@@ -2,14 +2,16 @@
 #include "keymap_german.h"
 
 // layer definitions
-#define _QL         0
-#define _WL         1
-#define _SL         2
-#define _NL         3
-#define _FL         4
+#define _VL         0
+#define _QL         1
+#define _WL         2
+#define _SL         3
+#define _NL         4
+#define _FL         5
 
 // layer switching keys
 #define QWERTZ      DF(_QL)
+#define VOU         DF(_VL)
 #define WASD        TG(_WL)
 #define NUM_L       MO(_NL)
 #define SYM_L       MO(_SL)
@@ -44,8 +46,10 @@
 #define EDITOR      LGUI(DE_V)
 #define SYSTEM      LGUI(DE_Y)
 
-#define BSP_ALT     LALT_T(KC_BSPC)
+#define KC_TEMP     KC_F22
+#define BSP_ALT     LALT_T(KC_TEMP)
 #define TAB_CTL     LCTL_T(KC_TAB)
+
 
 // special keys
 #define OMEGA       UC(0x03A9)
@@ -53,7 +57,38 @@
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-/* layer 0: qwertz
+/* layer 0: vou
+ _________________________________________                            _________________________________________
+|      |      |      |      |      |      |                          |      |      |      |      |      |      |
+| ESC  |  V   |  .   |  O   |  U   |  Ä   |                          |  Q   |  G   |  L   |  H   |  F   |  ß   |
+|______|______|______|______|______|______|   ____________________   |______|______|______|______|______|______|
+|      |      |      |      |      |      |  |      |      |      |  |      |      |      |      |      |      |
+| BSPC |  C   |  A   |  E   |  I   |  Ü   |  | PREV | PLAY | NEXT |  |  B   |  T   |  R   |  N   |  S   |  J   |
+|______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
+|      |      |      |      |      |      |  |      |      |      |  |      |      |      |      |      |      |
+| SHFT |  Z   |  X   |  ,   |  Y   |  Ö   |  | SLCK | MUTE | PAUS |  |  P   |  D   |  W   |  M   |  K   |  -   |
+|______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
+                              _____________                          _____________
+                             |      |      |                        |      |      |
+                             |      |      |                        |      |      |
+                             | TAB  | SHFT |                        | SPC  | ENTR |
+                             |      |      |                        |      |      |
+                             |______|______|_                      _|______|______|
+                               |      |      |                    |      |      |
+                               | GUI  | NUMS |                    | SYMS | GUI  |
+                               |______|______|                    |______|______|
+                               |      |      |                    |      |      |
+                               | ALT  | CTRL |                    | CTRL | ALT  |
+                               |______|______|                    |______|______|  */
+[_VL] = LAYOUT(
+KC_ESC,     DE_V,       DE_DOT,     DE_O,       DE_U,       DE_ADIA,                                        DE_Q,       DE_G,       DE_L,       DE_H,       DE_F,       DE_SS,   \
+BSP_ALT,    DE_C,       DE_A,       DE_E,       DE_I,       DE_UDIA,    KC_MPRV,    KC_MPLY,    KC_MNXT,    DE_B,       DE_T,       DE_R,       DE_N,       DE_S,       DE_J,    \
+L_SHIFT,    DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_SLCK,    KC_MUTE,    KC_PAUS,    DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS, \
+                                                                                                                                                                                 \
+                                                TAB_CTL,    L_SHIFT,                                        KC_SPC,     KC_ENT,                                                  \
+                                                    L_GUI,      NUM_L,                                  SYM_L,      L_GUI,                                                       \
+                                                    L_ALT,      L_CTRL,                                 R_CTRL,     L_ALT                                                        ),
+/* layer 1: qwertz
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 | ESC  |  Q   |  W   |  E   |  R   |  T   |                          |  Z   |  U   |  I   |  O   |  P   |  Ü   |
@@ -87,7 +122,7 @@ L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,
 
 
 
-/* layer 1: wasd (for gaming)
+/* layer 2: wasd (for gaming)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 | ESC  | TAB  |  Q   |  W   |  E   |  R   |                          |  Z   |  U   |  I   |  O   |  P   |  Ü   |
@@ -198,7 +233,7 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
 |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  |      | RST  |      |  |  F7  |  F8  |  F9  | F10  | F11  | F12  |
 |______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
 |      |      |      |      |      |      |  |      |      |      |  |      |      |      |      |      |      |
-| NONE | PAUS | MUTE | VOLD | VOLU | QWER |  |      |      |      |  | NONE | TERM | EXPL | EDIT | SYS  | NONE |
+| NONE | PAUS | MUTE | VOLD | VOLU | VOU  |  |      |      |      |  | QWER | TERM | EXPL | EDIT | SYS  | NONE |
 |______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
                               _____________                          _____________
                              |      |      |                        |      |      |
@@ -215,7 +250,7 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
 [_FL] = LAYOUT(
 XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    SLICER,     UPDATES,    ORGNZR,     MUSIC,   \
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,      _______,    RESET,      _______,    KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,  \
-XXXXXXX,    KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    QWERTZ,     _______,    _______,    _______,    XXXXXXX,    TERMNL,     EXPLOR,     EDITOR,     SYSTEM,     XXXXXXX, \
+XXXXXXX,    KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    VOU,        _______,    _______,    _______,    QWERTZ,     TERMNL,     EXPLOR,     EDITOR,     SYSTEM,     XXXXXXX, \
                                                                                                                                                                                  \
                                                 XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,                                                 \
                                                     XXXXXXX,    FN_L,                                   FN_L,       XXXXXXX,                                                     \
@@ -236,6 +271,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_off(layer);
             }
         break;
+    }
+    return true;
+}
+
+
+// allow for sending CTL+BSP within ALT_T
+bool register_code_user(uint8_t code) {
+    if (KC_TEMP == code) {
+        if (get_mods() & MOD_LSFT) { 
+            del_mods(MOD_LSFT);
+            add_weak_mods(MOD_LCTL);
+            add_key(KC_BSPC);
+            send_keyboard_report();
+            add_mods(MOD_LSFT);
+            return false;
+        }
+        else {
+            add_key(KC_BSPC);
+            send_keyboard_report();
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool unregister_code_user(uint8_t code) {
+    if (KC_TEMP == code) {
+        del_key(KC_BSPC);
+        del_weak_mods(MOD_LCTL);
+        send_keyboard_report();
+        return false;
     }
     return true;
 }
