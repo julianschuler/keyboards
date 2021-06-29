@@ -1,4 +1,5 @@
 # Ergomin
+![Ergomin image](img/ergomin.jpg)
 ## Overview
 The Ergomin is the second keyboard I have built, following the Manuform. It is a 50% split keyboard inspired by the [ErgoDox](https://www.ergodox.io/) but with a focus on minimal finger movements and compact size.
 Like its predecessor and the ErgoDox it features an ergonomic layout with ortholinear (non-staggered) columns. 
@@ -7,7 +8,7 @@ The Ergomin is mainly intended as a cheaper and easier to build version of the M
 
 ## Parts list
 The ergomin uses a PCB to keep wiring neat and simple, despite the PCB and its complementary components the following parts are needed:
-* 48x keyboard switches (Cherry MX, Gatheron, etc.)
+* 48x keyboard switches (Cherry MX, Gateron, etc.)
 * 42x keycaps 1U
 * 6x keycaps 1.5U
 * 6x countersunk head screws M3x8
