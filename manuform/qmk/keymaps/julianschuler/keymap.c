@@ -121,17 +121,16 @@ L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,
                                                     L_ALT,      L_CTRL,                                 R_CTRL,     L_ALT                                                        ),
 
 
-
 /* layer 2: wasd (for gaming)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| ESC  | TAB  |  Q   |  W   |  E   |  R   |                          |  Z   |  U   |  I   |  O   |  P   |  Ü   |
+| ESC  | TAB  |  Q   |  W   |  E   |  R   |                          |      |      |      |      |      |      |
 |______|______|______|______|______|______|   ____________________   |______|______|______|______|______|______|
 |      |      |      |      |      |      |  |      |      |      |  |      |      |      |      |      |      |
-| CTRL | SHFT |  A   |  S   |  D   |  F   |  |      |      |      |  |  H   |  J   |  K   |  L   |  Ö   |  Ä   |
+| CTRL | SHFT |  A   |  S   |  D   |  F   |  |      |      |      |  |      |      |      |      |      |      |
 |______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
 |      |      |      |      |      |      |  |      |      |      |  |      |      |      |      |      |      |
-| ALT  | CTRL |  Y   |  X   |  C   |  V   |  |      |      |      |  |  N   |  M   |  ,   |  .   |  -   |  ß   |
+| ALT  | CTRL |  Y   |  X   |  C   |  V   |  |      |      |      |  |      |      |      |      |      |      |
 |______|______|______|______|______|______|  |______|______|______|  |______|______|______|______|______|______|
                               _____________                          _____________
                              |      |      |                        |      |      |
@@ -146,17 +145,18 @@ L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,
                                |      |      |                    |      |      |
                                |______|______|                    |______|______|  */
 [_WL] = LAYOUT(
-KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA, \
-KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,       _______,    _______,    _______,    DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
-KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,    _______,    _______,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
+KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           _______,    _______,    _______,    _______,    _______,    _______, \
+KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,       _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______, \
+KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______,    _______, \
                                                                                                                                                                                  \
-                                                _______,    _______,                                        _______,    _______,                                                 \
+                                                _______,    KC_SPC,                                         _______,    _______,                                                 \
                                                     _______,    _______,                                _______,    _______,                                                     \
                                                     _______,    _______,                                _______,    _______                                                      ),
 
 
 
-/* layer 2: symbol layer (press symbol layer key to access)
+
+/* layer 3: symbol layer (press symbol layer key to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 |  °   |  *   |  +   |  {   |  }   |  ^   |                          |  \   |  <   |  >   |  =   |  -   |  §   |
@@ -190,7 +190,7 @@ DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QST,     _______,
 
 
 
-/* layer 3: number and movement layer (press number layer key to access)
+/* layer 4: number and movement layer (press number layer key to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 | AGUI | CALT | BSPC |  UP  | DEL  | A_F4 |                          |  *   |  7   |  8   |  9   |  :   |  /   |
@@ -224,7 +224,7 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
 
 
 
-/* layer 4: function keys (press symbol and number layer key together to access)
+/* layer 5: function keys (press symbol and number layer key together to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 | NONE | SLCK | PREV | PLAY | NEXT | WASD |                          | SCOP | BROW | SLIC | UPDT | ORG  | MSC  |

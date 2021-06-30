@@ -4,13 +4,15 @@
 // layer definitions
 #define _VL         0
 #define _QL         1
-#define _SL         2
-#define _NL         3
-#define _FL         4
+#define _WL         2
+#define _SL         3
+#define _NL         4
+#define _FL         5
 
 // layer switching keys
 #define QWERTZ      DF(_QL)
 #define VOU         DF(_VL)
+#define WASD        TG(_WL)
 #define NUM_L       MO(_NL)
 #define SYM_L       MO(_SL)
 #define FN_L        MO(_FL)
@@ -68,13 +70,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                         |      |      |      |      |      |      |      |      |      |
                         | GUI  |      |      |      |      |      |      |      | GUI  |
                         |______| TAB  | SHFT | NUMS |      | SYMS | SPC  | ENTR |______|
-                               |      |      |      |      |      |      |      |      
+                               |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
-/* [_VL] = LAYOUT( */
-/* RESET,      XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX, \ */
-/* XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX, \ */
-/* XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,                XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX, \ */
-                                        /* XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX,        XXXXXXX,    XXXXXXX,    XXXXXXX,    XXXXXXX                                          ), */
 [_VL] = LAYOUT(
 KC_ESC,     DE_V,       DE_DOT,     DE_O,       DE_U,       DE_ADIA,                                        DE_Q,       DE_G,       DE_L,       DE_H,       DE_F,       DE_SS,   \
 BSP_ALT,    DE_C,       DE_A,       DE_E,       DE_I,       DE_UDIA,                                        DE_B,       DE_T,       DE_R,       DE_N,       DE_S,       DE_J,    \
@@ -97,13 +94,37 @@ L_SHIFT,    DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_MPLY,
                         |      |      |      |      |      |      |      |      |      |
                         | GUI  |      |      |      |      |      |      |      | GUI  |
                         |______| TAB  | SHFT | NUMS |      | SYMS | SPC  | ENTR |______|
-                               |      |      |      |      |      |      |      |      
+                               |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_QL] = LAYOUT(
 KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA, \
 BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
 L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,                KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
                                         L_GUI,      TAB_CTL,    L_SHIFT,    NUM_L,          SYM_L,      KC_SPC,     KC_ENT,     L_GUI                                            ),
+
+
+
+/* layer 1: wasd (for gaming)
+ _________________________________________                            _________________________________________
+|      |      |      |      |      |      |                          |      |      |      |      |      |      |
+| ESC  | TAB  |  Q   |  W   |  E   |  R   |                          |      |      |      |      |      |      |
+|______|______|______|______|______|______|                          |______|______|______|______|______|______|
+|      |      |      |      |      |      |                          |      |      |      |      |      |      |
+| CTRL | SHFT |  A   |  S   |  D   |  F   |                          |      |      |      |      |      |      |
+|______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
+|      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
+| ALT  | CTRL |  Y   |  X   |  C   |  V   |      |            |      |      |      |      |      |      |      |
+|______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
+                        |      |      |      |      |      |      |      |      |      |
+                        |      |      |      |      |      |      |      |      |      |
+                        |______|      | SPC  |      |      |      |      |      |______|
+                               |      |      |      |      |      |      |      |
+                               |______|______|______|      |______|______|______| */
+[_WL] = LAYOUT(
+KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           _______,    _______,    _______,    _______,    _______,    _______, \
+KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,                                           _______,    _______,    _______,    _______,    _______,    _______, \
+KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,                _______,    _______,    _______,    _______,    _______,    _______,    _______, \
+                                        _______,    _______,    KC_SPC,     _______,        _______,    _______,    _______,    _______                                          ),
 
 
 
@@ -121,7 +142,7 @@ L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,
                         |      |      |      |      |      |      |      |      |      |
                         |      |      |      |      |      |      |      |      |      |
                         |______| STAB | SPC  |  FN  |      | SYMS |      |      |______|
-                               |      |      |      |      |      |      |      |      
+                               |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_SL] = LAYOUT(
 DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                                        DE_BSLS,    DE_LESS,    DE_MORE,    DE_EQL,     DE_MINS,    DE_PARA, \
@@ -145,7 +166,7 @@ DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QST,     _______,
                         |      |      |      |      |      |      |      |      |      |
                         |      |      |      |      |      |      |      |      | NNBS |
                         |______|      | NONE | NUMS |      |  FN  | SPC  |  0   |______|
-                               |      |      |      |      |      |      |      |      
+                               |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_NL] = LAYOUT(
 ALT_GUI,    CTL_ALT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_SLSH, \
@@ -158,7 +179,7 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
 /* layer 4: function keys (press symbol and number layer key together to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| NONE | SLCK | PREV | PLAY | NEXT | NONE |                          | SCOP | BROW | SLIC | UPDT | ORG  | MSC  |
+| NONE | SLCK | PREV | PLAY | NEXT | WASD |                          | SCOP | BROW | SLIC | UPDT | ORG  | MSC  |
 |______|______|______|______|______|______|                          |______|______|______|______|______|______|
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                          |  F7  |  F8  |  F9  | F10  | F11  | F12  |
@@ -169,10 +190,10 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
                         |      |      |      |      |      |      |      |      |      |
                         | NONE |      |      |      |      |      |      |      | NONE |
                         |______| NONE | NONE |  FN  |      |  FN  | NONE | NONE |______|
-                               |      |      |      |      |      |      |      |      
+                               |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_FL] = LAYOUT(
-XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    XXXXXXX,                                        SCOPE,      BROWSER,    SLICER,     UPDATES,    ORGNZR,     MUSIC,   \
+XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    SLICER,     UPDATES,    ORGNZR,     MUSIC,   \
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,  \
 RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    VOU,        _______,                _______,    QWERTZ,     TERMNL,     EXPLOR,     EDITOR,     SYSTEM,     XXXXXXX, \
                                         XXXXXXX,    XXXXXXX,    XXXXXXX,    FN_L,           FN_L,       XXXXXXX,    XXXXXXX,    XXXXXXX                                          )
