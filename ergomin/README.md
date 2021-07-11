@@ -1,7 +1,7 @@
 # Ergomin
 ![Ergomin image](img/ergomin.jpg)
 ## Overview
-The Ergomin is the second keyboard I have built, following the Manuform. It is a 50% split keyboard inspired by the [ErgoDox](https://www.ergodox.io/) but with a focus on minimal finger movements and compact size.
+The Ergomin is the second keyboard I have built, following the Manuform. It is a 40% split keyboard inspired by the [ErgoDox](https://www.ergodox.io/) but with a focus on minimal finger movements and compact size.
 Like its predecessor and the ErgoDox it features an ergonomic layout with ortholinear (non-staggered) columns. 
 
 The Ergomin is mainly intended as a cheaper and easier to build version of the Manuform that still retains most of the benefits while adding a few of its own.
