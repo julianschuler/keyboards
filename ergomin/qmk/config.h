@@ -11,7 +11,6 @@
 #define MATRIX_COL_PINS { D3, D5, D4, D6, D7, B4 }
 
 #define SECONDARY_ROW_PINS_ARRAY { (1<<7), (1<<4), (1<<3), (1<<2) }
-/* #define SECONDARY_ROW_PINS_ARRAY { (1<<4), (1<<3), (1<<2), (1<<7) } */
 #define DIODE_DIRECTION COL2ROW
 
 
@@ -19,6 +18,10 @@
 #define DEBOUNCE 10
 #define PERMISSIVE_HOLD
 #define IGNORE_MOD_TAP_INTERRUPT
+
+// oneshot settings
+#define ONESHOT_TAP_TOGGLE 2
+#define ONESHOT_TIMEOUT 200
 
 // usb settings
 #define USB_POLLING_INTERVAL_MS 1
@@ -34,6 +37,5 @@
 // disable unused modules
 #define NO_ACTION_MACRO
 #define NO_ACTION_FUNCTION
-#define SOFT_SERIAL_PIN D0
 
 #endif
