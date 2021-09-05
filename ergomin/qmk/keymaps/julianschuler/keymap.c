@@ -44,6 +44,7 @@
 #define TERMNL      LGUI(DE_T)
 #define EXPLOR      KC_MYCM
 #define EDITOR      LGUI(DE_V)
+#define JOURNAL     LGUI(DE_J)
 
 #define KC_TEMP     KC_F22
 #define BSP_ALT     LALT_T(KC_TEMP)
@@ -179,13 +180,13 @@ KC_LSFT,    CTL_SFT,    KC_PSCR,    KC_HOME,    KC_END,     KC_PGDN,    _______,
 /* layer 5: function keys (press symbol and number layer key together to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| NONE | SLCK | PREV | PLAY | NEXT | WASD |                          | SCOP | BROW | MAIL | UPDT | ORG  | MSC  |
+| QWER | SLCK | PREV | PLAY | NEXT | WASD |                          | SCOP | BROW | MAIL | UPDT | ORG  | MSC  |
 |______|______|______|______|______|______|                          |______|______|______|______|______|______|
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
 |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                          |  F7  |  F8  |  F9  | F10  | F11  | F12  |
 |______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
 |      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
-| RST  | PAUS | MUTE | VOLD | VOLU | VOU  |      |            |      | QWER | TERM | EXPL | EDIT | CALC | SLIC |
+| RST  | PAUS | MUTE | VOLD | VOLU | VOU  |      |            |      | CALC | TERM | EXPL | EDIT | JOUR | SLIC |
 |______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
                         |      |      |      |      |      |      |      |      |      |
                         | NONE |      |      |      |      |      |      |      | NONE |
@@ -193,9 +194,9 @@ KC_LSFT,    CTL_SFT,    KC_PSCR,    KC_HOME,    KC_END,     KC_PGDN,    _______,
                                |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_FL] = LAYOUT(
-XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    KC_MAIL,    UPDATES,    ORGNZR,     MUSIC,   \
+QWERTZ,     KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    KC_MAIL,    UPDATES,    ORGNZR,     MUSIC,   \
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,  \
-RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    VOU,        _______,                _______,    QWERTZ,     TERMNL,     EXPLOR,     EDITOR,     KC_CALC,    SLICER,  \
+RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    VOU,        _______,                _______,    KC_CALC,    TERMNL,     EXPLOR,     EDITOR,     JOURNAL,    SLICER,  \
                                         XXXXXXX,    XXXXXXX,    XXXXXXX,    FN_L,           FN_L,       XXXXXXX,    XXXXXXX,    XXXXXXX                                          )
 };
 
