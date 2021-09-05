@@ -13,6 +13,14 @@
 #define SECONDARY_ROW_PINS_ARRAY { (1<<7), (1<<4), (1<<3), (1<<2) }
 #define DIODE_DIRECTION COL2ROW
 
+// usb settings
+#define USB_POLLING_INTERVAL_MS 1
+#define FORCE_NKRO
+#define VENDOR_ID 0xFEED
+#define PRODUCT_ID 0xC6AF
+#define DEVICE_VER 0x0000
+#define PRODUCT Ergomin
+
 
 // timing settings
 #define DEBOUNCE 10
@@ -23,16 +31,12 @@
 #define ONESHOT_TAP_TOGGLE 2
 #define ONESHOT_TIMEOUT 200
 
-// usb settings
-#define USB_POLLING_INTERVAL_MS 1
-#define FORCE_NKRO
-#define VENDOR_ID 0xFEED
-#define PRODUCT_ID 0xC6AF
-#define DEVICE_VER 0x0000
-#define PRODUCT Ergomin
-
 // unicode input mode
 #define UNICODE_SELECTED_MODES UC_LNX
+
+// combo settings
+#define COMBO_VARIABLE_LEN
+#define COMBO_TERM 30
 
 // disable unused modules
 #define NO_ACTION_MACRO
