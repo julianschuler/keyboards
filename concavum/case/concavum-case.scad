@@ -35,7 +35,8 @@ mount_boarder = 5;
 mount_rim = [5, 3];
 
 // key matrix pcb values
-pcb_connector_width = 7;
+pcb_connector_width = 3;
+pcb_straight_conn_width = 5;
 pcb_pad_size = [12, 14];
 
 // switch plate values
@@ -306,12 +307,12 @@ module finger_cluster() {
     d = key_distance.x - keycap_size.x + e;
     dy = key_distance.y;
     h = switch_top_size.z;
-    s = col_range[0];
+    s = -col_range[0];
     mirror([1, 0, 0]) intersection() {
         translate([0, 0, height]) rotate ([0, tenting_angle, 0]) for (i = iter(finger_vals)) {
             vs = finger_vals[i];
-            l = (i == 0) ? true : finger_vals[i - 1][-s][0].z >= finger_vals[i][0][0].z;
-            r = (i == len(finger_vals) - 1) ? true : finger_vals[i][-s][0].z < finger_vals[i + 1][-s][0].z;
+            l = (i == 0) ? true : finger_vals[i - 1][s][0].z >= finger_vals[i][0][0].z;
+            r = (i == len(finger_vals) - 1) ? true : finger_vals[i][s][0].z < finger_vals[i + 1][s][0].z;
             cl = (i == 0) ? 0 : finger_vals[i - 1][0][2] + finger_vals[i][0][2];
             cr = (i == len(finger_vals) - 1) ? 0 : finger_vals[i][0][2] + finger_vals[i + 1][0][2];
             cdl = (h + mount_height) * tan(abs(cl / 2));
@@ -501,10 +502,12 @@ module line(l, w) {
 }
 
 
-module connector(pos1, pos2, w) {
-    r = (pos2.x - pos1.x) / 3;
-    l = pos2.y - pos1.y - r;
-    translate(pos1) {
+module connector(pcb_pos, ppcb_pos, w, left=true) {
+    pos1 = ((left) ? pcb_pos : ppcb_pos) + [((left) ? -1 : 1) * pcb_pad_size.x / 2, pcb_pad_size.y / 2 - w / 2];
+    pos2 = ((left) ? ppcb_pos : pcb_pos) + [((left) ? 1 : -1) * (pcb_pad_size.x / 2 - w / 2), -pcb_pad_size.y / 2];
+    r = abs(pos1.x - pos2.x) / 3;
+    l = abs(pos2.y - pos1.y) - r;
+    translate(pos1) mirror([(left) ? 1 : 0, 0, 0]) {
         translate([0, -r]) arc(r, w);
         translate([r, -r - l]) line(l, w);
         translate([2 * r, -r - l]) arc(r, w, true, 180);
@@ -522,15 +525,13 @@ module pcb_outline() {
             if (a != 0) {
                 conn_l = ps[s].x - pcb_vals[i - 1][s].x - pcb_pad_size.x + 2 * e;
                 conn_x = -pcb_pad_size.x / 2 + e;
-                translate(pcb_vals[i-1][s] - [conn_x, pcb_connector_width / 2]) {
-                    square([conn_l, pcb_connector_width]);
+                translate(pcb_vals[i-1][s] - [conn_x, pcb_straight_conn_width / 2]) {
+                    square([conn_l, pcb_straight_conn_width]);
                 }
             }
-            else if (finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z) {
-                
-            }
             else {
-                
+                left = finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z;
+                connector(ps[s], pcb_vals[i - 1][s], pcb_connector_width, left);
             }
         }
         for (j = iter(vs)) {
@@ -542,16 +543,13 @@ module pcb_outline() {
             pcb_pos = ps[j];
             ppcb_pos = ps[min(j + 1, len(vs) - 1)];
             conn_l = ppcb_pos.y - pcb_pos.y - pcb_pad_size.y + 2 * e;
-            conn_x = (-pcb_connector_width + ppcb_pos.x - pcb_pos.x) / 2;
-            *translate(pos1) rotate([0, a1, 0]) translate(pos2) rotate([a2, 0, 0]) {
-                key();
-            }
+            conn_x = (-pcb_straight_conn_width + ppcb_pos.x - pcb_pos.x) / 2;
             translate(pcb_pos) {
                 difference() {
                     union() {
                         square(pcb_pad_size, center=true);
                         translate([conn_x, pcb_pad_size.y / 2 - e, 0]) {
-                            square([pcb_connector_width, conn_l]);
+                            square([pcb_straight_conn_width, conn_l]);
                         }
                     }
                     circle(d=4);
@@ -566,5 +564,6 @@ if (build_case) {
     case();
 }
 else {
+    /* linear_extrude(0.6) */
     pcb_outline();
 }
