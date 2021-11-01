@@ -37,7 +37,7 @@ mount_rim = [5, 3];
 // key matrix pcb values
 pcb_connector_width = 3;
 pcb_straight_conn_width = 5;
-pcb_pad_size = [12, 14];
+pcb_pad_size = [12.5, 14];
 
 // switch plate values
 plate_thickness = 2;
@@ -174,8 +174,8 @@ pcb_vals = [for (i = iter(finger_vals)) let (
     vs = finger_vals[i],
     kx = key_distance.x,
     ky = key_distance.y,
-    sy = switch_bottom_size.y,
-    sx = switch_bottom_size.x,
+    sy = pcb_pad_size.y,
+    sx = pcb_pad_size.x,
     a1 = finger_rotation[i],
     a2 = finger_angles[i],
     c1 = (a1 == 0) ? 0 : (kx - sx) / 2 / tan(abs(a1 / 2)),
@@ -191,6 +191,18 @@ pcb_vals = [for (i = iter(finger_vals)) let (
         )
             [dx + pos2.x, dy + pos1.y, pos1.z * 0]
         ]
+    ];
+
+pcb_thumb_vals = [for (i = iter(thumb_vals)) let (
+    h = switch_top_size.z + switch_bottom_size.z,
+    ky = key_distance.y,
+    sy = pcb_pad_size.y,
+    sx = pcb_pad_size.x,
+    a = thumb_angle,
+    r = (a == 0) ? 0 : (ky - sy) / 2 / tan(abs(a / 2)) + h,
+    dy = (sy + (PI * r * a / 180)) * (i + thumb_range[0])
+    )
+        [0, dy]
     ];
 
 
@@ -486,6 +498,19 @@ module case() {
 }
 
 
+module pcb_pad_with_connector(conn_l, conn_x, conn_y) {
+    difference() {
+        union() {
+            square(pcb_pad_size, center=true);
+            translate([conn_x, conn_y]) {
+                square([pcb_straight_conn_width, conn_l]);
+            }
+        }
+        circle(d=4);
+    }
+}
+
+
 module arc(r, w, half=false, angle=0) {
     rotate([0, 0, angle]) intersection() {
         difference() {
@@ -516,6 +541,7 @@ module connector(pcb_pos, ppcb_pos, w, left=true) {
 
 
 module pcb_outline() {
+    // finger section
     mirror([1, 0, 0]) for (i = iter(finger_vals)) {
         vs = finger_vals[i];
         ps = pcb_vals[i];
@@ -541,21 +567,24 @@ module pcb_outline() {
             a1 = v[2];
             a2 = v[3];
             pcb_pos = ps[j];
-            ppcb_pos = ps[min(j + 1, len(vs) - 1)];
-            conn_l = ppcb_pos.y - pcb_pos.y - pcb_pad_size.y + 2 * e;
+            ppcb_pos = ps[max(j - 1, 0)];
+            conn_l = pcb_pos.y - ppcb_pos.y - pcb_pad_size.y + 2 * e;
             conn_x = (-pcb_straight_conn_width + ppcb_pos.x - pcb_pos.x) / 2;
-            translate(pcb_pos) {
-                difference() {
-                    union() {
-                        square(pcb_pad_size, center=true);
-                        translate([conn_x, pcb_pad_size.y / 2 - e, 0]) {
-                            square([pcb_straight_conn_width, conn_l]);
-                        }
-                    }
-                    circle(d=4);
-                }
-            }
+            conn_y = -conn_l - pcb_pad_size.y / 2 + e;
+            translate(pcb_pos) pcb_pad_with_connector(conn_l, conn_x, conn_y);
         }
+    }
+    // thumb section
+    translate([thumb_offset.x, thumb_offset.y]) 
+    /* rotate(thumb_rotation) */
+    rotate([0, 0, thumb_rotation.z])
+    for (i = iter(pcb_thumb_vals)) {
+        pos = pcb_thumb_vals[i];
+        ppos = pcb_thumb_vals[max(i - 1, 0)];
+        conn_l = pos.y - ppos.y - pcb_pad_size.y + 2 * e;
+        conn_x = -pcb_straight_conn_width / 2;
+        conn_y = -conn_l - pcb_pad_size.y / 2 + e;
+        translate(pos) pcb_pad_with_connector(conn_l, conn_x, conn_y);
     }
 }
 
