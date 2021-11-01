@@ -23,7 +23,7 @@
 
 
 // timing settings
-#define DEBOUNCE 10
+#define DEBOUNCE 15
 #define PERMISSIVE_HOLD
 #define IGNORE_MOD_TAP_INTERRUPT
 
@@ -36,7 +36,7 @@
 
 // combo settings
 #define COMBO_VARIABLE_LEN
-#define COMBO_TERM 30
+#define COMBO_TERM 25
 
 // disable unused modules
 #define NO_ACTION_MACRO
