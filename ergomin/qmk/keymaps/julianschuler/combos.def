@@ -33,12 +33,12 @@ COMB(grave,     DE_GRV,     DE_V, DE_DOT)   /*  `    */
 COMB(tilde,     DE_TILD,    DE_H, DE_F)     /*  ~    */
 
 // lower row
-COMB(zero,      DE_0,       DE_COMM, DE_Y)  /*  0    */
-COMB(one,       DE_1,       DE_D, DE_W)     /*  1    */
-COMB(l_brc,     DE_LBRC,    DE_X, DE_COMM)  /*  [    */
-COMB(r_brc,     DE_RBRC,    DE_W, DE_M)     /*  ]    */
-COMB(two,       DE_2,       DE_X, DE_Y)     /*  2    */
-COMB(three,     DE_3,       DE_D, DE_M)     /*  3    */
+COMB(l_brc,     DE_LBRC,    DE_COMM, DE_Y)  /*  [    */
+COMB(r_brc,     DE_RBRC,    DE_D, DE_W)     /*  ]    */
+COMB(zero,      DE_0,       DE_X, DE_Y)     /*  0    */
+COMB(one,       DE_1,       DE_D, DE_M)     /*  1    */
+COMB(two,       DE_2,       DE_X, DE_COMM)  /*  2    */
+COMB(three,     DE_3,       DE_W, DE_M)     /*  3    */
 COMB(four,      DE_4,       DE_Z, DE_Y)     /*  4    */
 COMB(five,      DE_5,       DE_D, DE_K)     /*  5    */
 COMB(six,       DE_6,       DE_Z, DE_COMM)  /*  6    */
