@@ -217,7 +217,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_BSPC:
             if ((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) {
                 if (record->event.pressed) {
+                    unregister_code(KC_LSFT);
                     register_code16(LCTL(KC_BSPC));
+                    register_code(KC_LSFT);
                 }
                 else {
                     unregister_code16(LCTL(KC_BSPC));
