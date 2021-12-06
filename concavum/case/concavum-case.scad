@@ -81,8 +81,8 @@ switch_color = [0.9, 0.9, 0.9, 1];
 pcb_color = [0.1, 0.1, 0.1, 1];
 
 // rendering options
-e = 0.1;
-$fa = 6;
+e = 0.01;
+$fa = 3;
 $fs = 0.01;
 
 
@@ -565,9 +565,9 @@ module arc(r, w, angle=90) {
             circle(r=r + w / 2);
             circle(r=r - w / 2);
         }
-        translate([r / 2 + w / 2 + e, -e])
+        translate([r / 2 + w / 2 - e, e])
             square([r + w + 2 * e, 2 * r + w + 2 * e], center=true);
-        rotate([0, 0, -angle]) translate([-r / 2 - w / 2 - e, -e])
+        rotate([0, 0, -angle]) translate([-r / 2 - w / 2 + e, e])
             square([r + w + 2 * e, 2 * r + w + 2 * e], center=true);
     }
 }
