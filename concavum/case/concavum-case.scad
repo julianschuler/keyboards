@@ -20,7 +20,6 @@ thumb_range = [-1 : 1];
 
 // finger well curvature, side rotation, offset relative to the first value and chamfer
 finger_angles = [20, 20, 20, 20, 20, 20];
-/* finger_angles = [20, 1, 20, 20, 20, 20]; */
 finger_rotation = [20, 0, 0, 0, 0, -20];
 finger_offset = [[0, 0, 0], [0, 0, 0], [0, 0, -5], [0, 0, 0], [0, -20, 5], [0, -20, 5]];
 /* finger_offset = [[0, 0, 0], [0, 0, 0], [0, 0, -3], [0, 0, 0], [0, -20, 5], [0, -20, 5]]; */
@@ -268,6 +267,7 @@ thumb_connector_vals = let(
     // angles
     a = thumb_rotation.z,
     b = f_val[3],
+    c = thumb_rotation.y,
     d = t_val[1],
     // value calculations
     dy = pcb_pad_size.y / 2,
@@ -278,7 +278,7 @@ thumb_connector_vals = let(
     t_pos = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off),
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
-    r = (abs(diff.y) * sin(a) - abs(diff.x) * cos(a)) / (1 + sin(a - beta) * (1 - cos(a)) / sin(beta)),
+    r = (abs(diff.y) * sin(a) - abs(diff.x) * cos(a)) / (cos(c) + sin(a - beta) * (1 - cos(a)) / sin(beta)),
     f = r * tan(a / 2),
     f_arc = f_pos + rotate_pos([b, 0, 0], [f * sin(a), -f * (1 + cos(a)), 0]),
     t_arc = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off + [r, r * cos(d), r * sin(d)]),
@@ -291,7 +291,7 @@ thumb_connector_vals = let(
         [bx - bx / 2 * cos(thumb_rotation.x + d), bd.z + bx / 2 * sin(thumb_rotation.x + d)],
         [bx, bd.z]
     ]
-    ) [r, a, b, d, bezier_points, f_pos, t_pos, f_arc, f_val, t_val];
+    ) [r, a, b, c, d, bezier_points, f_pos, t_pos, f_arc, f_val, t_val];
 
 
 
@@ -653,7 +653,8 @@ module thumb_connector() {
     r = thumb_connector_vals[0];
     a = thumb_connector_vals[1];
     b = thumb_connector_vals[2];
-    d = thumb_connector_vals[3];
+    c = thumb_connector_vals[3];
+    d = thumb_connector_vals[4];
     bezier_points = thumb_connector_vals[4];
 }
 
@@ -662,13 +663,14 @@ module thumb_connector_visualisation() {
     r = thumb_connector_vals[0];
     a = thumb_connector_vals[1];
     b = thumb_connector_vals[2];
-    d = thumb_connector_vals[3];
-    bezier_points = thumb_connector_vals[4];
-    f_pos = thumb_connector_vals[5];
-    t_pos = thumb_connector_vals[6];
-    f_arc = thumb_connector_vals[7];
-    f_val = thumb_connector_vals[8];
-    t_val = thumb_connector_vals[9];
+    c = thumb_connector_vals[3];
+    d = thumb_connector_vals[4];
+    bezier_points = thumb_connector_vals[5];
+    f_pos = thumb_connector_vals[6];
+    t_pos = thumb_connector_vals[7];
+    f_arc = thumb_connector_vals[8];
+    f_val = thumb_connector_vals[9];
+    t_val = thumb_connector_vals[10];
 
     // arcs
     translate(f_pos)
@@ -684,7 +686,7 @@ module thumb_connector_visualisation() {
     translate(f_arc) rotate(a - 90) {
         for (t = [0 : 0.005 : 1]) {
             pos = bezier_point(t, bezier_points);
-            angle = (thumb_rotation.y - b) * t + b;
+            angle = (-c - b) * t + b;
             translate([pos[0], 0, pos[1]]) rotate([angle, 0])
             translate([0, 0, -pcb_thickness / 2])
                 cube([0.2, thumb_connector_width, pcb_thickness], center=true);
