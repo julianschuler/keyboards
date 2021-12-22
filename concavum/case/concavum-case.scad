@@ -257,7 +257,7 @@ pcb_thumb_vals = [for (i = iter(thumb_vals)) let (
     r = (a == 0) ? 0 : (ky - sy) / 2 / tan(abs(a / 2)) + h,
     dy = (sy + (PI * r * a / 180)) * (i + thumb_range[0])
     )
-        [0, dy]
+        [0, dy, 0]
     ];
 
 thumb_connector_vals = let(
@@ -637,28 +637,6 @@ module connector(pcb_pos, ppcb_pos, w, left=true) {
 }
 
 
-/* module thumb_connector(t_pos, f_pos, t_angle, w) { */
-/*     d = f_pos - t_pos; */
-/*     r = (d.x * tan(t_angle) - d.y) / (tan(t_angle) - 2 / cos(t_angle)); */
-/*     l = 2 * r * tan(t_angle) + (d.x - r) / cos(t_angle) - r; */
-/*     translate(t_pos) { */
-/*         rotate(t_angle + 90) translate([0, -r]) arc(r, w); */
-/*         rotate(t_angle - 90) translate([-r, r]) line(l, w); */
-/*     } */
-/*     translate(f_pos + [-r, 0]) rotate(-90) arc(r, w, 90 - t_angle); */
-/* } */
-
-
-module thumb_connector() {
-    r = thumb_connector_vals[0];
-    a = thumb_connector_vals[1];
-    b = thumb_connector_vals[2];
-    c = thumb_connector_vals[3];
-    d = thumb_connector_vals[4];
-    bezier_points = thumb_connector_vals[4];
-}
-
-
 module thumb_connector_visualisation() {
     r = thumb_connector_vals[0];
     a = thumb_connector_vals[1];
@@ -738,11 +716,28 @@ module pcb_outline() {
     // with a bezier curve and calculate resulting length offset.
     // Bezier curve control points were empirically chosen to reduce curvature
     // while following the given constraints (see bending_approximation.py).
-    // TODO: Implement actual calculations
-    len_off = 0;
+    r = thumb_connector_vals[0];
+    a = thumb_connector_vals[1];
+    b = thumb_connector_vals[2];
+    c = thumb_connector_vals[3];
+    d = thumb_connector_vals[4];
+    bezier_points = thumb_connector_vals[5];
+    conn_l = bezier_curve_length(20, bezier_points);
+    w = thumb_connector_width;
+    f = a + 180;
+    ps = pcb_pad_size;
+    pos = pcb_vals[finger_anker_index.x][finger_anker_index.y] - [0, ps.y / 2];
+    f_pos = [-pos.x, pos.y];
+    f_arc = f_pos + [r * (1 - cos(a)), -r * sin(a)];
+    t_pos = f_arc + rotate_pos([0, 0, f], [r, conn_l + r, 0]);
+    t_off = t_pos + rotate_pos([0, 0, f],
+        pcb_thumb_vals[thumb_anker_index] + [ps.x / 2, 0, 0]);
+    // thumb connector
+    translate(f_pos) rotate(90) translate([0, -r]) flip_x() arc(r, w, a);
+    translate(f_arc) rotate(f) line(conn_l, w);
+    translate(t_pos) rotate(f) translate([0, -r]) flip_x() arc(r, w);
     // thumb cluster
-    translate([thumb_offset.x, thumb_offset.y])
-    rotate(thumb_rotation.z) translate([0, -len_off])
+    translate(t_off) rotate(a)
     for (i = iter(pcb_thumb_vals)) {
         pos = pcb_thumb_vals[i];
         ppos = pcb_thumb_vals[max(i - 1, 0)];
@@ -751,17 +746,6 @@ module pcb_outline() {
         conn_y = -conn_l - pcb_pad_size.y / 2 + e;
         translate(pos) pcb_pad_with_connector(conn_l, conn_x, conn_y);
     }
-    // thumb connector
-    a = thumb_rotation.z;
-    ps = pcb_pad_size;
-    w = thumb_connector_width;
-    f_pos = pcb_vals[finger_anker_index.x][finger_anker_index.y] - [0, ps.y] / 2;
-    t_off = [thumb_offset.x, thumb_offset.y];
-    t_val = pcb_thumb_vals[thumb_anker_index] + [ps.x, -2 * len_off] / 2;
-    t_pos = [-t_off.x - t_val.x * cos(a) + t_val.y * sin(a),
-              t_off.y + t_val.x * sin(a) + t_val.y * cos(a)];
-    pos = pcb_thumb_vals[thumb_anker_index];
-    /* flip_x() thumb_connector(t_pos, f_pos, 90 - a, w); */
 }
 
 
