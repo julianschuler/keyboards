@@ -31,7 +31,7 @@ finger_offset = [
 ];
 
 // thumb well curvature, offset and rotation
-thumb_angle = 20;
+thumb_angle = 15;
 thumb_rotation = [30, 0, 80];
 /* thumb_offset = [16, -50, 10] - [key_distance.x, 0, 0]; */
 thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
@@ -39,7 +39,7 @@ thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
 // finger and thumb chamfer depths and rim values
 finger_chamfer = [0, 5.5, 7, 7];
 finger_rim = 6;
-thumb_chamfer = [9, 9, 7, 9];
+thumb_chamfer = [6, 6, 7, 9];
 
 // keyboard tenting angle and other values
 tenting_angle = 20;
@@ -62,7 +62,7 @@ thumb_anker_index = 0;
 /* thumb_anker_offset = 0; */
 
 // switch plate values
-plate_thickness = 2;
+shell_thickness = 2.01;
 plate_indent = 1.5;
 
 // nut and bolt values
@@ -371,7 +371,7 @@ module interface_pcb() {
     if (show_pcb && $preview) {
         pos = mount_points[i_pcb_mount_point_index];
         x = -pos.x;
-        y = pos.y - i_pcb_size.y / 2 - plate_thickness;
+        y = pos.y - i_pcb_size.y / 2 - shell_thickness;
         z = i_pcb_size.z / 2;
         color(interface_pcb_color) translate([x, y, z] + i_pcb_offset)
             cube(i_pcb_size, center=true);
@@ -380,9 +380,9 @@ module interface_pcb() {
 
 
 module switch_cutout() {
-    cube(switch_bottom_size + [0, 0, 2 * plate_thickness], center=true);
-    translate([0, 0, -plate_thickness / 2 - plate_indent])
-        cube([switch_bottom_size[0], switch_top_size[0], plate_thickness],
+    cube(switch_bottom_size + [0, 0, 2 * shell_thickness], center=true);
+    translate([0, 0, -shell_thickness / 2 - plate_indent])
+        cube([switch_bottom_size[0], switch_top_size[0], shell_thickness],
             center=true);
 }
 
@@ -416,10 +416,10 @@ module port_cutouts(left=true) {
     o = usb_offset;
     jr = jack_radius;
     jo = jack_offset;
-    h = plate_thickness + 2 * e;
+    h = shell_thickness + 2 * e;
     pos = mount_points[i_pcb_mount_point_index];
     x = -pos.x;
-    y = pos.y - plate_thickness / 2;
+    y = pos.y - shell_thickness / 2;
     z = i_pcb_size.z;
     translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0, 0]) if (left) {
         translate([jo[0] - o, 0, 0]) minkowski() {
@@ -545,7 +545,7 @@ module thumb_cluster() {
 module nut_holder(angle=0) {
     h = nut_rim[0] + nut_height;
     w = nut_width + 2 * nut_rim[1];
-    t = max(plate_thickness, nut_rim[1]) + nut_width / 2;
+    t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
     rotate([0, 0, angle]) translate([0, -t, 0]) difference() {
         union() {
             cylinder(h, d=w / cos(30), $fn=6);
@@ -578,9 +578,9 @@ module i_pcb_holder() {
     h2 = h1 + i_pcb_size.z;
     pos = mount_points[i_pcb_mount_point_index];
     x1 = -pos.x + i_pcb_offset.x;
-    x2 = -mount_points[0].x;
-    y1 = pos.y + l1 / 2 - plate_thickness + i_pcb_offset.y - i_pcb_size.y;
-    y2 = pos.y - i_pcb_size.y - plate_thickness + i_pcb_offset.y - l2 / 2;
+    x2 = -mount_points[0].x + shell_thickness / 2;
+    y1 = pos.y + l1 / 2 - shell_thickness + i_pcb_offset.y - i_pcb_size.y;
+    y2 = pos.y - i_pcb_size.y - shell_thickness + i_pcb_offset.y - l2 / 2;
     w1 = i_pcb_size.x / 3;
     w2 = x2 - x1 + w1 / 2;
     translate([x1, y1, h1 / 2]) cube([w1, l1 + 2 * e, h1], center=true);
@@ -593,7 +593,7 @@ module mount(left=true) {
         difference() {
             // main body
             union() {
-                shell(plate_thickness) union() {
+                shell(shell_thickness) union() {
                     finger_cluster();
                     thumb_cluster();
                 }
