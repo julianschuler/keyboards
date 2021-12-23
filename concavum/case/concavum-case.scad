@@ -1,17 +1,16 @@
-// decide whether to build case or key matrix pcb outline
+// select whether to build case or key matrix pcb outline
 build_case = true;
-/* build_case = false; */
 
-// decide whether to show keys and interface pcb and calculate shell during case preview
+// select whether to show keys and interface pcb and
+// whether to calculate shell during case preview
 show_keys = true;
 show_pcb = true;
-/* calculate_shell = false; */
 calculate_shell = true;
 
 // if true, show a visualisation of the bending of the pcb thumb connector
 visualize_bending = true;
 // number of segments used to visualize the bending segment
-bending_visualisation_segs = 200;
+bending_visualisation_segs = 500;
 
 // distance between neighbouring keys
 key_distance = [19.05, 19.05];
@@ -23,9 +22,6 @@ thumb_range = [-1 : 1];
 // finger well curvature, side rotation and offset relative to the first value
 finger_angles = [20, 20, 20, 20, 20, 20];
 finger_rotation = [20, 0, 0, 0, 0, -20];
-/* finger_offset = [ */
-/*     [0, 0, 0], [0, 0, 0], [0, 0, -5], [0, 0, 0], [0, -20, 5], [0, -20, 5] */
-/* ]; */
 finger_offset = [
     [0, 0, 0], [0, 0, 0], [0, 0, -3], [0, 0, 0], [0, -20, 5], [0, -20, 5]
 ];
@@ -33,7 +29,6 @@ finger_offset = [
 // thumb well curvature, offset and rotation
 thumb_angle = 15;
 thumb_rotation = [30, 0, 80];
-/* thumb_offset = [16, -50, 10] - [key_distance.x, 0, 0]; */
 thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
 
 // finger and thumb chamfer depths and rim values
@@ -58,8 +53,8 @@ m_pcb_thickness = 0.6;
 thumb_connector_width = 3;
 finger_anker_index = [2, 0];
 thumb_anker_index = 0;
-/* finger_anker_offset = 10; */
-/* thumb_anker_offset = 0; */
+finger_anker_offset = (m_pcb_pad_size.x - thumb_connector_width) / 2;
+thumb_anker_offset = 0;
 
 // switch plate values
 shell_thickness = 2.01;
@@ -289,8 +284,8 @@ thumb_connector_vals = let(
     f_off = [
         -f_val[0].x - f_val[1].x, f_val[0].y + f_val[1].y, f_val[0].z + f_val[1].z
     ],
-    f_pos = f_off + rotate_pos([b, 0, 0], [0, -dy, -dz]),
-    t_off = [m_pcb_pad_size.x / 2, dz * sin(d), -dz * cos(d)],
+    f_pos = f_off + rotate_pos([b, 0, 0], [finger_anker_offset, -dy, -dz]),
+    t_off = rotate_pos([d, 0, 0], [m_pcb_pad_size.x / 2, -thumb_anker_offset, -dz]),
     t_pos = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off),
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
@@ -778,11 +773,11 @@ module matrix_pcb_outline() {
     f = a + 180;
     ps = m_pcb_pad_size;
     pos = m_pcb_vals[finger_anker_index.x][finger_anker_index.y] - [0, ps.y / 2];
-    f_pos = [-pos.x, pos.y];
+    f_pos = [-pos.x + finger_anker_offset, pos.y];
     f_arc = f_pos + [r * (1 - cos(a)), -r * sin(a)];
     t_pos = f_arc + rotate_pos([0, 0, f], [r, conn_l + r, 0]);
     t_off = t_pos + rotate_pos([0, 0, f],
-        m_pcb_thumb_vals[thumb_anker_index] + [ps.x / 2, 0, 0]);
+        m_pcb_thumb_vals[thumb_anker_index] + [ps.x / 2, -thumb_anker_offset, 0]);
     // thumb connector
     translate(f_pos) rotate(90) translate([0, -r]) flip_x() arc(r, w, a);
     translate(f_arc) rotate(f) line(conn_l, w);
@@ -805,12 +800,10 @@ if (build_case) {
     case();
 }
 else if ($preview) {
-    translate([0, 0, -switch_bottom_size.z - m_pcb_thickness])
     color(matrix_pcb_color) linear_extrude(m_pcb_thickness)
     matrix_pcb_outline();
-
-    thumb_connector_visualisation();
-    keys();
+    translate([0, 0, -thumb_connector_vals[8].z + switch_bottom_size.x / 2])
+        thumb_connector_visualisation();
 }
 else {
     matrix_pcb_outline();
