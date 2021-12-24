@@ -796,15 +796,20 @@ module matrix_pcb_outline() {
 
 
 
+// build case
 if (build_case) {
     case();
 }
+// show preview of the matrix pcb
 else if ($preview) {
     color(matrix_pcb_color) linear_extrude(m_pcb_thickness)
     matrix_pcb_outline();
     translate([0, 0, -thumb_connector_vals[8].z + switch_bottom_size.x / 2])
         thumb_connector_visualisation();
 }
+// 2D render version of the matrix pcb outline
 else {
+    // output pcb vals for automatic pcb generation
+    echo(m_pcb_vals)
     matrix_pcb_outline();
 }
