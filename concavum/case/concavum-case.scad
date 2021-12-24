@@ -1,8 +1,8 @@
 // select whether to build case or key matrix pcb outline
 build_case = true;
 
-// select whether to show keys and interface pcb and
-// whether to calculate shell during case preview
+// select whether to show the keys and interface pcb and
+// whether to calculate the shell during case preview
 show_keys = true;
 show_pcb = true;
 calculate_shell = true;
@@ -11,6 +11,13 @@ calculate_shell = true;
 visualize_bending = true;
 // number of segments used to visualize the bending segment
 bending_visualisation_segs = 500;
+
+// shell thickness and $fn value for the shell calculation:
+// The shell calculation may fail for certain combinations, you may need
+// to adjust shell_fn to make it work. Keep in mind that higher values will
+// increase the calculation time significantly.
+shell_thickness = 2;
+shell_fn = 15;
 
 // distance between neighbouring keys
 key_distance = [19.05, 19.05];
@@ -51,32 +58,52 @@ m_pcb_thickness = 0.6;
 
 // thumb connector values
 thumb_connector_width = 3;
-finger_anker_index = [2, 0];
-thumb_anker_index = 0;
-finger_anker_offset = (m_pcb_pad_size.x - thumb_connector_width) / 2;
-thumb_anker_offset = 0;
+finger_anchor_index = [2, 0];
+thumb_anchor_index = 0;
+finger_anchor_offset = (m_pcb_pad_size.x - thumb_connector_width) / 2;
+thumb_anchor_offset = 0;
 
-// switch plate values
-shell_thickness = 2.01;
-plate_indent = 1.5;
+// polygon indices to specify where the nut holders are to be added
+// format: [i, rotation, offset]
+nut_values = [
+    [5, 0, 3], [11, 0, 5.5], [8, 180, 7]
+];
 
-// nut and bolt values
+// finger indices where extra width is to be added
+// format: [col, row, extra_width_amount]
+extra_widths = [
+    [4, 0, -key_distance.x], [3, 2, 2 * key_distance.x], [3, 3, 2 * key_distance.x]
+];
+
+// colors
+keycap_color = "#333333";
+switch_color = "#E6E6E6";
+matrix_pcb_color = "#167A24";
+interface_pcb_color = "#1A1A1A";
+
+// rendering options (sensible defaults for 3D printings)
+e = 0.01;
+$fa = 3;
+$fs = 0.01;
+
+// nut and bolt values (shouldn't have to be changed)
 bolt_diameter = 3.2;
 nut_width = 5.5;
 nut_height = 2.8;
 nut_rim = [1.5, 2];
 
-// keycap and switch values (shouldn't be changed normally)
+// keycap and switch values (shouldn't have to be changed)
 keycap_size = [18.4, 12.3, 7.7];
 switch_top_size = [15.6, 10, 6.6];
 switch_bottom_size = [14, 14, 5];
+plate_indent = 1.5;
 
-// interface pcb values (shouldn't be changed normally)
+// interface pcb values (shouldn't have to be changed)
 i_pcb_size = [29, 40, 1.6];
 i_pcb_offset = [0, 0, 2];
 i_pcb_mount_point_index = 3;
 
-// port values (shouldn't be changed normally)
+// port values (shouldn't have to be changed)
 usb_width = 9.2;
 usb_height = 3.4;
 usb_radius = 1.1;
@@ -85,33 +112,10 @@ jack_radius = 3.1;
 jack_offset = [5.8, 0.55];
 port_offset = [4.5, 0, 1.7];
 
-// colors
-keycap_color = "#333333";
-switch_color = "#E6E6E6";
-matrix_pcb_color = "#167A24";
-interface_pcb_color = "#1A1A1A";
-
-// rendering options
-e = 0.01;
-$fa = 3;
-$fs = 0.01;
-
-
-nut_values = [
-    [5, 0, 3], [11, 0, 5.5], [8, 180, 7]
-];
-
-
-extra_widths = [
-    [4, 0, -key_distance.x], [3, 2, 2 * key_distance.x]
-];
-
 
 function iter(list) = [0 : len(list) - 1];
 
-
 function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i + 1);
-
 
 function rotate_pos(angles, pos) = let(
     sx = sin(angles.x),
@@ -129,12 +133,10 @@ function rotate_pos(angles, pos) = let(
     -sy * px + cy * sx * py + cy * cx * pz
 ];
 
-
-function extra_width(i, j) = [for (e = extra_widths) if (e[0] == i && e[1] == j) e[2], 0][0];
-
+function extra_width(i, j) = [for (e = extra_widths)
+    if (e[0] == i && e[1] == j) e[2], 0][0];
 
 function lerp(t, p0, p1) = (p1 - p0) * t + p0;
-
 
 function bezier_point(t, p) = let (
     p4 = lerp(t, p[0], p[1]),
@@ -144,8 +146,6 @@ function bezier_point(t, p) = let (
     p8 = lerp(t, p5, p6)
     )
         lerp(t, p7, p8);
-
-
 
 function bezier_curve_length(steps, p) =
     let (step_size = 1 / steps)
@@ -197,32 +197,25 @@ thumb_vals = [for (j = thumb_range) let (
         [[0, y2, z2], b2, md]
     ];
 
-
 mount_points = [for (i = [0 : len(finger_vals)]) let (
     l = len(finger_vals),
     dx = key_distance.x / 2,
     dy = key_distance.y / 2 + mount_boarder,
-
     vs = finger_vals[min(i, l - 1)],
     pvs = finger_vals[max(i - 1, 0)],
-
     m = len(vs) - 1,
-
     pos01 = vs[0][0],
     pos02 = vs[0][1],
     posm1 = vs[m][0],
     posm2 = vs[m][1],
-
     ppos01 = pvs[0][0],
     ppos02 = pvs[0][1],
     pposm1 = pvs[m][0],
     pposm2 = pvs[m][1],
-
     x0 = pos01.x + pos02.x + ((i == l) ? dx : -dx),
     y0 = min(pos01.y, ppos01.y) + min(pos02.y, ppos02.y) - dy,
     xm = posm1.x + posm2.x + ((i == l) ? dx : -dx),
     ym = max(posm1.y, pposm1.y) + max(posm2.y, pposm2.y) + dy
-
     ) each
         [[x0, y0], [xm, ym]]
     ];
@@ -231,7 +224,6 @@ mount_path = [[
     each [0 : 2 : 2 * (len(finger_vals))],
     each [2 * len(finger_vals) + 1 : -2 : 1]
 ]];
-
 
 m_pcb_vals = [for (i = iter(finger_vals)) let (
     h = switch_top_size.z + switch_bottom_size.z,
@@ -271,8 +263,8 @@ m_pcb_thumb_vals = [for (i = iter(thumb_vals)) let (
 
 thumb_connector_vals = let(
     // values for connector endpoints
-    f_val = finger_vals[finger_anker_index.x][finger_anker_index.y],
-    t_val = thumb_vals[thumb_anker_index],
+    f_val = finger_vals[finger_anchor_index.x][finger_anchor_index.y],
+    t_val = thumb_vals[thumb_anchor_index],
     // angles
     a = thumb_rotation.z,
     b = f_val[3],
@@ -284,8 +276,8 @@ thumb_connector_vals = let(
     f_off = [
         -f_val[0].x - f_val[1].x, f_val[0].y + f_val[1].y, f_val[0].z + f_val[1].z
     ],
-    f_pos = f_off + rotate_pos([b, 0, 0], [finger_anker_offset, -dy, -dz]),
-    t_off = rotate_pos([d, 0, 0], [m_pcb_pad_size.x / 2, -thumb_anker_offset, -dz]),
+    f_pos = f_off + rotate_pos([b, 0, 0], [finger_anchor_offset, -dy, -dz]),
+    t_off = rotate_pos([d, 0, 0], [m_pcb_pad_size.x / 2, -thumb_anchor_offset, -dz]),
     t_pos = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off),
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
@@ -295,7 +287,10 @@ thumb_connector_vals = let(
     f_arc = f_pos + rotate_pos([b, 0, 0], [f * sin(a), -f * (1 + cos(a)), 0]),
     t_arc = thumb_offset
         + rotate_pos(thumb_rotation, t_val[0] + t_off + [r, r * cos(d), r * sin(d)]),
-    // bezier curve points
+    // Approximate bending of the connector between thumb and finger cluster
+    // with a bezier curve and calculate resulting length offset.
+    // Bezier curve control points were empirically chosen to reduce curvature
+    // while following the given constraints (see bending_approximation.py).
     bd = t_arc - f_arc,
     bx = sin(a) * bd.x - cos(a) * bd.y,
     bezier_points = [
@@ -305,9 +300,21 @@ thumb_connector_vals = let(
             bd.z + bx / 2 * sin(thumb_rotation.x + d)],
         [bx, bd.z]
     ],
-    bezier_len = bezier_curve_length(20, bezier_points)
-    ) [r, a, b, c, d, bezier_points, bezier_len, f_pos, t_pos, f_arc, f_val, t_val];
-
+    bezier_len = bezier_curve_length(20, bezier_points),
+    // 2D value calculations
+    ps = m_pcb_pad_size,
+    pos = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y] - [0, ps.y / 2],
+    f_pos2 = [-pos.x + finger_anchor_offset, pos.y],
+    f_arc2 = f_pos2 + [r * (1 - cos(a)), -r * sin(a)],
+    t_pos2 = f_arc2 + rotate_pos([0, 0, a + 180], [r, bezier_len + r, 0]),
+    t_off2 = t_pos2 + rotate_pos([0, 0, a + 180],
+        m_pcb_thumb_vals[thumb_anchor_index] + [ps.x / 2, -thumb_anchor_offset, 0])
+    ) [
+        r, a, b, c, d,
+        bezier_points, bezier_len,
+        f_pos, t_pos, f_arc, f_val, t_val,
+        f_pos2, f_arc2, t_pos2, t_off2
+    ];
 
 
 module flip_x(flip=true) {
@@ -573,7 +580,7 @@ module i_pcb_holder() {
     h2 = h1 + i_pcb_size.z;
     pos = mount_points[i_pcb_mount_point_index];
     x1 = -pos.x + i_pcb_offset.x;
-    x2 = -mount_points[0].x + shell_thickness / 2;
+    x2 = -mount_points[0].x;
     y1 = pos.y + l1 / 2 - shell_thickness + i_pcb_offset.y - i_pcb_size.y;
     y2 = pos.y - i_pcb_size.y - shell_thickness + i_pcb_offset.y - l2 / 2;
     w1 = i_pcb_size.x / 3;
@@ -588,7 +595,7 @@ module mount(left=true) {
         difference() {
             // main body
             union() {
-                shell(shell_thickness) union() {
+                shell(shell_thickness, shell_fn) {
                     finger_cluster();
                     thumb_cluster();
                 }
@@ -609,19 +616,21 @@ module mount(left=true) {
 }
 
 
-module shell(t) {
-    render(10)
-    intersection() {
-        children();
-        if (calculate_shell || !$preview) {
+module shell(t, fn) {
+    if (calculate_shell || !$preview) {
+        render(10) intersection() {
+            children();
             minkowski() {
                 difference() {
                     translate([0, 0, 500]) cube([1000, 1000, 1000], center=true);
-                    children(0);
+                    children();
                 }
-                sphere(r=t, $fn=10);
+                sphere(r=t, $fn=fn);
             }
         }
+    }
+    else {
+        children();
     }
 }
 
@@ -726,6 +735,7 @@ module thumb_connector_visualisation() {
     }
 }
 
+
 module matrix_pcb_outline() {
     // finger cluster
     flip_x() for (i = iter(finger_vals)) {
@@ -737,8 +747,9 @@ module matrix_pcb_outline() {
             if (a != 0) {
                 conn_l = ps[s].x - m_pcb_vals[i - 1][s].x - m_pcb_pad_size.x + 2 * e;
                 conn_x = -m_pcb_pad_size.x / 2 + e;
-                translate(m_pcb_vals[i-1][s] - [conn_x, m_pcb_straight_conn_width / 2])
-                    square([conn_l, m_pcb_straight_conn_width]);
+                translate(m_pcb_vals[i-1][s]
+                    - [conn_x, m_pcb_straight_conn_width / 2])
+                        square([conn_l, m_pcb_straight_conn_width]);
             }
             else {
                 left = finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z;
@@ -759,29 +770,18 @@ module matrix_pcb_outline() {
             translate(m_pcb_pos) m_pcb_pad_with_connector(conn_l, conn_x, conn_y);
         }
     }
-    // Approximate bending of the connector between thumb and finger cluster
-    // with a bezier curve and calculate resulting length offset.
-    // Bezier curve control points were empirically chosen to reduce curvature
-    // while following the given constraints (see bending_approximation.py).
+    // thumb connector
+    w = thumb_connector_width;
     r = thumb_connector_vals[0];
     a = thumb_connector_vals[1];
-    b = thumb_connector_vals[2];
-    c = thumb_connector_vals[3];
-    d = thumb_connector_vals[4];
     conn_l = thumb_connector_vals[6];
-    w = thumb_connector_width;
-    f = a + 180;
-    ps = m_pcb_pad_size;
-    pos = m_pcb_vals[finger_anker_index.x][finger_anker_index.y] - [0, ps.y / 2];
-    f_pos = [-pos.x + finger_anker_offset, pos.y];
-    f_arc = f_pos + [r * (1 - cos(a)), -r * sin(a)];
-    t_pos = f_arc + rotate_pos([0, 0, f], [r, conn_l + r, 0]);
-    t_off = t_pos + rotate_pos([0, 0, f],
-        m_pcb_thumb_vals[thumb_anker_index] + [ps.x / 2, -thumb_anker_offset, 0]);
-    // thumb connector
+    f_pos = thumb_connector_vals[12];
+    f_arc = thumb_connector_vals[13];
+    t_pos = thumb_connector_vals[14];
+    t_off = thumb_connector_vals[15];
     translate(f_pos) rotate(90) translate([0, -r]) flip_x() arc(r, w, a);
-    translate(f_arc) rotate(f) line(conn_l, w);
-    translate(t_pos) rotate(f) translate([0, -r]) flip_x() arc(r, w);
+    translate(f_arc) rotate(a + 180) line(conn_l, w);
+    translate(t_pos) rotate(a + 180) translate([0, -r]) flip_x() arc(r, w);
     // thumb cluster
     translate(t_off) rotate(a)
     for (i = iter(m_pcb_thumb_vals)) {
@@ -793,7 +793,6 @@ module matrix_pcb_outline() {
         translate(pos) m_pcb_pad_with_connector(conn_l, conn_x, conn_y);
     }
 }
-
 
 
 // build case
@@ -809,7 +808,7 @@ else if ($preview) {
 }
 // 2D render version of the matrix pcb outline
 else {
-    // output pcb vals for automatic pcb generation
-    echo(m_pcb_vals)
+    // output different values for automatic pcb generation
+    echo(m_pcb_vals, thumb_rotation.z, thumb_connector_vals[15], m_pcb_thumb_vals);
     matrix_pcb_outline();
 }
