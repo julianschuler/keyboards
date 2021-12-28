@@ -15,9 +15,8 @@ class GeneratePcb(pcbnew.ActionPlugin):
         self.name = "Generate key matrix pcb"
         self.category = "Utils"
         self.description = "Generate the key matrix pcb from the openscad script"
-        self.footprint_path = "/usr/share/kicad/footprints/"
-        self.footprint_lib = "Button_Switch_Keyboard.pretty"
-        self.footprint_name = "SW_Cherry_MX_1.00u_Plate"
+        self.footprint_path = os.path.join(os.path.dirname(__file__), "footprints")
+        self.footprint_name = "key-switch"
         self.scad_file = os.path.join(
             os.path.dirname(__file__), "../case/concavum-case.scad"
         )
@@ -72,11 +71,8 @@ class GeneratePcb(pcbnew.ActionPlugin):
 
     def add_key(self, x, y, rotation=0):
         """Add a single key to a given (x, y) position"""
-        off = [2.54, -5.08]
-        key = pcbnew.FootprintLoad(
-            self.footprint_path + self.footprint_lib, self.footprint_name
-        )
-        pos = pcbnew.wxPoint(pcbnew.FromMM(x + off[0]), pcbnew.FromMM(y + off[1]))
+        key = pcbnew.FootprintLoad(self.footprint_path, self.footprint_name)
+        pos = pcbnew.wxPoint(pcbnew.FromMM(x), pcbnew.FromMM(y))
         key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
         key.SetPosition(pos)
         self.board.Add(key)
