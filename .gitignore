@@ -1,2 +1,9 @@
+# manuform
 layers
 *.FCStd1
+
+# for concavum
+build
+*.dxf
+*.zip
+__pycache__
