@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import math
 import subprocess
 import pcbnew
 import dxfgrabber
@@ -15,15 +16,13 @@ class GeneratePcb(pcbnew.ActionPlugin):
         self.name = "Generate key matrix pcb"
         self.category = "Utils"
         self.description = "Generate the key matrix pcb from the openscad script"
-        self.footprint_path = os.path.join(os.path.dirname(__file__), "footprints")
+        self.show_toolbar_button = True
+        f_dir = os.path.dirname(__file__)
+        self.footprint_path = os.path.join(f_dir, "footprints")
         self.footprint_name = "key-switch"
-        self.scad_file = os.path.join(
-            os.path.dirname(__file__), "../case/concavum-case.scad"
-        )
-        self.dxf_file = os.path.join(
-            os.path.dirname(__file__), "outline-key-matrix.dxf"
-        )
-        self.origin_offset = [200, 100]
+        self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
+        self.dxf_file = os.path.join(f_dir, "outline-key-matrix.dxf")
+        self.origin_offset = [195, 90]
 
     def Run(self, board_file=None):
         """Method to be called when the plugin is executed"""
@@ -47,10 +46,18 @@ class GeneratePcb(pcbnew.ActionPlugin):
         # import the previously generated dxf as the pcb outline
         off = self.origin_offset
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, off)
-        # add all keys in the finger cluster
+        # add keys of the finger cluster
         for pos in [p for pos in scad_values[0] for p in pos]:
-            pcbnew.FromMM(off[0] - pos[0]), pcbnew.FromMM(off[1] - pos[1])
             self.add_key(pos[0] + off[0], pos[1] + off[1])
+        # add keys of the thumb cluster
+        t_rot = scad_values[1]
+        t_rot_rad = math.radians(t_rot)
+        t_off = scad_values[2]
+        t_sin, t_cos = math.sin(t_rot_rad), math.cos(t_rot_rad)
+        for t_pos in scad_values[3]:
+            x = t_sin * t_pos[1] + t_off[0] + off[0]
+            y = t_cos * t_pos[1] - t_off[1] + off[1]
+            self.add_key(x, y, t_rot + 180)
 
     def draw_dxf_lines(self, dxf_file, layer, off=[0, 0]):
         """Draw lines from a given dxf file to a specific layer"""
@@ -137,7 +144,7 @@ if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
     generator = GeneratePcb()
     generator.Run(os.path.join(f_dir, "template-key-matrix.kicad_pcb"))
-    generator.save_board(os.path.join(f_dir, "build/key_matrix.kicad_pcb"))
+    generator.save_board(os.path.join(f_dir, "build/key-matrix.kicad_pcb"))
     exporter = GerberExporter()
     exporter.export_compressed(generator.board, "gerber-key-matrix")
 else:

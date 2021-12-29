@@ -809,6 +809,6 @@ else if ($preview) {
 // 2D render version of the matrix pcb outline
 else {
     // output different values for automatic pcb generation
-    echo(-m_pcb_vals, -thumb_rotation.z, thumb_connector_vals[15], m_pcb_thumb_vals);
+    echo(-m_pcb_vals, thumb_rotation.z, thumb_connector_vals[15], m_pcb_thumb_vals);
     matrix_pcb_outline();
 }
