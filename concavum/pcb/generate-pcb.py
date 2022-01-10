@@ -21,6 +21,8 @@ class GeneratePcb(pcbnew.ActionPlugin):
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(f_dir, "outline-key-matrix.dxf")
         self.origin_offset = [195, 90]
+        self.max_rows = 6
+        self.max_cols = 8
 
     def Run(self, board_file=None):
         """Method to be called when the plugin is executed"""
@@ -40,22 +42,40 @@ class GeneratePcb(pcbnew.ActionPlugin):
         ]
         scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         # get key positions from openscad output
-        scad_values = literal_eval(scad_output.splitlines()[0][6:].decode())
+        scad_vals = literal_eval(scad_output.splitlines()[0][6:].decode())
         # import the previously generated dxf as the pcb outline
-        off = self.origin_offset
-        self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, off)
+        self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
+        # get row and col nets
+        nets = self.board.GetNetsByName()
+        row_nets = [nets[f"ROW{i+1}"] for i in range(self.max_rows)]
+        col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
-        for pos in [p for pos in scad_values[0] for p in pos]:
-            self.add_key(pos[0] + off[0], pos[1] + off[1])
+        self.add_finger_cluster(scad_vals[0], row_nets, col_nets)
         # add keys to the thumb cluster
-        t_rot = scad_values[1]
+        self.add_thumb_cluster(
+            scad_vals[1], scad_vals[2], scad_vals[3], row_nets[-1], col_nets
+        )
+
+    def add_finger_cluster(self, finger_vals, row_nets, col_nets):
+        """Add keys to the finger cluster"""
+        off = self.origin_offset
+        for i, col in enumerate(finger_vals):
+            for j, pos in enumerate(col):
+                ref = f"SW{i+1}{j+1}"
+                self.add_key(
+                    ref, pos[0] + off[0], pos[1] + off[1], row_nets[j], col_nets[i]
+                )
+
+    def add_thumb_cluster(self, t_rot, t_off, thumb_vals, row_net, col_nets):
+        """Add keys to the thumb cluster"""
+        off = self.origin_offset
         t_rot_rad = math.radians(t_rot)
-        t_off = scad_values[2]
         t_sin, t_cos = math.sin(t_rot_rad), math.cos(t_rot_rad)
-        for t_pos in scad_values[3]:
+        for i, t_pos in enumerate(thumb_vals):
             x = t_sin * t_pos[1] + t_off[0] + off[0]
             y = t_cos * t_pos[1] - t_off[1] + off[1]
-            self.add_key(x, y, t_rot + 180)
+            col = len(thumb_vals) - 1 - i
+            self.add_key(f"SW{i+1}", x, y, row_net, col_nets[col], t_rot + 180)
 
     def draw_dxf_lines(self, dxf_file, layer, off=[0, 0]):
         """Draw lines from a given dxf file to a specific layer"""
@@ -74,15 +94,22 @@ class GeneratePcb(pcbnew.ActionPlugin):
         seg.SetEnd(pcbnew.wxPoint(*map(pcbnew.FromMM, end)))
         self.board.Add(seg)
 
-    def add_key(self, x, y, rotation=0):
+    def add_key(self, ref, x, y, row_net, col_net, rotation=0):
         """Add a single key to a given (x, y) position"""
         key = pcbnew.FootprintLoad(self.footprint_path, self.footprint_name)
         pos = pcbnew.wxPoint(pcbnew.FromMM(x), pcbnew.FromMM(y))
+        pads = key.Pads()
+        for i in range(1, 4):
+            pads[i].SetNet(row_net)
+        for i in range(4, 6):
+            pads[i].SetNet(col_net)
+        key.SetReference(ref)
         key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
         key.SetPosition(pos)
         self.board.Add(key)
 
     def save_board(self, board_file):
+        """Save the board to the given output file"""
         pcbnew.SaveBoard(board_file, self.board)
 
 
