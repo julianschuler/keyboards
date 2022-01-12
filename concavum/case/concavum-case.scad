@@ -51,7 +51,7 @@ mount_boarder = 5;
 mount_rim = [5, 3];
 
 // key matrix pcb values
-m_pcb_connector_width = 3;
+m_pcb_col_connector_width = 3;
 m_pcb_straight_conn_width = 5;
 m_pcb_pad_size = [12.5, 14];
 m_pcb_thickness = 0.6;
@@ -259,6 +259,20 @@ m_pcb_thumb_vals = [for (i = iter(thumb_vals)) let (
     dy = (sy + (PI * r * a / 180)) * (i + thumb_range[0])
     )
         [0, dy, 0]
+    ];
+
+col_connector_vals = [for (i = iter(m_pcb_vals)) let(
+    s = -col_range[0],
+    w = m_pcb_col_connector_width,
+    left = finger_vals[max(i - 1, 0)][s][0].z >= finger_vals[i][s][0].z,
+    m_pcb_pos = m_pcb_vals[i][s],
+    m_pcb_ppos = m_pcb_vals[max(i - 1, 0)][s],
+    pos1 = ((left) ? m_pcb_pos : m_pcb_ppos)
+        + [((left) ? -1 : 1) * m_pcb_pad_size.x / 2, m_pcb_pad_size.y / 2 - w / 2],
+    pos2 = ((left) ? m_pcb_ppos : m_pcb_pos)
+        + [((left) ? 1 : -1) * (m_pcb_pad_size.x / 2 - w / 2), -m_pcb_pad_size.y / 2]
+    )
+        [pos1, pos2, left ? 1 : 0]
     ];
 
 thumb_connector_vals = let(
@@ -675,11 +689,8 @@ module line(l, w) {
 }
 
 
-module connector(m_pcb_pos, m_pcb_ppos, w, left=true) {
-    pos1 = ((left) ? m_pcb_pos : m_pcb_ppos)
-        + [((left) ? -1 : 1) * m_pcb_pad_size.x / 2, m_pcb_pad_size.y / 2 - w / 2];
-    pos2 = ((left) ? m_pcb_ppos : m_pcb_pos)
-        + [((left) ? 1 : -1) * (m_pcb_pad_size.x / 2 - w / 2), -m_pcb_pad_size.y / 2];
+module col_connector(pos1, pos2, left) {
+    w = m_pcb_col_connector_width;
     r = abs(pos1.x - pos2.x) / 3;
     l = abs(pos2.y - pos1.y) - r;
     translate(pos1) flip_x(left) {
@@ -752,8 +763,8 @@ module matrix_pcb_outline() {
                         square([conn_l, m_pcb_straight_conn_width]);
             }
             else {
-                left = finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z;
-                connector(ps[s], m_pcb_vals[i - 1][s], m_pcb_connector_width, left);
+                cv = col_connector_vals[i];
+                col_connector(cv[0], cv[1], cv[2]);
             }
         }
         for (j = iter(vs)) {
@@ -809,6 +820,12 @@ else if ($preview) {
 // 2D render version of the matrix pcb outline
 else {
     // output different values for automatic pcb generation
-    echo(-m_pcb_vals, thumb_rotation.z, thumb_connector_vals[15], m_pcb_thumb_vals);
+    echo(
+        -m_pcb_vals,
+        thumb_rotation.z,
+        thumb_connector_vals[15],
+        m_pcb_thumb_vals,
+        col_connector_vals
+    );
     matrix_pcb_outline();
 }
