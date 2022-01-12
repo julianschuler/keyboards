@@ -159,12 +159,32 @@ class GeneratePcb(pcbnew.ActionPlugin):
             [
                 (-3.81, -2.54),
                 (-3.81, 0),
-                (0, 3.81),
-                (0, -7.62) + diff,
-                (-2.54, -5.08) + diff,
+                (-0.635, 3.175),
+                *self.angled_track_path(
+                    np.array((-0.635, 5.08)),
+                    np.array((-0.635 + diff[0] / 2, 6.995)),
+                    layer,
+                ),
+                *self.angled_track_path(
+                    np.array((-0.635 + diff[0] / 2, -6.995 + diff[1])),
+                    np.array((-2.54, -5.08)) + diff,
+                    layer,
+                ),
             ]
         ]
         self.add_track_path(path, pos, layer)
+
+    def angled_track_path(self, start, end, layer):
+        diff = end - start
+        if abs(diff[0]) > abs(diff[1]):
+            d = diff[1] / 2
+            dx = d if np.sign(d) == np.sign(diff[0]) else -d
+            dy = d
+        else:
+            d = diff[0] / 2
+            dx = d
+            dy = d if np.sign(d) == np.sign(diff[1]) else -d
+        return start, start + (dx, dy), end - (dx, dy), end
 
     def save_board(self, board_file):
         """Save the board to the given output file"""
