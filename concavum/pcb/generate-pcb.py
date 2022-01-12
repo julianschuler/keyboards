@@ -129,52 +129,36 @@ class GeneratePcb(pcbnew.ActionPlugin):
                 [(-3.81, 4.445), (-1.65, 4.445)],
             ],
         }
-        for layer, path in key_tracks.items():
-            self.add_track_path(path, key_pos, layer, rotation)
-
-    def add_track_path(self, path, offset, layer, rotation=0):
-        if rotation != 0:
-            s, c = np.sin(np.radians(rotation)), np.cos(np.radians(rotation))
-            r = np.array(((c, s), (-s, c)))
-        else:
-            r = np.array(((1, 0), (0, 1)))
-        for pos in path:
-            for start, end in zip(pos, pos[1:]):
-                start_pos = r.dot(start) + offset
-                end_pos = r.dot(end) + offset
-                self.add_track(start_pos.tolist(), end_pos.tolist(), layer)
-
-    def add_track(self, start, end, layer):
-        """Add a single pcb track"""
-        track = pcbnew.PCB_TRACK(self.board)
-        track.SetStart(pcbnew.wxPoint(*map(pcbnew.FromMM, start)))
-        track.SetEnd(pcbnew.wxPoint(*map(pcbnew.FromMM, end)))
-        track.SetLayer(layer)
-        track.SetWidth(self.track_width)
-        self.board.Add(track)
+        for layer, paths in key_tracks.items():
+            for path in paths:
+                self.add_track_path(path, key_pos, layer, rotation)
 
     def add_col_track(self, pos, ppos, layer):
+        """Add a track connecting the column pins of two keys"""
         diff = ppos - pos
         path = [
-            [
-                (-3.81, -2.54),
-                (-3.81, 0),
-                (-0.635, 3.175),
-                *self.angled_track_path(
-                    np.array((-0.635, 5.08)),
-                    np.array((-0.635 + diff[0] / 2, 6.995)),
-                    layer,
-                ),
-                *self.angled_track_path(
-                    np.array((-0.635 + diff[0] / 2, -6.995 + diff[1])),
-                    np.array((-2.54, -5.08)) + diff,
-                    layer,
-                ),
-            ]
+            (-3.81, -2.54),
+            (-3.81, 0),
+            (-0.635, 3.175),
+            *self.angled_track_path(
+                np.array((-0.635, 5.08)),
+                np.array((-0.635 + diff[0] / 2, 6.995)),
+                layer,
+            ),
+            *self.angled_track_path(
+                np.array((-0.635 + diff[0] / 2, -6.995 + diff[1])),
+                np.array((-2.54, -5.08)) + diff,
+                layer,
+            ),
         ]
         self.add_track_path(path, pos, layer)
 
+    def add_thumb_row_track(self, pos, ppos, layer, rotation):
+        """Add a track connecting the row pins of two thumb pins"""
+        pass
+
     def angled_track_path(self, start, end, layer):
+        """Calculate the points for a angled track path between start and end"""
         diff = end - start
         if abs(diff[0]) > abs(diff[1]):
             d = diff[1] / 2
@@ -185,6 +169,27 @@ class GeneratePcb(pcbnew.ActionPlugin):
             dx = d
             dy = d if np.sign(d) == np.sign(diff[1]) else -d
         return start, start + (dx, dy), end - (dx, dy), end
+
+    def add_track_path(self, path, offset, layer, rotation=0):
+        """Add a sequence of tracks defining a path"""
+        if rotation != 0:
+            s, c = np.sin(np.radians(rotation)), np.cos(np.radians(rotation))
+            r = np.array(((c, s), (-s, c)))
+        else:
+            r = np.array(((1, 0), (0, 1)))
+        for start, end in zip(path, path[1:]):
+            start_pos = r.dot(start) + offset
+            end_pos = r.dot(end) + offset
+            self.add_track(start_pos.tolist(), end_pos.tolist(), layer)
+
+    def add_track(self, start, end, layer):
+        """Add a single pcb track"""
+        track = pcbnew.PCB_TRACK(self.board)
+        track.SetStart(pcbnew.wxPoint(*map(pcbnew.FromMM, start)))
+        track.SetEnd(pcbnew.wxPoint(*map(pcbnew.FromMM, end)))
+        track.SetLayer(layer)
+        track.SetWidth(self.track_width)
+        self.board.Add(track)
 
     def save_board(self, board_file):
         """Save the board to the given output file"""
