@@ -83,6 +83,14 @@ class GeneratePcb(pcbnew.ActionPlugin):
             )
             col = len(thumb_vals) - 1 - i
             self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], t_rot + 180)
+            if i > 0:
+                self.add_thumb_row_track(
+                    np.array(t_pos[:2]),
+                    np.array(thumb_vals[i - 1][:2]),
+                    pos,
+                    pcbnew.F_Cu,
+                    t_rot + 180,
+                )
 
     def draw_dxf_lines(self, dxf_file, layer, off=[0, 0]):
         """Draw lines from a given dxf file to a specific layer"""
@@ -153,9 +161,20 @@ class GeneratePcb(pcbnew.ActionPlugin):
         ]
         self.add_track_path(path, pos, layer)
 
-    def add_thumb_row_track(self, pos, ppos, layer, rotation):
+    def add_thumb_row_track(self, pos, ppos, offset, layer, rotation):
         """Add a track connecting the row pins of two thumb pins"""
-        pass
+        diff = ppos - pos
+        path = [
+            (-1.65, 4.445) - diff,
+            (-1.65, 2.16) - diff,
+            (-2.54, 1.27) - diff,
+            (-2.54, -1.27) - diff,
+            (-0.635, -3.175) - diff,
+            (-0.635, -5.725) - diff,
+            (-1.65, -6.74) - diff,
+            (-1.65, 4.445),
+        ]
+        self.add_track_path(path, offset, layer, rotation)
 
     def angled_track_path(self, start, end, layer):
         """Calculate the points for a angled track path between start and end"""
