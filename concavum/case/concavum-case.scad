@@ -75,7 +75,7 @@ extra_widths = [
     [4, 0, -key_distance.x], [3, 2, 2 * key_distance.x], [3, 3, 2 * key_distance.x]
 ];
 
-// colors
+// colors used during preview
 keycap_color = "#333333";
 switch_color = "#E6E6E6";
 matrix_pcb_color = "#167A24";
@@ -261,18 +261,28 @@ m_pcb_thumb_vals = [for (i = iter(thumb_vals)) let (
         [0, dy, 0]
     ];
 
-col_connector_vals = [for (i = iter(m_pcb_vals)) let(
+col_connector_vals = [for (i = iter(m_pcb_vals)) if (i > 0) let(
     s = -col_range[0],
     w = m_pcb_col_connector_width,
-    left = finger_vals[max(i - 1, 0)][s][0].z >= finger_vals[i][s][0].z,
+    a = finger_vals[i - 1][s][2] + finger_vals[i][s][2],
     m_pcb_pos = m_pcb_vals[i][s],
-    m_pcb_ppos = m_pcb_vals[max(i - 1, 0)][s],
+    m_pcb_ppos = m_pcb_vals[i - 1][s]
+    )
+    if (a != 0) let(
+    // straight connector vals
+    pos1 = m_pcb_ppos + [m_pcb_pad_size.x / 2, 0],
+    pos2 = m_pcb_pos - [m_pcb_pad_size.x / 2, 0]
+    )
+        [2, pos1, pos2]
+    else let(
+    // curved connector vals
+    left = finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z,
     pos1 = ((left) ? m_pcb_pos : m_pcb_ppos)
         + [((left) ? -1 : 1) * m_pcb_pad_size.x / 2, m_pcb_pad_size.y / 2 - w / 2],
     pos2 = ((left) ? m_pcb_ppos : m_pcb_pos)
         + [((left) ? 1 : -1) * (m_pcb_pad_size.x / 2 - w / 2), -m_pcb_pad_size.y / 2]
     )
-        [pos1, pos2, left ? 1 : 0]
+        [left ? 1 : 0, pos1, pos2]
     ];
 
 thumb_connector_vals = let(
@@ -689,14 +699,21 @@ module line(l, w) {
 }
 
 
-module col_connector(pos1, pos2, left) {
-    w = m_pcb_col_connector_width;
-    r = abs(pos1.x - pos2.x) / 3;
-    l = abs(pos2.y - pos1.y) - r;
-    translate(pos1) flip_x(left) {
-        translate([0, -r]) arc(r, w);
-        translate([r, -r - l]) line(l, w);
-        translate([2 * r, -r - l]) rotate(-90) arc(r, w, 180);
+module col_connector(type, pos1, pos2) {
+    if (type == 2) {
+        conn_l = pos2.x - pos1.x + 2 * e;
+        translate(pos1 - [e, m_pcb_straight_conn_width / 2])
+            square([conn_l, m_pcb_straight_conn_width]);
+    }
+    else {
+        w = m_pcb_col_connector_width;
+        r = abs(pos1.x - pos2.x) / 3;
+        l = abs(pos2.y - pos1.y) - r;
+        translate(pos1) flip_x(type) {
+            translate([0, -r]) arc(r, w);
+            translate([r, -r - l]) line(l, w);
+            translate([2 * r, -r - l]) rotate(-90) arc(r, w, 180);
+        }
     }
 }
 
@@ -754,18 +771,8 @@ module matrix_pcb_outline() {
         ps = m_pcb_vals[i];
         s = -col_range[0];
         if (i > 0) {
-            a = finger_vals[i - 1][0][2] + finger_vals[i][0][2];
-            if (a != 0) {
-                conn_l = ps[s].x - m_pcb_vals[i - 1][s].x - m_pcb_pad_size.x + 2 * e;
-                conn_x = -m_pcb_pad_size.x / 2 + e;
-                translate(m_pcb_vals[i-1][s]
-                    - [conn_x, m_pcb_straight_conn_width / 2])
-                        square([conn_l, m_pcb_straight_conn_width]);
-            }
-            else {
-                cv = col_connector_vals[i];
-                col_connector(cv[0], cv[1], cv[2]);
-            }
+            cv = col_connector_vals[i - 1];
+            col_connector(cv[0], cv[1], cv[2]);
         }
         for (j = iter(vs)) {
             v = vs[j];
@@ -825,7 +832,7 @@ else {
         thumb_rotation.z,
         thumb_connector_vals[15],
         m_pcb_thumb_vals,
-        col_connector_vals
+        -col_connector_vals
     );
     matrix_pcb_outline();
 }
