@@ -60,7 +60,7 @@ class GeneratePcb(pcbnew.ActionPlugin):
             scad_vals[1], scad_vals[2], scad_vals[3], row_nets[-1], col_nets
         )
         # add tracks going through the column connectors
-        self.add_col_connector_tracks(scad_vals[4], len(scad_vals[0][0]))
+        self.add_col_connector_tracks(scad_vals[4], len(scad_vals[0][0]), pcbnew.B_Cu)
 
     def add_finger_cluster(self, finger_vals, row_nets, col_nets):
         """Add keys to the finger cluster"""
@@ -147,14 +147,15 @@ class GeneratePcb(pcbnew.ActionPlugin):
         diff = ppos - pos
         path = [
             (-3.81, -2.54),
-            (-3.81, 0),
-            (-0.635, 3.175),
+            (-3.81, 1.905),
+            (-5.715, 3.81),
+            (-5.715, 5.08),
             *self.angled_track_path(
-                np.array((-0.635, 5.08)),
-                np.array((-0.635 + diff[0] / 2, 6.985)),
+                np.array((-5.08, 5.715)),
+                np.array((-5.08 + max(0, diff[0]), 6.985)),
             ),
             *self.angled_track_path(
-                np.array((-0.635 + diff[0] / 2, -6.985 + diff[1])),
+                np.array((-5.08 + max(0, diff[0]), -6.985 + diff[1])),
                 np.array((-2.54, -5.08)) + diff,
             ),
         ]
@@ -164,40 +165,33 @@ class GeneratePcb(pcbnew.ActionPlugin):
         """Add a track connecting the row pins of two thumb pins"""
         diff = ppos - pos
         path = [
-            (-1.65, 4.445) - diff,
-            (-1.65, 2.16) - diff,
-            (-2.54, 1.27) - diff,
-            (-2.54, -1.27) - diff,
-            (-0.635, -3.175) - diff,
-            (-0.635, -5.725) - diff,
-            (-1.65, -6.74) - diff,
-            (-1.65, 4.445),
+            (-3.81, 4.445) - diff,
+            (-5.715, 2.54) - diff,
+            (-5.715, 6.35),
+            (-3.81, 4.445),
         ]
         self.add_track_path(path, offset, layer, rotation)
 
-    def add_col_connector_tracks(self, col_connector_vals, row_count):
+    def add_col_connector_tracks(self, col_connector_vals, track_count, layer):
         """Add tracks going through the column connectors"""
         off = self.origin_offset
-        layer = pcbnew.B_Cu
-        ql_arc = self.arc_track_path(90, 90)
-        qr_arc = self.arc_track_path(90, 180)
-        h_arc = self.arc_track_path(180, -90)
+        arc1 = self.arc_track_path(90, 0)
+        arc2 = self.arc_track_path(90, 90)
         for c_type, pos1, pos2 in col_connector_vals:
             if c_type == -2:
-                for d in np.linspace(-1, 1, row_count):
+                for d in np.linspace(-1, 1, track_count):
                     self.add_track(pos1 + off + (0, d), pos2 + off + (0, d), layer)
             else:
-                r = (pos2[0] - pos1[0]) / 3
+                r = (pos2[0] - pos1[0]) / 2
                 a_r = abs(r)
-                ln = abs(pos1[1] - pos2[1]) - a_r
-                q_arc = qr_arc if c_type == 0 else ql_arc
-                for d in np.linspace(r - 1, r + 1, row_count):
-                    a_d = abs(d)
-                    self.add_track_path(q_arc * a_d, pos1 + off + (0, a_r), layer)
+                ln = abs(pos1[1] - pos2[1]) - 2 * a_r
+                arc = arc1 if c_type == 0 else arc2
+                for d in np.linspace(r - 1, r + 1, track_count):
+                    self.add_track_path(arc * d, pos1 + off + (0, a_r), layer)
                     self.add_track(
                         pos1 + off + (d, a_r), pos1 + off + (d, a_r + ln), layer
                     )
-                    self.add_track_path(h_arc * a_d, pos2 + off - (r, 0), layer)
+                    self.add_track_path(arc * -d, pos2 + off - (0, a_r), layer)
 
     def angled_track_path(self, start, end):
         """Calculate the points for an angled track path between start and end"""
