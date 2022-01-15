@@ -3,19 +3,16 @@
 import os
 import subprocess
 import pcbnew
+from pcbnew import F_Cu, B_Cu
 import dxfgrabber
 import numpy as np
 from ast import literal_eval
 from tempfile import gettempdir
 
 
-class GenerateMatrixPcb(pcbnew.ActionPlugin):
-    def defaults(self):
-        """Set name and properties of the Plugin"""
-        self.name = "Generate key matrix pcb"
-        self.category = "Utils"
-        self.description = "Generate the key matrix pcb from the openscad script"
-        self.show_toolbar_button = True
+class MatrixPcbGenerator:
+    def __init__(self):
+        """Constructor of the PCB generator"""
         f_dir = os.path.dirname(__file__)
         self.footprint_path = os.path.join(f_dir, "footprints")
         self.footprint_name = "key-switch"
@@ -27,14 +24,12 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
         self.track_width = pcbnew.FromMM(0.3)
         self.arc_segments = 120
 
-    def Run(self, board_file=None):
-        """Method to be called when the plugin is executed"""
-        # load board either from file name or get the default
-        if board_file is not None:
-            self.board = pcbnew.LoadBoard(board_file)
-        else:
-            self.board = pcbnew.GetBoard()
-        # use openscad to generate the pcb outline as dxf
+    def generate_board(self, board_template_file):
+        """Generate the PCB using the given file as template"""
+        # load board from the given template file name
+        self.board = pcbnew.LoadBoard(board_template_file)
+        # use openscad to generate the PCB outline as DXF file and to get
+        # other data as key positions, rotations, etc.
         cmd = [
             "openscad",
             "-D",
@@ -44,11 +39,11 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
             self.scad_file,
         ]
         scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        # get key positions from openscad output
+        # get key positions and co. from openscad output
         scad_vals = np.array(
             literal_eval(scad_output.splitlines()[0][6:].decode()), dtype=object
         )
-        # import the previously generated dxf as the pcb outline
+        # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
         nets = self.board.GetNetsByName()
@@ -61,7 +56,7 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
             scad_vals[1], scad_vals[2], scad_vals[3], row_nets[-1], col_nets
         )
         # add tracks going through the column connectors
-        self.add_col_connector_tracks(scad_vals[4], len(scad_vals[0][0]), pcbnew.B_Cu)
+        self.add_col_connector_tracks(scad_vals[4], len(scad_vals[0][0]), B_Cu)
 
     def add_finger_cluster(self, finger_vals, row_nets, col_nets):
         """Add keys to the finger cluster"""
@@ -71,7 +66,7 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
                 ref = f"SW{i+1}{j+1}"
                 self.add_key(ref, pos[:2] + off, row_nets[j], col_nets[i])
                 if j > 0:
-                    self.add_col_track(pos[:2] + off, col[j - 1][:2] + off, pcbnew.F_Cu)
+                    self.add_col_track(pos[:2] + off, col[j - 1][:2] + off, F_Cu)
 
     def add_thumb_cluster(self, t_rot, t_off, thumb_vals, row_net, col_nets):
         """Add keys to the thumb cluster"""
@@ -91,12 +86,12 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
                     np.array(t_pos[:2]),
                     np.array(thumb_vals[i - 1][:2]),
                     pos,
-                    pcbnew.F_Cu,
+                    F_Cu,
                     t_rot + 180,
                 )
 
     def draw_dxf_lines(self, dxf_file, layer, off=np.zeros(2)):
-        """Draw lines from a given dxf file to a specific layer"""
+        """Draw lines from a given DXF file to a specific layer"""
         dxf = dxfgrabber.readfile(dxf_file)
         for e in [e for e in dxf.entities if e.dxftype == "LINE"]:
             start = np.array((off[0] + e.start[0], off[1] - e.start[1]))
@@ -123,7 +118,7 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
         key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
         key.SetPosition(self.to_point(pos))
         self.board.Add(key)
-        self.add_key_tracks(pos, pcbnew.F_Cu, rotation)
+        self.add_key_tracks(pos, F_Cu, rotation)
 
     def add_key_tracks(self, key_pos, layer, rotation):
         """Add tracks within each key"""
@@ -248,11 +243,11 @@ class GenerateMatrixPcb(pcbnew.ActionPlugin):
 
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
-    build_dir = os.path.join(f_dir, "matrix-pcb")
-    if not os.path.isdir(build_dir):
-        os.mkdir(build_dir)
-    generator = GenerateMatrixPcb()
-    generator.Run(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
-    generator.save_board(os.path.join(build_dir, "matrix-pcb.kicad_pcb"))
-else:
-    GenerateMatrixPcb().register()
+    output_dir = os.path.join(f_dir, "matrix-pcb")
+    # create output directory if not exists already
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+    # generate board from template file and save it to the output directory
+    generator = MatrixPcbGenerator()
+    generator.generate_board(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
+    generator.save_board(os.path.join(output_dir, "matrix-pcb.kicad_pcb"))
