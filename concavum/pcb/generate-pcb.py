@@ -20,7 +20,7 @@ class GeneratePcb(pcbnew.ActionPlugin):
         self.footprint_name = "key-switch"
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(f_dir, "outline-key-matrix.dxf")
-        self.origin_offset = np.array([195, 90])
+        self.origin_offset = np.array((195, 90))
         self.max_rows = 6
         self.max_cols = 8
         self.track_width = pcbnew.FromMM(0.3)
@@ -115,10 +115,9 @@ class GeneratePcb(pcbnew.ActionPlugin):
         """Add a single key to a given (x, y) position"""
         key = pcbnew.FootprintLoad(self.footprint_path, self.footprint_name)
         pads = key.Pads()
-        for i in range(1, 4):
-            pads[i].SetNet(row_net)
-        for i in range(4, 6):
-            pads[i].SetNet(col_net)
+        pads[1].SetNet(row_net)
+        pads[2].SetNet(col_net)
+        pads[3].SetNet(col_net)
         key.SetReference(ref)
         key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
         key.SetPosition(self.to_point(pos))
@@ -127,35 +126,35 @@ class GeneratePcb(pcbnew.ActionPlugin):
 
     def add_key_tracks(self, key_pos, layer, rotation):
         """Add tracks within each key"""
-        key_tracks = {
-            pcbnew.F_Cu: [
-                [(-2.54, -5.08), (-3.81, -2.54)],
-                [(2.54, -5.08), (3.81, -2.54), (3.81, 4.445), (1.65, 4.445)],
-                [(-3.81, 4.445), (-1.65, 4.445)],
+        paths = (
+            [
+                (-2.54, -5.08),
+                (-3.81, -2.54),
             ],
-            pcbnew.B_Cu: [
-                [(3.81, 4.445), (1.65, 4.445)],
-                [(-3.81, 4.445), (-1.65, 4.445)],
+            [
+                (2.54, -5.08),
+                (3.81, -2.54),
+                (3.81, 1.905),
+                (2.305, 3.41),
+                (1.65, 3.41),
             ],
-        }
-        for layer, paths in key_tracks.items():
-            for path in paths:
-                self.add_track_path(path, key_pos, layer, rotation)
+        )
+        for path in paths:
+            self.add_track_path(path, key_pos, layer, rotation)
 
     def add_col_track(self, pos, ppos, layer):
         """Add a track connecting the column pins of two keys"""
         diff = ppos - pos
         path = [
             (-3.81, -2.54),
-            (-3.81, 1.905),
-            (-5.715, 3.81),
-            (-5.715, 5.08),
+            (-3.81, -0.635),
+            (-4.445, 0),
             *self.angled_track_path(
-                np.array((-5.08, 5.715)),
-                np.array((-5.08 + max(0, diff[0]), 6.985)),
+                np.array((-4.445, 3.175)),
+                np.array((-4.445 + max(0, diff[0]), 6.985)),
             ),
             *self.angled_track_path(
-                np.array((-5.08 + max(0, diff[0]), -6.985 + diff[1])),
+                np.array((-4.445 + max(0, diff[0]), -6.985 + diff[1])),
                 np.array((-2.54, -5.08)) + diff,
             ),
         ]
@@ -165,10 +164,12 @@ class GeneratePcb(pcbnew.ActionPlugin):
         """Add a track connecting the row pins of two thumb pins"""
         diff = ppos - pos
         path = [
-            (-3.81, 4.445) - diff,
-            (-5.715, 2.54) - diff,
-            (-5.715, 6.35),
-            (-3.81, 4.445),
+            (-1.65, 3.41) - diff,
+            (-2.305, 3.41) - diff,
+            (-5.715, 0) - diff,
+            (-5.715, 6.82),
+            (-2.305, 3.41),
+            (-1.65, 3.41),
         ]
         self.add_track_path(path, offset, layer, rotation)
 
