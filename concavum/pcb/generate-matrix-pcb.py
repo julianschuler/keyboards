@@ -6,9 +6,10 @@ import pcbnew
 import dxfgrabber
 import numpy as np
 from ast import literal_eval
+from tempfile import gettempdir
 
 
-class GeneratePcb(pcbnew.ActionPlugin):
+class GenerateMatrixPcb(pcbnew.ActionPlugin):
     def defaults(self):
         """Set name and properties of the Plugin"""
         self.name = "Generate key matrix pcb"
@@ -19,7 +20,7 @@ class GeneratePcb(pcbnew.ActionPlugin):
         self.footprint_path = os.path.join(f_dir, "footprints")
         self.footprint_name = "key-switch"
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
-        self.dxf_file = os.path.join(f_dir, "outline-key-matrix.dxf")
+        self.dxf_file = os.path.join(gettempdir(), "outline-matrix-pcb.dxf")
         self.origin_offset = np.array((195, 90))
         self.max_rows = 6
         self.max_cols = 8
@@ -247,8 +248,11 @@ class GeneratePcb(pcbnew.ActionPlugin):
 
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
-    generator = GeneratePcb()
-    generator.Run(os.path.join(f_dir, "template-key-matrix.kicad_pcb"))
-    generator.save_board(os.path.join(f_dir, "build/key-matrix.kicad_pcb"))
+    build_dir = os.path.join(f_dir, "matrix-pcb")
+    if not os.path.isdir(build_dir):
+        os.mkdir(build_dir)
+    generator = GenerateMatrixPcb()
+    generator.Run(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
+    generator.save_board(os.path.join(build_dir, "matrix-pcb.kicad_pcb"))
 else:
-    GeneratePcb().register()
+    GenerateMatrixPcb().register()

@@ -3,7 +3,6 @@ layers
 *.FCStd1
 
 # for concavum
-build
-*.dxf
-*.zip
+matrix-pcb
+gerber
 __pycache__

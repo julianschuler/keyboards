@@ -60,6 +60,19 @@ class ExportCompressedGerber:
 
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
-    board = pcbnew.LoadBoard(os.path.join(f_dir, "build/key-matrix.kicad_pcb"))
+    gerber_dir = os.path.join(f_dir, "gerber")
+    if not os.path.isdir(gerber_dir):
+        os.mkdir(gerber_dir)
     exporter = ExportCompressedGerber()
-    exporter.export_compressed(board, "gerber-key-matrix")
+    matrix_pcb = pcbnew.LoadBoard(
+        os.path.join(f_dir, "matrix-pcb/matrix-pcb.kicad_pcb")
+    )
+    interface_pcb = pcbnew.LoadBoard(
+        os.path.join(f_dir, "interface-pcb/interface-pcb.kicad_pcb")
+    )
+    exporter.export_compressed(
+        matrix_pcb, os.path.join(gerber_dir, "gerber-concavum-matrix")
+    )
+    exporter.export_compressed(
+        interface_pcb, os.path.join(gerber_dir, "gerber-concavum-interface")
+    )
