@@ -22,8 +22,8 @@ class MatrixPcbGenerator:
         self.origin_offset = np.array((195, 90))
         self.max_rows = 6
         self.max_cols = 6
-        self.track_width = 0.2
-        self.track_distance = 0.2
+        self.track_width = 0.15
+        self.track_distance = 0.15
         self.arc_segments = 120
         self._track_width_nm = pcbnew.FromMM(self.track_width)
 
@@ -44,8 +44,11 @@ class MatrixPcbGenerator:
         scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         # get key positions and co. from openscad output
         scad_vals = literal_eval(scad_output.splitlines()[0][6:].decode())
-        # set pad size
+        # set matrix vals
         self.pad_size = scad_vals[0]
+        self.cr_off = scad_vals[1]
+        self.col_count = len(scad_vals[2])
+        self.row_count = len(scad_vals[2][0])
         # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
@@ -53,29 +56,26 @@ class MatrixPcbGenerator:
         row_nets = [nets[f"ROW{i+1}"] for i in range(self.max_rows)]
         col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
-        self.add_finger_cluster(scad_vals[1], row_nets[1:], col_nets, scad_vals[5])
+        self.add_finger_cluster(scad_vals[2], row_nets[1:], col_nets, scad_vals[6])
         # add keys to the thumb cluster
         self.add_thumb_cluster(
-            scad_vals[2], scad_vals[3], scad_vals[4], row_nets[0], col_nets
+            scad_vals[3], scad_vals[4], scad_vals[5], row_nets[0], col_nets
         )
         # add tracks going through the column connectors
-        self.add_col_connector_tracks(scad_vals[5], len(scad_vals[1][0]), B_Cu)
+        self.add_col_connector_tracks(scad_vals[6], len(scad_vals[2][0]), B_Cu)
         # add FPC connector
         self.add_fpc_connector(
-            scad_vals[1][scad_vals[6][0]][scad_vals[6][1]], row_nets, col_nets
+            scad_vals[2][scad_vals[7][0]][scad_vals[7][1]], row_nets, col_nets
         )
 
     def add_finger_cluster(self, finger_vals, row_nets, col_nets, col_connector_vals):
         """Add keys to the finger cluster"""
         off = self.origin_offset
-        row_count = len(finger_vals[0])
         for i, col in enumerate(finger_vals):
             for j, pos in enumerate(col):
                 ref = f"SW{i+1}{j+1}"
                 self.add_key(ref, pos[:2] + off, row_nets[j], col_nets[i])
-                self.add_row_track(
-                    np.array(pos[:2]), col_connector_vals, i, j, row_count
-                )
+                self.add_row_track(col, col_connector_vals, i, j)
                 if j > 0:
                     self.add_col_track(pos[:2] + off, col[j - 1][:2] + off, F_Cu)
 
@@ -152,53 +152,75 @@ class MatrixPcbGenerator:
     def add_col_track(self, pos, ppos, layer):
         """Add a track connecting the column pins of two keys"""
         diff = ppos - pos
+        py = self.pad_size[1] / 2
         path = [
             (-3.81, -2.54),
             *self.angled_track_path(
                 np.array((-3.81, 3.175)),
-                np.array((-3.81 + max(0, diff[0]), 6.985)),
+                np.array((-3.81 + max(0, diff[0]), py)),
             ),
             *self.angled_track_path(
-                np.array((-3.81 + max(0, diff[0]), -6.35 + diff[1])),
+                np.array((-3.81 + max(0, diff[0]), -py + diff[1])),
                 np.array((-2.54, -5.08)) + diff,
             ),
         ]
         self.add_track_path(path, pos, layer)
 
-    def add_row_track(self, key_pos, col_connector_vals, i, j, row_count):
-        """Add a track connecting the row pad of a key with its neighbour"""
+    def add_row_track(self, col, col_connector_vals, i, j):
+        """Add a track connecting the row pin of a key with its neighbour's one"""
         if i < len(col_connector_vals):
-            self.add_row_track_half(key_pos, col_connector_vals[i], row_count, j, True)
+            self.add_row_track_half(col, col_connector_vals[i], i, j, True)
         if i > 0:
-            self.add_row_track_half(
-                key_pos, col_connector_vals[i - 1], row_count, j, False
-            )
+            self.add_row_track_half(col, col_connector_vals[i - 1], i, j, False)
 
-    def add_row_track_half(self, key_pos, cv, row_count, j, left_half):
+    def add_row_track_half(self, col, cv, i, j, left_half):
         """Helper function for adding half of a row track"""
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
         d = self.track_width + self.track_distance
         td = (j + 1) * d
-        rd = (row_count - 1 - j) * d
+        rd = (self.row_count - 1 - j) * d
+        key_pos = np.array(col[j][:2])
         left, pos1, pos2 = cv
         pos = pos1 if (left == 0) == left_half else pos2
-        diff = key_pos - pos + (0, (row_count - 1) * d / 2)
+        diff = key_pos - pos + (0, (self.row_count - 1) * d / 2)
         below = diff[1] > 0
-        t1 = -px + td if below else -px + d + rd
+        t1 = td if below else d + rd
         t2 = max(-1.905, -diff[1] + rd) if below else min(py, -diff[1] + rd)
-        path = [
-            np.array((0, rd)) - diff,
-            (t1 if left_half else -t1, -diff[1] + rd),
-            *self.angled_track_path(
-                np.array((t1 if left_half else -t1, t2)),
-                np.array(
-                    (-1.65 if left_half or not below else 1.65, 2.2 if below else 5.5)
+        tx = t1 - px
+        ty = -py + td if below else -py + d + rd
+        # calculate extra points for the left- and rightmost column
+        extra_points = []
+        extra_range = col[j : self.cr_off + 1] if below else col[self.cr_off : j + 1]
+        extra_pos = [c_pos[:2] - key_pos for c_pos in extra_range]
+        for k, r_pos in enumerate(extra_pos[:-1]):
+            off1 = extra_pos[k + 1] if below else r_pos
+            off2 = r_pos if below else extra_pos[k + 1]
+            extra_points.append((tx if left_half else -tx, -ty if below else ty) + off1)
+            extra_points.append(
+                ((tx if left_half else -tx) + off2[0], (-ty if below else ty) + off1[1])
+            )
+        # calculate the path of the track
+        path = (
+            [
+                np.array((0, rd)) - diff,
+                np.array((t1 if left_half else -t1, rd)) - diff,
+            ]
+            + extra_points
+            + [
+                *self.angled_track_path(
+                    np.array((tx if left_half else -tx, t2)),
+                    np.array(
+                        (
+                            -1.65 if left_half or not below else 1.65,
+                            2.2 if below else 5.5,
+                        )
+                    ),
                 ),
-            ),
-            (-1.65, 2.2) if not left_half and below else (-1.65, 3.41),
-            (-1.65, 3.41),
-        ]
+                (-1.65, 2.2) if not left_half and below else (-1.65, 3.41),
+                (-1.65, 3.41),
+            ]
+        )
         self.add_track_path(path, key_pos + self.origin_offset, B_Cu)
 
     def add_thumb_row_track(self, pos, ppos, offset, layer, rotation):

@@ -52,7 +52,7 @@ mount_rim = [5, 3];
 
 // key matrix pcb values
 m_pcb_col_connector_width = 3;
-m_pcb_straight_conn_width = 6;
+m_pcb_straight_conn_width = 3;
 m_pcb_pad_size = [13, 14];
 m_pcb_thickness = 0.6;
 
@@ -270,8 +270,8 @@ col_connector_vals = [for (i = iter(m_pcb_vals)) if (i > 0) let(
     )
     if (a != 0) let(
     // straight connector vals
-    pos1 = m_pcb_ppos + [m_pcb_pad_size.x / 2, 0],
-    pos2 = m_pcb_pos - [m_pcb_pad_size.x / 2, 0]
+    pos1 = m_pcb_pos - [m_pcb_pad_size.x / 2, 0],
+    pos2 = m_pcb_ppos + [m_pcb_pad_size.x / 2, 0]
     )
         [2, pos1, pos2]
     else let(
@@ -670,7 +670,7 @@ module case() {
 module m_pcb_pad_with_connector(conn_l, x1, x2, y) {
     difference() {
         union() {
-            w = m_pcb_straight_conn_width / 2;
+            w = m_pcb_straight_conn_width;
             square(m_pcb_pad_size, center=true);
             translate([x1, y]) square([w, conn_l]);
             translate([x2, y]) square([w, conn_l]);
@@ -707,13 +707,13 @@ module line(l, w) {
 
 
 module col_connector(type, pos1, pos2) {
+    w = m_pcb_col_connector_width;
     if (type == 2) {
-        conn_l = pos2.x - pos1.x + 2 * e;
-        translate(pos1 - [e, m_pcb_straight_conn_width / 2])
-            square([conn_l, m_pcb_straight_conn_width]);
+        conn_l = pos1.x - pos2.x + 2 * e;
+        translate(pos2 - [e, w / 2])
+            square([conn_l, w]);
     }
     else {
-        w = m_pcb_col_connector_width;
         r = abs(pos1.x - pos2.x) / 2;
         l = abs(pos2.y - pos1.y) - 2 * r;
         translate(pos1) flip_x(type) {
@@ -783,7 +783,7 @@ module matrix_pcb_outline() {
         for (j = iter(ps)) {
             m_pcb_pos = ps[j];
             m_pcb_ppos = ps[max(j - 1, 0)];
-            w = m_pcb_straight_conn_width / 2;
+            w = m_pcb_straight_conn_width;
             conn_l = m_pcb_pos.y - m_pcb_ppos.y - m_pcb_pad_size.y + 2 * e;
             x1 = max(0, m_pcb_ppos.x - m_pcb_pos.x) - m_pcb_pad_size.x / 2;
             x2 = min(0, m_pcb_ppos.x - m_pcb_pos.x) + m_pcb_pad_size.x / 2 - w;
@@ -833,6 +833,7 @@ else {
     // output different values for automatic pcb generation
     echo(
         m_pcb_pad_size,
+        -col_range[0],
         -m_pcb_vals,
         thumb_rotation.z,
         thumb_connector_vals[15],
