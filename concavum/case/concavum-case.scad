@@ -53,7 +53,7 @@ mount_rim = [5, 3];
 // key matrix pcb values
 m_pcb_col_connector_width = 3;
 m_pcb_straight_conn_width = 6;
-m_pcb_pad_size = [12.5, 14];
+m_pcb_pad_size = [13, 14];
 m_pcb_thickness = 0.6;
 
 // thumb connector values
@@ -832,6 +832,7 @@ else if ($preview) {
 else {
     // output different values for automatic pcb generation
     echo(
+        m_pcb_pad_size,
         -m_pcb_vals,
         thumb_rotation.z,
         thumb_connector_vals[15],
