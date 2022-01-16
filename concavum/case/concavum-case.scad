@@ -52,7 +52,7 @@ mount_rim = [5, 3];
 
 // key matrix pcb values
 m_pcb_col_connector_width = 3;
-m_pcb_straight_conn_width = 5;
+m_pcb_straight_conn_width = 6;
 m_pcb_pad_size = [12.5, 14];
 m_pcb_thickness = 0.6;
 
@@ -836,7 +836,8 @@ else {
         thumb_rotation.z,
         thumb_connector_vals[15],
         m_pcb_thumb_vals,
-        -col_connector_vals
+        -col_connector_vals,
+        finger_anchor_index
     );
     matrix_pcb_outline();
 }

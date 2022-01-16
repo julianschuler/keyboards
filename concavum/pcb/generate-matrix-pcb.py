@@ -15,12 +15,13 @@ class MatrixPcbGenerator:
         """Constructor of the PCB generator"""
         f_dir = os.path.dirname(__file__)
         self.footprint_path = os.path.join(f_dir, "footprints")
-        self.footprint_name = "key-switch"
+        self.key_footprint_name = "key-switch"
+        self.fpc_footprint_name = "fpc-connector"
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(gettempdir(), "outline-matrix-pcb.dxf")
         self.origin_offset = np.array((195, 90))
         self.max_rows = 6
-        self.max_cols = 8
+        self.max_cols = 6
         self.track_width = pcbnew.FromMM(0.3)
         self.arc_segments = 120
 
@@ -50,13 +51,17 @@ class MatrixPcbGenerator:
         row_nets = [nets[f"ROW{i+1}"] for i in range(self.max_rows)]
         col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
-        self.add_finger_cluster(scad_vals[0], row_nets, col_nets)
+        self.add_finger_cluster(scad_vals[0], row_nets[1:], col_nets)
         # add keys to the thumb cluster
         self.add_thumb_cluster(
-            scad_vals[1], scad_vals[2], scad_vals[3], row_nets[-1], col_nets
+            scad_vals[1], scad_vals[2], scad_vals[3], row_nets[0], col_nets
         )
         # add tracks going through the column connectors
         self.add_col_connector_tracks(scad_vals[4], len(scad_vals[0][0]), B_Cu)
+        # add FPC connector
+        self.add_fpc_connector(
+            scad_vals[0][scad_vals[5][0]][scad_vals[5][1]], row_nets, col_nets
+        )
 
     def add_finger_cluster(self, finger_vals, row_nets, col_nets):
         """Add keys to the finger cluster"""
@@ -109,7 +114,7 @@ class MatrixPcbGenerator:
 
     def add_key(self, ref, pos, row_net, col_net, rotation=0):
         """Add a single key to a given (x, y) position"""
-        key = pcbnew.FootprintLoad(self.footprint_path, self.footprint_name)
+        key = pcbnew.FootprintLoad(self.footprint_path, self.key_footprint_name)
         pads = key.Pads()
         pads[1].SetNet(row_net)
         pads[2].SetNet(col_net)
@@ -143,14 +148,12 @@ class MatrixPcbGenerator:
         diff = ppos - pos
         path = [
             (-3.81, -2.54),
-            (-3.81, -0.635),
-            (-4.445, 0),
             *self.angled_track_path(
-                np.array((-4.445, 3.175)),
-                np.array((-4.445 + max(0, diff[0]), 6.985)),
+                np.array((-3.81, 3.175)),
+                np.array((-3.81 + max(0, diff[0]), 6.985)),
             ),
             *self.angled_track_path(
-                np.array((-4.445 + max(0, diff[0]), -6.985 + diff[1])),
+                np.array((-3.81 + max(0, diff[0]), -6.35 + diff[1])),
                 np.array((-2.54, -5.08)) + diff,
             ),
         ]
@@ -232,6 +235,19 @@ class MatrixPcbGenerator:
         track.SetWidth(self.track_width)
         self.board.Add(track)
 
+    def add_fpc_connector(self, pos, row_nets, col_nets):
+        """Add the FPC connector"""
+        off = self.origin_offset + [0, 3.3]
+        fpc = pcbnew.FootprintLoad(self.footprint_path, self.fpc_footprint_name)
+        pads = fpc.Pads()
+        for i, pad in enumerate(pads):
+            if i in range(self.max_cols):
+                pad.SetNet(col_nets[i])
+            elif i - self.max_cols in range(self.max_rows):
+                pad.SetNet(row_nets[i - self.max_cols])
+        fpc.SetPosition(self.to_point(pos[:2] + off))
+        self.board.Add(fpc)
+
     def save_board(self, board_file):
         """Save the board to the given output file"""
         pcbnew.SaveBoard(board_file, self.board)
@@ -244,7 +260,7 @@ class MatrixPcbGenerator:
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
     output_dir = os.path.join(f_dir, "matrix-pcb")
-    # create output directory if not exists already
+    # create output directory if doesn't exist already
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     # generate board from template file and save it to the output directory
