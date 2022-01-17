@@ -26,6 +26,7 @@ class MatrixPcbGenerator:
         self.track_distance = 0.15
         self.arc_segments = 120
         self._track_width_nm = pcbnew.FromMM(self.track_width)
+        self.pad_width_min = 4.91
 
     def generate_board(self, board_template_file):
         """Generate the PCB using the given file as template"""
@@ -49,6 +50,8 @@ class MatrixPcbGenerator:
         self.cr_off = scad_vals[1]
         self.col_count = len(scad_vals[2])
         self.row_count = len(scad_vals[2][0])
+        self.rows_below = self.cr_off + 1
+        self.rows_above = self.row_count - self.rows_below
         # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
@@ -185,9 +188,13 @@ class MatrixPcbGenerator:
         pos = pos1 if (left == 0) == left_half else pos2
         diff = key_pos - pos + (0, (self.row_count - 1) * d / 2)
         below = diff[1] > 0
-        t1 = td if below else d + rd
+        t1 = (
+            td - d * (self.rows_below + 1)
+            if below
+            else d + rd - d * (self.rows_above + 1)
+        )
         t2 = max(-1.905, -diff[1] + rd) if below else min(py, -diff[1] + rd)
-        tx = t1 - px
+        tx = t1 - self.pad_width_min
         ty = -py + td if below else -py + d + rd
         # calculate extra points for the left- and rightmost column
         extra_points = []
@@ -204,7 +211,7 @@ class MatrixPcbGenerator:
         path = (
             [
                 np.array((0, rd)) - diff,
-                np.array((t1 if left_half else -t1, rd)) - diff,
+                np.array((tx + px if left_half else -tx - px, rd)) - diff,
             ]
             + extra_points
             + [
