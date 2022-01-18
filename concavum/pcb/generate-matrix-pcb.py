@@ -244,21 +244,19 @@ class MatrixPcbGenerator:
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
         d = self.track_width + self.track_distance
-        td = (j + 1) * d
         rd = (self.row_count - 1 - j) * d
         key_pos = np.array(col[j][:2])
         left, pos1, pos2 = cv
         pos = pos1 if (left == 0) == left_half else pos2
-        diff = key_pos - pos + (0, (self.row_count - 1) * d / 2)
-        below = diff[1] > 0
-        t1 = (
-            td - d * (self.rows_below + 1)
-            if below
-            else d + rd - d * (self.rows_above + 1)
-        )
-        t2 = max(-1.905, -diff[1] + rd) if below else min(py, -diff[1] + rd)
-        tx = t1 - self.pad_width_min
-        ty = -py + td if below else -py + d + rd
+        below = (key_pos - pos)[1] >= 0
+        # offset values
+        diff_off = (self.row_count - 1) * d / 2
+        diff = pos - key_pos + (0, (diff_off if below else -diff_off))
+        dr = d * (self.rows_below if below else self.rows_above)
+        tx = -self.pad_width_min - dr
+        ty = py - d
+        t1 = px + tx
+        t2 = max(-1.905, diff[1] + rd) if below else min(py, diff[1] + rd)
         # calculate extra points for the left- and rightmost column
         extra_points = []
         extra_range = col[j : self.cr_off + 1] if below else col[self.cr_off : j + 1]
@@ -266,20 +264,27 @@ class MatrixPcbGenerator:
         for k, r_pos in enumerate(extra_pos[:-1]):
             off1 = extra_pos[k + 1] if below else r_pos
             off2 = r_pos if below else extra_pos[k + 1]
-            extra_points.append((tx if left_half else -tx, -ty if below else ty) + off1)
+            extra_points.append((tx if left_half else -tx, ty if below else -ty) + off1)
             extra_points.append(
-                ((tx if left_half else -tx) + off2[0], (-ty if below else ty) + off1[1])
+                ((tx if left_half else -tx) + off2[0], (ty if below else -ty) + off1[1])
             )
         # calculate the path of the track
-        path = (
+        path = np.array(
             [
-                np.array((0, rd)) - diff,
-                np.array((tx + px if left_half else -tx - px, rd)) - diff,
+                diff,
+                np.array((t1 if left_half else -t1, 0)) + diff,
             ]
             + extra_points
             + [
+                np.array((tx if left_half else -tx, t2)),
+            ]
+        )
+        dn = -d * j if below else d * (self.row_count - j - 1)
+        off_path = offset_path(path, dn if left_half else -dn)
+        conn_path = np.array(
+            [
                 *angled_track_path(
-                    np.array((tx if left_half else -tx, t2)),
+                    off_path[-1],
                     np.array(
                         (
                             -1.65 if left_half or not below else 1.65,
@@ -291,7 +296,8 @@ class MatrixPcbGenerator:
                 (-1.65, 3.41),
             ]
         )
-        self.add_track_path(path, key_pos + self.origin_offset, B_Cu)
+        total_path = np.concatenate((off_path, conn_path))
+        self.add_track_path(total_path, key_pos + self.origin_offset, B_Cu)
 
     def add_thumb_row_track(self, pos, ppos, offset, layer, rotation):
         """Add a track connecting the row pins of two thumb pins"""
