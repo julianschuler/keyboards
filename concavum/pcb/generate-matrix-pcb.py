@@ -10,6 +10,69 @@ from ast import literal_eval
 from tempfile import gettempdir
 
 
+def perp_vec(a):
+    """Calculate the vector perpendicular to the given one"""
+    return np.array((-a[1], a[0]))
+
+
+def scale(a, length):
+    """Scale a vector to the given legth"""
+    norm = np.linalg.norm(a)
+    if norm == 0:
+        return a
+    return a * (length / np.linalg.norm(a))
+
+
+def line_intersection(a1, a2, b1, b2):
+    """Calculate the intersection of lines a and b given by two points each"""
+    da = a2 - a1
+    db = b2 - b1
+    dp = a1 - b1
+    da_perp = perp_vec(da)
+    denom = np.dot(da_perp, db)
+    if denom == 0:
+        return None
+    return (np.dot(da_perp, dp) / denom.astype(float)) * db + b1
+
+
+def offset_path(path, offset):
+    """Offset a directed path by a given value"""
+    off_path = []
+    for i, p in enumerate(path):
+        q, r = path[max(i - 1, 0)], path[min(i + 1, len(path) - 1)]
+        d1 = scale(perp_vec(p - q), offset)
+        d2 = scale(perp_vec(r - p), offset)
+        if i == 0:
+            off_path.append(p + d2)
+        elif i == len(path) - 1:
+            off_path.append(p + d1)
+        off_p = line_intersection(q + d1, p + d1, p + d2, r + d2)
+        if off_p is not None:
+            off_path.append(off_p)
+    return off_path
+
+
+def arc_path(arc_angle, rotation, arc_segments):
+    """Calulate the points for path describing an arc with radius 1"""
+    a = np.linspace(rotation, arc_angle + rotation, arc_segments * arc_angle // 360)
+    a_rad = np.radians(a)
+    return np.array(list(zip(np.sin(a_rad), np.cos(a_rad))))
+
+
+def angled_track_path(start, end):
+    """Calculate the points for an angled track path between start and end"""
+    diff = end - start
+    if abs(diff[0]) > abs(diff[1]):
+        d = diff[1] / 2
+        dx = d if np.sign(d) == np.sign(diff[0]) else -d
+        dy = d
+    else:
+        d = diff[0] / 2
+        dx = d
+        dy = d if np.sign(d) == np.sign(diff[1]) else -d
+    return start, start + (dx, dy), end - (dx, dy), end
+
+
 class MatrixPcbGenerator:
     def __init__(self):
         """Constructor of the PCB generator"""
@@ -155,11 +218,11 @@ class MatrixPcbGenerator:
         py = self.pad_size[1] / 2
         path = [
             (-3.81, -2.54),
-            *self.angled_track_path(
+            *angled_track_path(
                 np.array((-3.81, 3.175)),
                 np.array((-3.81 + max(0, diff[0]), py)),
             ),
-            *self.angled_track_path(
+            *angled_track_path(
                 np.array((-3.81 + max(0, diff[0]), -py + diff[1])),
                 np.array((-2.54, -5.08)) + diff,
             ),
@@ -208,7 +271,7 @@ class MatrixPcbGenerator:
             ]
             + extra_points
             + [
-                *self.angled_track_path(
+                *angled_track_path(
                     np.array((tx if left_half else -tx, t2)),
                     np.array(
                         (
@@ -239,8 +302,8 @@ class MatrixPcbGenerator:
     def add_col_connector_tracks(self, col_connector_vals, track_count, layer):
         """Add tracks going through the column connectors"""
         off = self.origin_offset
-        arc1 = self.arc_track_path(90, 0)
-        arc2 = self.arc_track_path(90, 90)
+        arc1 = arc_path(90, 0, self.arc_segments)
+        arc2 = arc_path(90, 90, self.arc_segments)
         b = (track_count - 1) * (self.track_width + self.track_distance) / 2
         for c_type, pos1, pos2 in col_connector_vals:
             if c_type == -2:
@@ -257,27 +320,6 @@ class MatrixPcbGenerator:
                         pos1 + off + (d, a_r), pos1 + off + (d, a_r + ln), layer
                     )
                     self.add_track_path(arc * -d, pos2 + off - (0, a_r), layer)
-
-    def angled_track_path(self, start, end):
-        """Calculate the points for an angled track path between start and end"""
-        diff = end - start
-        if abs(diff[0]) > abs(diff[1]):
-            d = diff[1] / 2
-            dx = d if np.sign(d) == np.sign(diff[0]) else -d
-            dy = d
-        else:
-            d = diff[0] / 2
-            dx = d
-            dy = d if np.sign(d) == np.sign(diff[1]) else -d
-        return start, start + (dx, dy), end - (dx, dy), end
-
-    def arc_track_path(self, arc_angle, rotation=0):
-        """Calulate the points for path describing an arc with radius 1"""
-        a = np.linspace(
-            rotation, arc_angle + rotation, self.arc_segments * arc_angle // 360
-        )
-        a_rad = np.radians(a)
-        return np.array(list(zip(np.sin(a_rad), np.cos(a_rad))))
 
     def add_track_path(self, path, offset, layer, rotation=0):
         """Add a sequence of tracks defining a path"""
