@@ -52,6 +52,11 @@ def offset_path(path, offset):
     return off_path
 
 
+def to_point(pos):
+    """Return a wxPoint at the given position"""
+    return pcbnew.wxPointMM(*pos.tolist())
+
+
 def arc_path(arc_angle, rotation, arc_segments):
     """Calulate the points for path describing an arc with radius 1"""
     a = np.linspace(rotation, arc_angle + rotation, arc_segments * arc_angle // 360)
@@ -83,6 +88,7 @@ class MatrixPcbGenerator:
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(gettempdir(), "outline-matrix-pcb.dxf")
         self.origin_offset = np.array((195, 90))
+        self.fpc_offset = np.array((0, 5.5))
         self.max_rows = 6
         self.max_cols = 6
         self.track_width = 0.15
@@ -129,10 +135,11 @@ class MatrixPcbGenerator:
         )
         # add tracks going through the column connectors
         self.add_col_connector_tracks(scad_vals[6], len(scad_vals[2][0]), B_Cu)
-        # add FPC connector
-        self.add_fpc_connector(
-            scad_vals[2][scad_vals[7][0]][scad_vals[7][1]], row_nets, col_nets
-        )
+        # add FPC connector and its tracks
+        fpc_indices = scad_vals[7]
+        fpc_pos = scad_vals[2][fpc_indices[0]][fpc_indices[1]][:2]
+        self.add_fpc_connector(fpc_pos, row_nets, col_nets)
+        self.add_row_tracks_fpc_conn(fpc_pos, scad_vals[2][fpc_indices[0]])
 
     def add_finger_cluster(self, finger_vals, row_nets, col_nets, col_connector_vals):
         """Add keys to the finger cluster"""
@@ -181,8 +188,8 @@ class MatrixPcbGenerator:
         seg = pcbnew.PCB_SHAPE(self.board)
         seg.SetLayer(layer)
         seg.SetShape(pcbnew.S_SEGMENT)
-        seg.SetStart(self.to_point(start))
-        seg.SetEnd(self.to_point(end))
+        seg.SetStart(to_point(start))
+        seg.SetEnd(to_point(end))
         self.board.Add(seg)
 
     def add_key(self, ref, pos, row_net, col_net, rotation=0):
@@ -194,7 +201,7 @@ class MatrixPcbGenerator:
         pads[3].SetNet(col_net)
         key.SetReference(ref)
         key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
-        key.SetPosition(self.to_point(pos))
+        key.SetPosition(to_point(pos))
         self.board.Add(key)
         self.add_key_tracks(pos, F_Cu, rotation)
 
@@ -332,6 +339,46 @@ class MatrixPcbGenerator:
             )
         )
 
+    def add_row_tracks_fpc_conn(self, fpc_pos, col):
+        """Add all tracks connecting the FPC connector pads with the rows"""
+        off = self.origin_offset
+        for i in range(-1, self.row_count):
+            # the first row is always connected to the thumb cluster
+            if i == -1:
+                pass
+            # the second row is always at a fixed offset to the FPC connector
+            elif i == 0:
+                path = (
+                    (1.5, 0),
+                    (1.5, -0.6),
+                    (0, -2.1),
+                    (0, 2.2) - self.fpc_offset,
+                )
+                self.add_track_path(path, fpc_pos + self.fpc_offset + off, B_Cu)
+            # calculate all other paths dynamically
+            else:
+                pos = np.array(col[i][:2])
+                diff = fpc_pos + self.fpc_offset - pos
+                d = self.track_width + self.track_distance
+                tx = self.pad_width_min + i * d
+                dx = i + 1.5
+                ty = abs(tx - dx)
+                path = np.concatenate(
+                    (
+                        (
+                            (dx, 0) + diff,
+                            (dx, -0.6) + diff,
+                            (tx, -0.6 - ty) + diff,
+                        ),
+                        angled_track_path(
+                            np.array((tx, self.pad_size[1] / 2)),
+                            np.array((-1.65, 4.3)),
+                        ),
+                        ((-1.65, 3.41),),
+                    )
+                )
+                self.add_track_path(path, pos + off, F_Cu)
+
     def add_thumb_row_track(self, pos, ppos, offset, layer, rotation):
         """Add a track connecting the row pins of two thumb pins"""
         diff = ppos - pos
@@ -382,15 +429,15 @@ class MatrixPcbGenerator:
     def add_track(self, start, end, layer):
         """Add a single pcb track"""
         track = pcbnew.PCB_TRACK(self.board)
-        track.SetStart(self.to_point(start))
-        track.SetEnd(self.to_point(end))
+        track.SetStart(to_point(start))
+        track.SetEnd(to_point(end))
         track.SetLayer(layer)
         track.SetWidth(self._track_width_nm)
         self.board.Add(track)
 
-    def add_fpc_connector(self, pos, row_nets, col_nets):
+    def add_fpc_connector(self, fpc_pos, row_nets, col_nets):
         """Add the FPC connector"""
-        off = self.origin_offset + (0, 5.5)
+        off = self.origin_offset + self.fpc_offset
         fpc = pcbnew.FootprintLoad(self.footprint_path, self.fpc_footprint_name)
         pads = fpc.Pads()
         for i, pad in enumerate(pads):
@@ -398,16 +445,12 @@ class MatrixPcbGenerator:
                 pad.SetNet(col_nets[i])
             elif i - self.max_cols in range(self.max_rows):
                 pad.SetNet(row_nets[i - self.max_cols])
-        fpc.SetPosition(self.to_point(pos[:2] + off))
+        fpc.SetPosition(to_point(fpc_pos + off))
         self.board.Add(fpc)
 
     def save_board(self, board_file):
         """Save the board to the given output file"""
         pcbnew.SaveBoard(board_file, self.board)
-
-    def to_point(self, pos):
-        """Return a wxPoint with the given position"""
-        return pcbnew.wxPointMM(*pos.tolist())
 
 
 if __name__ == "__main__":
