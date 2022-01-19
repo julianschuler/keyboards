@@ -208,8 +208,8 @@ class MatrixPcbGenerator:
             (
                 (2.54, -5.08),
                 (3.81, -2.54),
-                (3.81, 1.905),
-                (2.305, 3.41),
+                (3.81, 0.04),
+                (1.65, 2.2),
                 (1.65, 3.41),
             ),
         )
@@ -247,7 +247,6 @@ class MatrixPcbGenerator:
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
         d = self.track_width + self.track_distance
-        rd = (self.row_count - 1 - j) * d
         key_pos = np.array(col[j][:2])
         left, pos1, pos2 = cv
         pos = pos1 if (left == 0) == left_half else pos2
@@ -259,7 +258,8 @@ class MatrixPcbGenerator:
         tx = -self.pad_width_min - dr
         ty = py - d
         t1 = px + tx
-        t2 = max(-1.905, diff[1] + rd) if below else min(py, diff[1] + rd)
+        t2 = diff[1] + (self.row_count - 1 - j) * d
+        t3 = max(-1.905, t2) if below else min(py, t2)
         c = t1 - self.track_distance
         # calculate extra points for the left- and rightmost column
         extra_points = []
@@ -269,7 +269,7 @@ class MatrixPcbGenerator:
             )
         if extra_points == []:
             extra_points = np.array([]).reshape((0, 2))
-        # calculate the path of the track
+        # calculate the first path section of the track
         path = np.concatenate(
             (
                 (
@@ -278,12 +278,14 @@ class MatrixPcbGenerator:
                     np.array((t1 if left_half else -t1, c if below else -c)) + diff,
                 ),
                 extra_points,
-                ((tx if left_half else -tx, t2),),
+                ((tx if left_half else -tx, t3),),
             ),
         )
         dn = -d * j if below else d * (self.row_count - j - 1)
+        if t2 == t3:
+            path = path[:3]
         off_path = offset_path(path, dn if left_half else -dn)
-        conn_path = self.row_conn_path(left_half, below, off_path[-1])
+        conn_path = self.row_conn_path(left_half, below, t2 == t3, off_path[-1])
         total_path = np.concatenate((off_path, conn_path))
         self.add_track_path(total_path, key_pos + self.origin_offset, B_Cu)
 
@@ -310,7 +312,7 @@ class MatrixPcbGenerator:
             extra_points.extend(points)
         return extra_points
 
-    def row_conn_path(self, left_half, below, off_path_end):
+    def row_conn_path(self, left_half, below, short, off_path_end):
         """Calculate the diode connecting path section of the row connector"""
         return np.concatenate(
             (
@@ -319,7 +321,7 @@ class MatrixPcbGenerator:
                     np.array(
                         (
                             -1.65 if left_half or not below else 1.65,
-                            2.2 if below else 5.5,
+                            2.2 if below else 4.3 if short else 5.5,
                         )
                     ),
                 ),
