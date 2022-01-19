@@ -97,14 +97,14 @@ class MatrixPcbGenerator:
         self.board = pcbnew.LoadBoard(board_template_file)
         # use openscad to generate the PCB outline as DXF file and to get
         # other data as key positions, rotations, etc.
-        cmd = [
+        cmd = (
             "openscad",
             "-D",
             "build_case=false",
             "-o",
             self.dxf_file,
             self.scad_file,
-        ]
+        )
         scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         # get key positions and co. from openscad output
         scad_vals = literal_eval(scad_output.splitlines()[0][6:].decode())
@@ -170,10 +170,11 @@ class MatrixPcbGenerator:
     def draw_dxf_lines(self, dxf_file, layer, off=np.zeros(2)):
         """Draw lines from a given DXF file to a specific layer"""
         dxf = dxfgrabber.readfile(dxf_file)
-        for e in [e for e in dxf.entities if e.dxftype == "LINE"]:
-            start = np.array((off[0] + e.start[0], off[1] - e.start[1]))
-            end = np.array((off[0] + e.end[0], off[1] - e.end[1]))
-            self.draw_line(start, end, layer)
+        for e in dxf.entities:
+            if e.dxftype == "LINE":
+                start = np.array((off[0] + e.start[0], off[1] - e.start[1]))
+                end = np.array((off[0] + e.end[0], off[1] - e.end[1]))
+                self.draw_line(start, end, layer)
 
     def draw_line(self, start, end, layer):
         """Draw a line to the given layer specified by its start and end point"""
@@ -200,17 +201,17 @@ class MatrixPcbGenerator:
     def add_key_tracks(self, key_pos, layer, rotation):
         """Add tracks within each key"""
         paths = (
-            [
+            (
                 (-2.54, -5.08),
                 (-3.81, -2.54),
-            ],
-            [
+            ),
+            (
                 (2.54, -5.08),
                 (3.81, -2.54),
                 (3.81, 1.905),
                 (2.305, 3.41),
                 (1.65, 3.41),
-            ],
+            ),
         )
         for path in paths:
             self.add_track_path(path, key_pos, layer, rotation)
@@ -219,17 +220,19 @@ class MatrixPcbGenerator:
         """Add a track connecting the column pins of two keys"""
         diff = ppos - pos
         py = self.pad_size[1] / 2
-        path = [
-            (-3.81, -2.54),
-            *angled_track_path(
-                np.array((-3.81, 3.175)),
-                np.array((-3.81 + max(0, diff[0]), py)),
-            ),
-            *angled_track_path(
-                np.array((-3.81 + max(0, diff[0]), -py + diff[1])),
-                np.array((-2.54, -5.08)) + diff,
-            ),
-        ]
+        path = np.concatenate(
+            (
+                ((-3.81, -2.54),),
+                angled_track_path(
+                    np.array((-3.81, 3.175)),
+                    np.array((-3.81 + max(0, diff[0]), py)),
+                ),
+                angled_track_path(
+                    np.array((-3.81 + max(0, diff[0]), -py + diff[1])),
+                    np.array((-2.54, -5.08)) + diff,
+                ),
+            )
+        )
         self.add_track_path(path, pos, layer)
 
     def add_row_track(self, col, col_connector_vals, i, j):
@@ -257,34 +260,62 @@ class MatrixPcbGenerator:
         ty = py - d
         t1 = px + tx
         t2 = max(-1.905, diff[1] + rd) if below else min(py, diff[1] + rd)
+        c = t1 - self.track_distance
         # calculate extra points for the left- and rightmost column
+        extra_points = []
+        if i == 0 or i == self.col_count - 1:
+            extra_points = self.extra_row_points(
+                j, left_half, below, key_pos, col, tx, ty, c
+            )
+        if extra_points == []:
+            extra_points = np.array([]).reshape((0, 2))
+        # calculate the path of the track
+        path = np.concatenate(
+            (
+                (
+                    diff,
+                    np.array((t1 - c if left_half else -t1 + c, 0)) + diff,
+                    np.array((t1 if left_half else -t1, c if below else -c)) + diff,
+                ),
+                extra_points,
+                ((tx if left_half else -tx, t2),),
+            ),
+        )
+        dn = -d * j if below else d * (self.row_count - j - 1)
+        off_path = offset_path(path, dn if left_half else -dn)
+        conn_path = self.row_conn_path(left_half, below, off_path[-1])
+        total_path = np.concatenate((off_path, conn_path))
+        self.add_track_path(total_path, key_pos + self.origin_offset, B_Cu)
+
+    def extra_row_points(self, j, left_half, below, key_pos, col, tx, ty, c):
+        """Calculate the extra row points for the outermost columns"""
         extra_points = []
         extra_range = col[j : self.cr_off + 1] if below else col[self.cr_off : j + 1]
         extra_pos = [c_pos[:2] - key_pos for c_pos in extra_range]
         for k, r_pos in enumerate(extra_pos[:-1]):
             off1 = extra_pos[k + 1] if below else r_pos
             off2 = r_pos if below else extra_pos[k + 1]
-            extra_points.append((tx if left_half else -tx, ty if below else -ty) + off1)
-            extra_points.append(
-                ((tx if left_half else -tx) + off2[0], (ty if below else -ty) + off1[1])
+            points = (
+                (tx if left_half else -tx, ty - c if below else -ty + c) + off1,
+                (tx + c if left_half else -tx - c, ty if below else -ty) + off1,
+                (
+                    (tx - c if left_half else -tx + c) + off2[0],
+                    (ty if below else -ty) + off1[1],
+                ),
+                (
+                    (tx if left_half else -tx) + off2[0],
+                    (ty + c if below else -ty - c) + off1[1],
+                ),
             )
-        # calculate the path of the track
-        path = np.array(
-            [
-                diff,
-                np.array((t1 if left_half else -t1, 0)) + diff,
-            ]
-            + extra_points
-            + [
-                np.array((tx if left_half else -tx, t2)),
-            ]
-        )
-        dn = -d * j if below else d * (self.row_count - j - 1)
-        off_path = offset_path(path, dn if left_half else -dn)
-        conn_path = np.array(
-            [
-                *angled_track_path(
-                    off_path[-1],
+            extra_points.extend(points)
+        return extra_points
+
+    def row_conn_path(self, left_half, below, off_path_end):
+        """Calculate the diode connecting path section of the row connector"""
+        return np.concatenate(
+            (
+                angled_track_path(
+                    off_path_end,
                     np.array(
                         (
                             -1.65 if left_half or not below else 1.65,
@@ -292,24 +323,24 @@ class MatrixPcbGenerator:
                         )
                     ),
                 ),
-                (-1.65, 2.2) if not left_half and below else (-1.65, 3.41),
-                (-1.65, 3.41),
-            ]
+                (
+                    (-1.65, 2.2) if not left_half and below else (-1.65, 3.41),
+                    (-1.65, 3.41),
+                ),
+            )
         )
-        total_path = np.concatenate((off_path, conn_path))
-        self.add_track_path(total_path, key_pos + self.origin_offset, B_Cu)
 
     def add_thumb_row_track(self, pos, ppos, offset, layer, rotation):
         """Add a track connecting the row pins of two thumb pins"""
         diff = ppos - pos
-        path = [
+        path = (
             (-1.65, 3.41) - diff,
             (-2.305, 3.41) - diff,
             (-5.715, 0) - diff,
             (-5.715, 6.82),
             (-2.305, 3.41),
             (-1.65, 3.41),
-        ]
+        )
         self.add_track_path(path, offset, layer, rotation)
 
     def add_col_connector_tracks(self, col_connector_vals, track_count, layer):
@@ -357,7 +388,7 @@ class MatrixPcbGenerator:
 
     def add_fpc_connector(self, pos, row_nets, col_nets):
         """Add the FPC connector"""
-        off = self.origin_offset + [0, 5.5]
+        off = self.origin_offset + (0, 5.5)
         fpc = pcbnew.FootprintLoad(self.footprint_path, self.fpc_footprint_name)
         pads = fpc.Pads()
         for i, pad in enumerate(pads):
