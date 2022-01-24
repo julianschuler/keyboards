@@ -290,11 +290,10 @@ class MatrixPcbGenerator:
             dy = pos[1] - d * (self.col_count - 1 - i) / 2
             tx = 2 * (key_pos[0] + self.pad_width_min + d) - dx
             ty = max(dy, key_pos[1] + 4.3)
-        conn_seg = angled_track_path(np.array((dx, dy)), np.array((tx, ty)))
         path = np.concatenate(
             (
                 ((pos[0], dy),),
-                conn_seg,
+                angled_track_path(np.array((dx, dy)), np.array((tx, ty))),
                 ((key_pos[0] - 3.81, ty),),
             )
         )
@@ -302,19 +301,24 @@ class MatrixPcbGenerator:
         if pos1 is not None and pos2 is not None:
             lower_key = np.array(col[0][:2])
             num = i if left_side else self.col_count - 1 - i
-            y_off1 = (num - (2 if left_side else 1)) / 2 * d
-            y_off2 = (num - (1 if left_side else 2)) / 2 * d
+            y_off1 = (num + (0 if left_side else 1)) / 2 * d
+            y_off2 = (num + (1 if left_side else 0)) / 2 * d
             tx = self.pad_width_min + d
+            c = self.pad_size[0] / 2 - tx - d - (num - 1) * d * np.sin(np.pi / 8)
             conn_path = (
                 pos1 - (0, y_off1),
-                (lower_key[0] - tx, pos1[1] - y_off1),
-                lower_key + (-tx, 4.3),
-                lower_key + (tx, 4.3),
-                (lower_key[0] + tx, pos2[1] - y_off2),
+                np.array((lower_key[0] - tx - c, pos1[1] - y_off1)),
+                np.array((lower_key[0] - tx, pos1[1] - y_off1 + c)),
+                lower_key + (-tx, 6.7 - tx),
+                lower_key + (-2.4, 4.3),
+                lower_key + (2.4, 4.3),
+                lower_key + (tx, 6.7 - tx),
+                np.array((lower_key[0] + tx, pos2[1] - y_off2 + c)),
+                np.array((lower_key[0] + tx + c, pos2[1] - y_off2)),
                 pos2 - (0, y_off2),
             )
             for j in range(num):
-                off_path = offset_path(conn_path, j * d)
+                off_path = offset_path(conn_path, (j + 1) * d)
                 self.add_track_path(off_path, self.origin_offset, F_Cu)
 
     def add_row_track(self, col, col_conn_vals, i, j):
