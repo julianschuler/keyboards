@@ -344,7 +344,7 @@ class MatrixPcbGenerator:
         """Add tracks connecting the FPC connector pads with the columns"""
         off = self.origin_offset
         fpc_off = fpc_pos + self.fpc_offset
-        cols_left = self.row_count - fpc_indices[0]
+        cols_left = self.col_count - fpc_indices[0] - 1
         px = self.pad_size[0] / 2
         d = self.track_width + self.track_distance
         for i in range(self.row_count + 1):
