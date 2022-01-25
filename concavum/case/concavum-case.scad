@@ -55,12 +55,14 @@ m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
 m_pcb_pad_size = [14, 14];
 m_pcb_thickness = 0.6;
+fpc_pad_size = [19, 5];
+fpc_offset = [0, 7];
 
 // thumb connector values
-thumb_connector_width = 3;
+thumb_connector_width = 2.5;
 finger_anchor_index = [2, 0];
 thumb_anchor_index = 0;
-finger_anchor_offset = (m_pcb_pad_size.x - thumb_connector_width) / 2;
+finger_anchor_offset = 0;
 thumb_anchor_offset = 0;
 
 // polygon indices to specify where the nut holders are to be added
@@ -295,13 +297,14 @@ thumb_connector_vals = let(
     c = thumb_rotation.y,
     d = t_val[1],
     // value calculations
-    dy = m_pcb_pad_size.y / 2,
+    dx = m_pcb_pad_size.x / 2,
+    dy = fpc_offset.y + fpc_pad_size.y / 2,
     dz = switch_bottom_size.z,
     f_off = [
         -f_val[0].x - f_val[1].x, f_val[0].y + f_val[1].y, f_val[0].z + f_val[1].z
     ],
     f_pos = f_off + rotate_pos([b, 0, 0], [finger_anchor_offset, -dy, -dz]),
-    t_off = rotate_pos([d, 0, 0], [m_pcb_pad_size.x / 2, -thumb_anchor_offset, -dz]),
+    t_off = rotate_pos([d, 0, 0], [dx, -thumb_anchor_offset, -dz]),
     t_pos = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off),
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
@@ -326,13 +329,12 @@ thumb_connector_vals = let(
     ],
     bezier_len = bezier_curve_length(20, bezier_points),
     // 2D value calculations
-    ps = m_pcb_pad_size,
-    pos = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y] - [0, ps.y / 2],
+    pos = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y] - [0, dy],
     f_pos2 = [-pos.x + finger_anchor_offset, pos.y],
     f_arc2 = f_pos2 + [r * (1 - cos(a)), -r * sin(a)],
     t_pos2 = f_arc2 + rotate_pos([0, 0, a + 180], [r, bezier_len + r, 0]),
     t_off2 = t_pos2 + rotate_pos([0, 0, a + 180],
-        m_pcb_thumb_vals[thumb_anchor_index] + [ps.x / 2, -thumb_anchor_offset, 0])
+        m_pcb_thumb_vals[thumb_anchor_index] + [dx, -thumb_anchor_offset, 0])
     ) [
         r, a, b, c, d,
         bezier_points, bezier_len,
@@ -739,15 +741,16 @@ module thumb_connector_visualisation() {
         f_arc = thumb_connector_vals[9];
         f_val = thumb_connector_vals[10];
         t_val = thumb_connector_vals[11];
+        w = thumb_connector_width;
 
         color(matrix_pcb_color) {
             // arcs
             translate(f_pos) rotate([b, 0, 0]) rotate(90)
                 translate([0, -r, -m_pcb_thickness]) flip_x()
-                    linear_extrude(m_pcb_thickness) arc(r, 3, a);
+                    linear_extrude(m_pcb_thickness) arc(r, w, a);
             translate(t_pos) rotate(thumb_rotation + [d, 0, 0]) rotate(-90)
                     translate([-r, 0, -m_pcb_thickness])
-                        linear_extrude(m_pcb_thickness) arc(r, 3);
+                        linear_extrude(m_pcb_thickness) arc(r, w);
             // bending part of the connector approximated with a bezier curve
             translate(f_arc) rotate(a - 90) {
                 seg_size = 2 * bezier_len / bending_visualisation_segs;
@@ -756,8 +759,7 @@ module thumb_connector_visualisation() {
                     angle = (-c - b) * t + b;
                     translate([pos[0], 0, pos[1]]) rotate([angle, 0])
                     translate([0, 0, -m_pcb_thickness / 2])
-                        cube([seg_size, thumb_connector_width, m_pcb_thickness],
-                            center=true);
+                        cube([seg_size, w, m_pcb_thickness], center=true);
                 }
             }
         }
@@ -814,6 +816,10 @@ module matrix_pcb_outline() {
         y = -conn_l - m_pcb_pad_size.y / 2 + e;
         translate(pos) m_pcb_pad_with_connector(conn_l, x1, x2, y);
     }
+    // FPC connector pad
+    fpc_val = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y];
+    fpc_pos = fpc_val - fpc_offset;
+    translate([-fpc_pos.x, fpc_pos.y]) square(fpc_pad_size, center=true);
 }
 
 
