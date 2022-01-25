@@ -51,9 +51,9 @@ mount_boarder = 5;
 mount_rim = [5, 3];
 
 // key matrix pcb values
-m_pcb_col_connector_width = 3;
-m_pcb_straight_conn_width = 3;
-m_pcb_pad_size = [13, 14];
+m_pcb_col_connector_width = 2;
+m_pcb_straight_conn_width = 2.5;
+m_pcb_pad_size = [14, 14];
 m_pcb_thickness = 0.6;
 
 // thumb connector values
@@ -810,7 +810,7 @@ module matrix_pcb_outline() {
         ppos = m_pcb_thumb_vals[max(i - 1, 0)];
         conn_l = pos.y - ppos.y - m_pcb_pad_size.y + 2 * e;
         x1 = -m_pcb_pad_size.x / 2;
-        x2 = m_pcb_pad_size.x / 2 - m_pcb_straight_conn_width / 2;
+        x2 = m_pcb_pad_size.x / 2 - m_pcb_straight_conn_width;
         y = -conn_l - m_pcb_pad_size.y / 2 + e;
         translate(pos) m_pcb_pad_with_connector(conn_l, x1, x2, y);
     }

@@ -155,7 +155,7 @@ class MatrixPcbGenerator:
         fpc_pos = fpc_col[fpc_indices[1]][:2]
         self.add_fpc_connector(fpc_pos, row_nets, col_nets)
         self.add_row_tracks_fpc_conn(fpc_pos, fpc_col)
-        # self.add_col_tracks_fpc_conn(fpc_pos, fpc_col)
+        self.add_col_tracks_fpc_conn(fpc_pos, fpc_indices, col_conn_vals)
 
     def add_finger_cluster(
         self, finger_vals, row_nets, col_nets, col_conn_vals, fpc_indices
@@ -249,15 +249,16 @@ class MatrixPcbGenerator:
         """Add a track connecting the column pins of two keys"""
         diff = ppos - pos
         py = self.pad_size[1] / 2
+        dx = self.pad_width_min
         path = np.concatenate(
             (
                 ((-3.81, -2.54),),
                 angled_track_path(
-                    np.array((-3.81, 3.175)),
-                    np.array((-3.81 + max(0, diff[0]), py)),
+                    np.array((-3.81, 4.31)),
+                    np.array((-dx + max(0, diff[0]), py)),
                 ),
                 angled_track_path(
-                    np.array((-3.81 + max(0, diff[0]), -py + diff[1])),
+                    np.array((-dx + max(0, diff[0]), -py + diff[1])),
                     np.array((-2.54, -5.08)) + diff,
                 ),
             )
@@ -267,8 +268,9 @@ class MatrixPcbGenerator:
     def add_col_tracks(self, col, col_conn_vals, i, fpc_indices):
         """Add tracks between a column and its neighbouring column connector"""
         d = self.track_width + self.track_distance
+        py = self.pad_size[1] / 2
         key_pos = col[self.cr_off]
-        left_side = i < fpc_indices[0]
+        right_side = i < fpc_indices[0]
         pos1, pos2 = None, None
         if i < len(col_conn_vals):
             left1, pos1a, pos1b = col_conn_vals[i]
@@ -278,31 +280,34 @@ class MatrixPcbGenerator:
             pos2 = np.array(pos2b if left2 == 0 else pos2a)
         if i == fpc_indices[0]:
             return
-        if left_side:
+        if right_side:
             pos = pos1
             dx = pos[0] + i * d
             dy = pos[1] - d * i / 2
-            tx = key_pos[0] - 3.81
-            ty = max(dy, key_pos[1] - 2.54)
+            lower = dy > key_pos[1]
+            tx = key_pos[0] - (self.pad_width_min if lower else 3.81)
+            ty = key_pos[1] + py if lower else max(dy, key_pos[1] - 2.54)
+            t1 = tx
         else:
             pos = pos2
             dx = pos[0] - (self.col_count - i - 1) * d
             dy = pos[1] - d * (self.col_count - 1 - i) / 2
             tx = 2 * (key_pos[0] + self.pad_width_min + d) - dx
-            ty = max(dy, key_pos[1] + 4.3)
+            ty = key_pos[1] + 4.31
+            t1 = key_pos[0] - 3.81
         path = np.concatenate(
             (
                 ((pos[0], dy),),
                 angled_track_path(np.array((dx, dy)), np.array((tx, ty))),
-                ((key_pos[0] - 3.81, ty),),
+                ((t1, ty),),
             )
         )
         self.add_track_path(path, self.origin_offset, F_Cu)
         if pos1 is not None and pos2 is not None:
             lower_key = np.array(col[0][:2])
-            num = i if left_side else self.col_count - 1 - i
-            y_off1 = (num + (0 if left_side else 1)) / 2 * d
-            y_off2 = (num + (1 if left_side else 0)) / 2 * d
+            num = i if right_side else self.col_count - 1 - i
+            y_off1 = (num + (0 if right_side else 1)) / 2 * d
+            y_off2 = (num + (1 if right_side else 0)) / 2 * d
             tx = self.pad_width_min + d
             c = self.pad_size[0] / 2 - tx - d - (num - 1) * d * np.sin(np.pi / 8)
             conn_path = (
@@ -320,6 +325,50 @@ class MatrixPcbGenerator:
             for j in range(num):
                 off_path = offset_path(conn_path, (j + 1) * d)
                 self.add_track_path(off_path, self.origin_offset, F_Cu)
+
+    def add_col_tracks_fpc_conn(self, fpc_pos, fpc_indices, col_conn_vals):
+        """Add tracks connecting the FPC connector pads with the columns"""
+        off = self.origin_offset
+        fpc_off = fpc_pos + self.fpc_offset
+        cols_left = self.row_count - fpc_indices[0]
+        px = self.pad_size[0] / 2
+        d = self.track_width + self.track_distance
+        for i in range(self.row_count + 1):
+            if i < cols_left:
+                left, pos1, pos2 = col_conn_vals[fpc_indices[0]]
+                pos = np.array(pos1 if left == 0 else pos2)
+                tx = self.pad_width_min + (cols_left - i) * d
+                dx = self.max_cols - i - 0.5
+                ty = abs(tx - dx)
+                pos_y = (cols_left - 1) * d / 2
+                c = px - self.pad_width_min - (cols_left + 1) * d
+                off_path = (
+                    (0, pos_y) + pos,
+                    (d, pos_y) + pos,
+                    (d + c, pos_y + c) + pos,
+                    (d + c, pos_y + c + d) + pos,
+                )
+                path = np.concatenate(
+                    (
+                        offset_path(off_path, -i * d),
+                        (
+                            (-tx, -0.6 - ty) + fpc_off,
+                            (-dx, -0.6) + fpc_off,
+                            (-dx, 0) + fpc_off,
+                        ),
+                    )
+                )
+                self.add_track_path(path, off, F_Cu)
+            elif i == cols_left:
+                path = (
+                    (-3.81, -2.54) - self.fpc_offset,
+                    (-3.81, -0.6 - abs(i - 4.31)),
+                    (-i + 0.5, -0.6),
+                    (-i + 0.5, 0),
+                )
+                self.add_track_path(path, fpc_pos + self.fpc_offset + off, F_Cu)
+            else:
+                pass
 
     def add_row_track(self, col, col_conn_vals, i, j):
         """Add a track connecting the row pin of a key with its neighbour's one"""
