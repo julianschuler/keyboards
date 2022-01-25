@@ -128,6 +128,20 @@ class MatrixPcbGenerator:
         self.row_count = len(finger_vals[0])
         self.rows_below = self.cr_off + 1
         self.rows_above = self.row_count - self.rows_below
+        # ensure maximum number of rows, columns and thumb keys is not exceeded
+        if self.row_count >= self.max_rows or self.col_count > self.max_cols:
+            raise ValueError(
+                f"Key matrix has {self.col_count} colums and {self.row_count + 1} "
+                f"rows. Automatic PCB generation is only supported for key matrices "
+                f"with up to {self.max_cols} columns and {self.max_rows} rows "
+                f"including the thumb row."
+            )
+        if len(thumb_vals) > self.max_cols:
+            raise ValueError(
+                f"Thumb cluster has {len(thumb_vals)} keys. Automatic PCB "
+                f"generation is only supported for thumb clusters with up to "
+                f"{self.max_cols} keys."
+            )
         # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
