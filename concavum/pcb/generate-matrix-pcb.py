@@ -171,6 +171,7 @@ class MatrixPcbGenerator:
         self.add_fpc_connector(fpc_pos, row_nets, col_nets)
         self.add_row_tracks_fpc_conn(fpc_pos, fpc_col)
         self.add_col_tracks_fpc_conn(fpc_pos, fpc_indices, col_conn_vals)
+        self.add_thumb_tracks_fpc_conn(fpc_pos, t_conn_vals[12], len(t_vals), B_Cu)
 
     def add_finger_cluster(
         self, finger_vals, row_nets, col_nets, col_conn_vals, fpc_indices
@@ -196,11 +197,11 @@ class MatrixPcbGenerator:
         for i, t_pos in enumerate(t_vals):
             pos = np.array(
                 (
-                    t_sin * t_pos[1] + t_off[0] + self.origin_offset[0],
-                    t_cos * t_pos[1] - t_off[1] + self.origin_offset[1],
+                    -t_sin * t_pos[1] + t_off[0] + self.origin_offset[0],
+                    -t_cos * t_pos[1] - t_off[1] + self.origin_offset[1],
                 )
             )
-            col = len(t_vals) - 1 - i
+            col = self.col_count - 1 - i
             self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], t_rot + 180)
             if i > 0:
                 self.add_thumb_row_track(
@@ -526,14 +527,29 @@ class MatrixPcbGenerator:
         """Add a track connecting the row pins of two thumb pins"""
         diff = ppos - pos
         path = (
-            (-1.65, 3.41) - diff,
-            (-2.305, 3.41) - diff,
-            (-5.715, 0) - diff,
-            (-5.715, 6.82),
-            (-2.305, 3.41),
             (-1.65, 3.41),
+            (-2.305, 3.41),
+            (-5.715, 0),
+            (-5.715, 6.82) + diff,
+            (-2.305, 3.41) + diff,
+            (-1.65, 3.41) + diff,
         )
         self.add_track_path(path, offset, layer, rotation)
+
+    def add_thumb_tracks_fpc_conn(self, fpc_pos, f_pos, track_count, layer):
+        pos1 = np.array(fpc_pos[:2]) + self.fpc_offset
+        pos2 = np.array((f_pos[0], -f_pos[1]))
+        d = self.track_width + self.track_distance
+        for i in range(track_count + 1):
+            dx = d * (i - (track_count) / 2)
+            tx = i - track_count + 0.5
+            path = (
+                (tx, 0) + pos1,
+                (tx, 0.6) + pos1,
+                (pos2[0] + dx, abs(pos1[0] - pos2[0] + tx - dx) + 0.6 + pos1[1]),
+                pos2 + (dx, 0),
+            )
+            self.add_track_path(path, self.origin_offset, layer)
 
     def add_col_connector_tracks(self, col_conn_vals, track_count, layer):
         """Add tracks going through the column connectors"""
