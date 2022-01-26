@@ -59,7 +59,7 @@ fpc_pad_size = [19, 5];
 fpc_offset = [0, 7];
 
 // thumb connector values
-thumb_connector_width = 2.5;
+thumb_connector_width = 3;
 finger_anchor_index = [2, 0];
 thumb_anchor_index = 0;
 finger_anchor_offset = 0;
@@ -844,6 +844,7 @@ else {
         thumb_rotation.z,
         thumb_connector_vals[15],
         m_pcb_thumb_vals,
+        thumb_connector_vals,
         -col_connector_vals,
         finger_anchor_index
     );
