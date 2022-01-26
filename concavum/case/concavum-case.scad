@@ -846,7 +846,8 @@ else {
         m_pcb_thumb_vals,
         thumb_connector_vals,
         -col_connector_vals,
-        finger_anchor_index
+        finger_anchor_index,
+        thumb_anchor_index
     );
     matrix_pcb_outline();
 }
