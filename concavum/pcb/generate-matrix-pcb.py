@@ -92,18 +92,19 @@ class MatrixPcbGenerator:
         self.fpc_footprint_name = "fpc-connector"
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(gettempdir(), "outline-matrix-pcb.dxf")
+        self.drc_file = os.path.join(gettempdir(), "drc-report.txt")
         self.origin_offset = np.array((195, 90))
         self.fpc_offset = np.array((0, 5.5))
         self.max_rows = 6
         self.max_cols = 6
         self.track_width = 0.15
-        self.track_distance = 0.15
-        self.via_size = 0.6
+        self.track_clearance = 0.15
+        self.via_diameter = 0.6
         self.via_hole = 0.3
         self.arc_segments = 120
         self.pad_width_min = 4.91
         self._track_width_nm = pcbnew.FromMM(self.track_width)
-        self._via_size_nm = pcbnew.FromMM(self.via_size)
+        self._via_diameter_nm = pcbnew.FromMM(self.via_diameter)
         self._via_hole_nm = pcbnew.FromMM(self.via_hole)
 
     def generate_board(self, board_template_file):
@@ -166,6 +167,8 @@ class MatrixPcbGenerator:
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
         nets = self.board.GetNetsByName()
+        # for net in nets.values():
+        #     net.SetNetClass(self.netclass)
         row_nets = [nets[f"ROW{i+1}"] for i in range(self.max_rows)]
         col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
@@ -279,8 +282,8 @@ class MatrixPcbGenerator:
             (
                 (2.54, -5.08),
                 (3.81, -2.54),
-                (3.81, 0.04),
-                (1.65, 2.2),
+                (3.81, 0.24),
+                (1.65, 2.4),
                 (1.65, 3.41),
             ),
         )
@@ -309,7 +312,7 @@ class MatrixPcbGenerator:
 
     def add_col_tracks(self, col, col_conn_vals, i, fpc_index, layer):
         """Add tracks between a column and its neighbouring column connector"""
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
         key_pos = col[self.cr_off]
@@ -324,7 +327,7 @@ class MatrixPcbGenerator:
         if i == fpc_index:
             return
         num = i if right_side else self.col_count - 1 - i
-        t1 = num * d * np.sin(np.pi / 8) + self.track_distance
+        t1 = num * d * np.sin(np.pi / 8) + self.track_clearance
         pos = pos1 if right_side else pos2
         dx = pos[0] + (t1 if right_side else -t1)
         dy = pos[1] - d * num / 2
@@ -352,7 +355,7 @@ class MatrixPcbGenerator:
             y_off1 = (num - (2 if right_side else 1)) / 2 * d
             y_off2 = (num - (1 if right_side else 2)) / 2 * d
             tx = self.pad_width_min + d * 2
-            c = px - tx - self.track_distance - (num - 1) * d * np.sin(np.pi / 8)
+            c = px - tx - self.track_clearance - (num - 1) * d * np.sin(np.pi / 8)
             conn_path = (
                 pos1 - (0, y_off1),
                 np.array((lower_key[0] - tx - c, pos1[1] - y_off1)),
@@ -401,13 +404,13 @@ class MatrixPcbGenerator:
         off = self.origin_offset
         cols_left = self.col_count - fpc_index - 1
         px = self.pad_size[0] / 2
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         tx = self.pad_width_min + (cols_left - i) * d
         dx = self.max_cols - i - 1.5
         ty = abs(tx - dx)
         pos_y = (cols_left - 1) * d / 2
         t1 = px - self.pad_width_min - (cols_left) * d
-        c = t1 - self.track_distance
+        c = t1 - self.track_clearance
         off_path = (
             (0, pos_y) + pos,
             (t1 - c, pos_y) + pos,
@@ -429,7 +432,7 @@ class MatrixPcbGenerator:
     def add_right_col_track_fpc_conn(self, fpc_off, fpc_index, pos, i, layer):
         """Helper function for adding a track between a right column and FPC pad"""
         px = self.pad_size[0] / 2
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         cols_right = fpc_index
         cols_left = self.col_count - cols_right - 1
         fpc_w = (self.max_cols + self.max_rows) / 2 - 0.5
@@ -439,7 +442,7 @@ class MatrixPcbGenerator:
             fpc_off[0] + fpc_w + 0.3 + d,
         )
         t2 = pos[0] - t1 - (cols_right - 1) * d
-        c1 = t2 - self.track_distance
+        c1 = t2 - self.track_clearance
         c2 = t1 - fpc_w - fpc_off[0] - np.tan(np.pi / 8) * (d + 0.3)
         off_path1 = (
             (0, pos_y) + pos,
@@ -493,7 +496,7 @@ class MatrixPcbGenerator:
         """Helper function for adding half of a row track"""
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         key_pos = np.array(col[j][:2])
         c_type, pos1, pos2 = col_conn_val
         pos = pos1 if (c_type == 0) == left_half else pos2
@@ -507,7 +510,7 @@ class MatrixPcbGenerator:
         t1 = px + tx
         t2 = diff[1] + (self.row_count - 1 - j) * d
         t3 = max(-1.905, t2) if below else min(py, t2)
-        c = t1 - self.track_distance
+        c = t1 - self.track_clearance
         # calculate extra points for the left- and rightmost column
         extra_points = []
         if c_type == -2 and (i == 0 or i == self.col_count - 1):
@@ -569,12 +572,12 @@ class MatrixPcbGenerator:
                     np.array(
                         (
                             -1.65 if left_half or not below else 1.65,
-                            2.2 if below else 4.3 if short else 5.5,
+                            2.4 if below else 4.3 if short else 5.5,
                         )
                     ),
                 ),
                 (
-                    (-1.65, 2.2) if not left_half and below else (-1.65, 3.41),
+                    (-1.65, 2.4) if not left_half and below else (-1.65, 3.41),
                     (-1.65, 3.41),
                 ),
             )
@@ -590,7 +593,7 @@ class MatrixPcbGenerator:
                     (1.5, 0),
                     (1.5, -0.6),
                     (0, -2.1),
-                    (0, 2.2) - self.fpc_offset,
+                    (0, 2.4) - self.fpc_offset,
                 )
                 self.add_track_path(
                     path, fpc_pos + self.fpc_offset + off, opposite_layer(layer)
@@ -599,7 +602,7 @@ class MatrixPcbGenerator:
             else:
                 pos = np.array(col[i][:2])
                 diff = fpc_pos + self.fpc_offset - pos
-                d = self.track_width + self.track_distance
+                d = self.track_width + self.track_clearance
                 tx = self.pad_width_min + i * d
                 dx = i + 1.5
                 ty = abs(tx - dx)
@@ -637,7 +640,7 @@ class MatrixPcbGenerator:
         off = self.origin_offset + (t_conn_pos[0], -t_conn_pos[1])
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         # offset values
         below = i > t_index
         dy = (self.t_col_count - 1) * d / 2
@@ -645,7 +648,7 @@ class MatrixPcbGenerator:
         diff = (np.array(t_vals[i]) - np.array(t_vals[t_index]))[:2]
         dr = d * (self.t_col_count - t_index - 2 if below else t_index)
         tx = px - self.pad_width_min - dr
-        c = tx - self.track_distance
+        c = tx - self.track_clearance
         # calculate the first path section of the track
         path = np.concatenate(
             (
@@ -687,7 +690,7 @@ class MatrixPcbGenerator:
         """Add tracks connecting the FPC connector pads with the thumb cluster"""
         pos1 = np.array(fpc_pos[:2]) + self.fpc_offset
         pos2 = np.array((f_pos[0], -f_pos[1]))
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         for i in range(track_count):
             dx = d * (i - (track_count - 1) / 2)
             tx = i - track_count + 1.5 if track_count > 1 else -self.max_cols + 0.5
@@ -710,7 +713,7 @@ class MatrixPcbGenerator:
         off = self.origin_offset
         arc1 = arc_path(90, 0, self.arc_segments)
         arc2 = arc_path(90, 90, self.arc_segments)
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         for i, (c_type, pos1, pos2) in enumerate(col_conn_vals):
             if c_type == -2:
                 b = (track_count[i] - 1) * d / 2
@@ -735,7 +738,7 @@ class MatrixPcbGenerator:
         """Add tracks going through the thumb connector"""
         (r, a, _, _, _, _, conn_l, _, _, _, _, _, f_pos, f_arc, t_pos, _) = conn_vals
         off = self.origin_offset
-        d = self.track_width + self.track_distance
+        d = self.track_width + self.track_clearance
         arc1 = arc_path(a, -90, self.arc_segments)
         arc2 = arc_path(90, a, self.arc_segments)
         pos1 = (f_pos[0], -f_pos[1])
@@ -775,7 +778,7 @@ class MatrixPcbGenerator:
     def add_via(self, pos):
         """Add a single via"""
         via = pcbnew.PCB_VIA(self.board)
-        via.SetWidth(self._via_size_nm)
+        via.SetWidth(self._via_diameter_nm)
         via.SetDrill(self._via_hole_nm)
         via.SetPosition(to_point(pos))
         self.board.Add(via)
