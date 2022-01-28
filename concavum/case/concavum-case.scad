@@ -5,7 +5,7 @@ build_case = true;
 // whether to calculate the shell during case preview
 show_keys = true;
 show_pcb = true;
-calculate_shell = true;
+calculate_shell = false;
 
 // if true, show a visualisation of the bending of the pcb thumb connector
 visualize_bending = true;
@@ -29,13 +29,15 @@ col_range = [-1 : 2];
 thumb_range = [-1 : 1];
 
 // finger well curvature, side rotation and offset:
-// The length of finger_angles defines the number of columns, all three lists should
-// have the same length. Automatic PCB generation is supported for up to 6 columns.
-// finger_angles define the angles between two neighbouring keys within one column.
-// Side rotations which are not zero are only supported for the left- and rightmost 
-// columns.
+// The length of finger_angles defines the number of columns, all three lists have to
+// have the same size. Automatic PCB generation is supported for up to 6 columns.
+// finger_angles define the angles between two neighbouring keys within one column
+// and have to be greater than 0.
+// finger_rotation desribe the rotation of keys along the Y axis, values not equal
+// to 0 are only supported for the left- and rightmost columns.
 // finger_offset describes the offset of the columns relative to the first one, only
-// offsets in Y and Z direction are supported.
+// offsets along the Y and Z axis are supported (the X value has to be 0).
+// All described constraints are checked using assertions.
 finger_angles = [20, 20, 20, 20, 20, 20];
 finger_rotation = [20, 0, 0, 0, 0, -20];
 finger_offset = [
@@ -43,6 +45,7 @@ finger_offset = [
 ];
 
 // thumb well curvature, offset and rotation
+// thumb_angle has to be greater than 0
 thumb_angle = 15;
 thumb_rotation = [30, 0, 80];
 thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
@@ -63,7 +66,7 @@ mount_rim = [5, 3];
 // The FPC connector is also added at the same column, automatic PCB generation is
 // only supported for values from 1 to 2.
 finger_anchor_index = 2;
-// thumb_anchor_index selects the anchor point in the thumb cluster and should be 
+// thumb_anchor_index selects the anchor point in the thumb cluster and should be
 // chosen such that the bending of the thumb connector is minimized.
 thumb_anchor_index = 0;
 
@@ -128,6 +131,26 @@ usb_offset = 14.1;
 jack_radius = 3.1;
 jack_offset = [5.8, 0.55];
 port_offset = [4.5, 0, 1.7];
+
+
+// assertions to ensure the above described constraints
+assert(len(finger_angles) == len(finger_rotation)
+    && len(finger_angles) == len(finger_offset),
+    "Finger well key angle, rotation and offset lists have to have the same size."
+);
+for (i = iter(finger_angles)) {
+    assert(finger_angles[i] > 0, "Finger well key angles have to be greater 0.");
+    assert(finger_offset[i].x == 0,
+        "Finger well keys can be only offset along the Y and Z axis."
+    );
+    if (i > 0 && i < len(finger_vals) - 1) {
+        assert(finger_rotation[i] == 0, str(
+            "Key rotations have to be 0 for all columns ",
+            "except the left- and rightmost ones."
+        ));
+    }
+}
+assert(thumb_angle > 0, "Thumb well angle has to be greater than 0.");
 
 
 function iter(list) = [0 : len(list) - 1];
@@ -838,6 +861,7 @@ module matrix_pcb_outline() {
 }
 
 
+
 // build case
 if (build_case) {
     case();
@@ -851,7 +875,7 @@ else if ($preview) {
 }
 // 2D render version of the matrix pcb outline
 else {
-    // output different values for automatic pcb generation
+    // output values for automatic pcb generation
     echo(
         m_pcb_pad_size,
         -col_range[0],
