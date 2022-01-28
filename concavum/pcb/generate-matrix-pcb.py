@@ -382,11 +382,12 @@ class MatrixPcbGenerator:
                 self.add_left_col_track_fpc_conn(fpc_off, fpc_index, pos, i, layer)
             # add a track for the center column
             elif i == cols_left:
+                dy = 2.9 - self.fpc_offset[1] if fpc_index == 1 else -0.6
                 path = (
                     (-3.81, -2.54) - self.fpc_offset,
-                    (-3.81, -0.6 - abs(i - 5.31)),
-                    (-i + 1.5, -0.6),
-                    (-i + 1.5, 0),
+                    (-3.81, dy - abs(self.col_count - i - 5.31)),
+                    (i - self.col_count + 1.5, dy),
+                    (i - self.col_count + 1.5, 0),
                 )
                 self.add_track_path(path, fpc_pos + self.fpc_offset + off, layer)
             # add a track for a right column
@@ -453,15 +454,8 @@ class MatrixPcbGenerator:
             (fpc_w, 0.9 + d) + fpc_off,
         )
         end_pos = (i - self.col_count + 1.5, 0) + fpc_off
-        # direct connection is possible
-        if i < self.col_count - 1:
-            conn_path = (
-                (0.3 + d, 0.9 + d) + end_pos,
-                (0, 0.6) + end_pos,
-                end_pos,
-            )
         # a via and a track on the opposite layer is needed
-        else:
+        if i == self.col_count - 1 and fpc_index == 2:
             via_pos = (fpc_w - d, 0.9 + (cols_right + 1) * d) + fpc_off
             conn_path = (via_pos,)
             self.add_track_path(
@@ -470,6 +464,13 @@ class MatrixPcbGenerator:
                 opposite_layer(layer),
             )
             self.add_via(via_pos + self.origin_offset)
+        # a direct connection is possible
+        else:
+            conn_path = (
+                (0.3 + d, 0.9 + d) + end_pos,
+                (0, 0.6) + end_pos,
+                end_pos,
+            )
         path = np.concatenate(
             (
                 offset_path(off_path1, (self.col_count - 1 - i) * d),
@@ -583,12 +584,14 @@ class MatrixPcbGenerator:
             # the second row is always at a fixed offset to the FPC connector
             if i == 0:
                 path = (
-                    (1.5, 0) + self.fpc_offset,
-                    (1.5, -0.6) + self.fpc_offset,
-                    (5.54 - self.fpc_offset[1], 3.41),
-                    (-1.65, 3.41),
+                    (1.5, 0),
+                    (1.5, -0.6),
+                    (0, -2.1),
+                    (0, 2.2) - self.fpc_offset,
                 )
-                self.add_track_path(path, fpc_pos + off, layer)
+                self.add_track_path(
+                    path, fpc_pos + self.fpc_offset + off, opposite_layer(layer)
+                )
             # calculate all other paths dynamically
             else:
                 pos = np.array(col[i][:2])
