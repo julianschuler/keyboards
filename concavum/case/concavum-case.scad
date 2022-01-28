@@ -22,11 +22,20 @@ shell_fn = 15;
 // distance between neighbouring keys
 key_distance = [19.05, 19.05];
 
-// range for each column and thumb keys
+// range for each column and thumb keys:
+// Automatic PCB generation is supported for up to 6 rows including the thumb row
+// (e.g. col_range = [-1 : 4]) and up to 6 thumb keys (e.g. thumb_range = [-3 : 2])
 col_range = [-1 : 2];
 thumb_range = [-1 : 1];
 
-// finger well curvature, side rotation and offset relative to the first value
+// finger well curvature, side rotation and offset:
+// The length of finger_angles defines the number of columns, all three lists should
+// have the same length. Automatic PCB generation is supported for up to 6 columns.
+// finger_angles define the angles between two neighbouring keys within one column.
+// Side rotations which are not zero are only supported for the left- and rightmost 
+// columns.
+// finger_offset describes the offset of the columns relative to the first one, only
+// offsets in Y and Z direction are supported.
 finger_angles = [20, 20, 20, 20, 20, 20];
 finger_rotation = [20, 0, 0, 0, 0, -20];
 finger_offset = [
@@ -50,20 +59,13 @@ mount_height = 80;
 mount_boarder = 5;
 mount_rim = [5, 3];
 
-// key matrix pcb values
-m_pcb_col_connector_width = 2;
-m_pcb_straight_conn_width = 2.5;
-m_pcb_pad_size = [14, 14];
-m_pcb_thickness = 0.6;
-fpc_pad_size = [19, 5];
-fpc_offset = [0, 7];
-
-// thumb connector values
-thumb_connector_width = 3;
-finger_anchor_index = [2, 0];
+// finger_anchor_index selects the finger column which the thumb connector attaches to.
+// The FPC connector is also added at the same column, automatic PCB generation is
+// only supported for values from 1 to 2.
+finger_anchor_index = 2;
+// thumb_anchor_index selects the anchor point in the thumb cluster and should be 
+// chosen such that the bending of the thumb connector is minimized.
 thumb_anchor_index = 0;
-finger_anchor_offset = 0;
-thumb_anchor_offset = 0;
 
 // polygon indices to specify where the nut holders are to be added
 // format: [i, rotation, offset]
@@ -87,6 +89,19 @@ interface_pcb_color = "#1A1A1A";
 e = 0.01;
 $fa = 3;
 $fs = 0.01;
+
+// key matrix pcb values (shouldn't have to be changed)
+m_pcb_col_connector_width = 2;
+m_pcb_straight_conn_width = 2.5;
+m_pcb_pad_size = [14, 14];
+m_pcb_thickness = 0.6;
+fpc_pad_size = [19, 5];
+fpc_offset = [0, 7];
+
+// thumb connector values (shouldn't have to be changed)
+finger_anchor_offset = 0;
+thumb_anchor_offset = 0;
+thumb_connector_width = 2.3;
 
 // nut and bolt values (shouldn't have to be changed)
 bolt_diameter = 3.2;
@@ -289,7 +304,7 @@ col_connector_vals = [for (i = iter(m_pcb_vals)) if (i > 0) let(
 
 thumb_connector_vals = let(
     // values for connector endpoints
-    f_val = finger_vals[finger_anchor_index.x][finger_anchor_index.y],
+    f_val = finger_vals[finger_anchor_index][0],
     t_val = thumb_vals[thumb_anchor_index],
     // angles
     a = thumb_rotation.z,
@@ -329,7 +344,7 @@ thumb_connector_vals = let(
     ],
     bezier_len = bezier_curve_length(20, bezier_points),
     // 2D value calculations
-    pos = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y] - [0, dy],
+    pos = m_pcb_vals[finger_anchor_index][0] - [0, dy],
     f_pos2 = [-pos.x + finger_anchor_offset, pos.y],
     f_arc2 = f_pos2 + [r * (1 - cos(a)), -r * sin(a)],
     t_pos2 = f_arc2 + rotate_pos([0, 0, a + 180], [r, bezier_len + r, 0]),
@@ -817,7 +832,7 @@ module matrix_pcb_outline() {
         translate(pos) m_pcb_pad_with_connector(conn_l, x1, x2, y);
     }
     // FPC connector pad
-    fpc_val = m_pcb_vals[finger_anchor_index.x][finger_anchor_index.y];
+    fpc_val = m_pcb_vals[finger_anchor_index][0];
     fpc_pos = fpc_val - fpc_offset;
     translate([-fpc_pos.x, fpc_pos.y]) square(fpc_pad_size, center=true);
 }
