@@ -316,11 +316,11 @@ class MatrixPcbGenerator:
         right_side = i < fpc_index
         pos1, pos2 = None, None
         if i < len(col_conn_vals):
-            left1, pos1a, pos1b = col_conn_vals[i]
-            pos1 = np.array(pos1a if left1 == 0 else pos1b)
+            c_type1, pos1a, pos1b = col_conn_vals[i]
+            pos1 = np.array(pos1a if c_type1 == 0 else pos1b)
         if i > 0:
-            left2, pos2a, pos2b = col_conn_vals[i - 1]
-            pos2 = np.array(pos2b if left2 == 0 else pos2a)
+            c_type2, pos2a, pos2b = col_conn_vals[i - 1]
+            pos2 = np.array(pos2b if c_type2 == 0 else pos2a)
         if i == fpc_index:
             return
         num = i if right_side else self.col_count - 1 - i
@@ -377,8 +377,8 @@ class MatrixPcbGenerator:
         for i in range(self.col_count):
             # add a track for the left column
             if i < cols_left:
-                left, pos1, pos2 = col_conn_vals[fpc_index]
-                pos = np.array(pos1 if left == 0 else pos2)
+                c_type, pos1, pos2 = col_conn_vals[fpc_index]
+                pos = np.array(pos1 if c_type == 0 else pos2)
                 self.add_left_col_track_fpc_conn(fpc_off, fpc_index, pos, i, layer)
             # add a track for the center column
             elif i == cols_left:
@@ -392,8 +392,8 @@ class MatrixPcbGenerator:
                 self.add_track_path(path, fpc_pos + self.fpc_offset + off, layer)
             # add a track for a right column
             else:
-                left, pos1, pos2 = col_conn_vals[fpc_index - 1]
-                pos = np.array(pos2 if left == 0 else pos1)
+                c_type, pos1, pos2 = col_conn_vals[fpc_index - 1]
+                pos = np.array(pos2 if c_type == 0 else pos1)
                 self.add_right_col_track_fpc_conn(fpc_off, fpc_index, pos, i, layer)
 
     def add_left_col_track_fpc_conn(self, fpc_off, fpc_index, pos, i, layer):
@@ -482,8 +482,10 @@ class MatrixPcbGenerator:
 
     def add_row_track(self, col, col_conn_vals, i, j, layer):
         """Add a track connecting the row pin of a key with its neighbour's one"""
+        # add left half
         if i < len(col_conn_vals):
             self.add_row_track_half(col, col_conn_vals[i], i, j, True, layer)
+        # add right half
         if i > 0:
             self.add_row_track_half(col, col_conn_vals[i - 1], i, j, False, layer)
 
@@ -493,8 +495,8 @@ class MatrixPcbGenerator:
         py = self.pad_size[1] / 2
         d = self.track_width + self.track_distance
         key_pos = np.array(col[j][:2])
-        left, pos1, pos2 = col_conn_val
-        pos = pos1 if (left == 0) == left_half else pos2
+        c_type, pos1, pos2 = col_conn_val
+        pos = pos1 if (c_type == 0) == left_half else pos2
         below = (key_pos - pos)[1] >= 0
         # offset values
         diff_off = (self.row_count - 1) * d / 2
@@ -508,7 +510,7 @@ class MatrixPcbGenerator:
         c = t1 - self.track_distance
         # calculate extra points for the left- and rightmost column
         extra_points = []
-        if i == 0 or i == self.col_count - 1:
+        if c_type == -2 and (i == 0 or i == self.col_count - 1):
             extra_points = self.extra_row_points(
                 j, left_half, below, key_pos, col, tx, ty, c
             )
@@ -534,7 +536,7 @@ class MatrixPcbGenerator:
         total_path = np.concatenate((off_path, conn_path))
         self.add_track_path(total_path, key_pos + self.origin_offset, layer)
 
-    def extra_row_points(self, j, left_half, below, key_pos, col, tx, ty, c):
+    def extra_row_points(self, j, left_half, below, key_pos, col, tx, ty, cm):
         """Calculate the extra row points for the outermost columns"""
         extra_points = []
         extra_range = col[j : self.cr_off + 1] if below else col[self.cr_off : j + 1]
@@ -542,6 +544,7 @@ class MatrixPcbGenerator:
         for k, r_pos in enumerate(extra_pos[:-1]):
             off1 = extra_pos[k + 1] if below else r_pos
             off2 = r_pos if below else extra_pos[k + 1]
+            c = min(cm, abs(off1[0] - off2[0]) / 2)
             points = (
                 (tx if left_half else -tx, ty - c if below else -ty + c) + off1,
                 (tx + c if left_half else -tx - c, ty if below else -ty) + off1,
