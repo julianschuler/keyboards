@@ -2,12 +2,14 @@
 
 import os
 import subprocess
-import pcbnew
-from pcbnew import F_Cu, B_Cu
-import dxfgrabber
-import numpy as np
 from ast import literal_eval
 from tempfile import gettempdir
+import dxfgrabber
+import numpy as np
+import pcbnew
+from pcbnew import F_Cu, B_Cu
+from kikit.panelize import Panel
+from kikit.substrate import roundPoint
 
 
 def perp_vec(a):
@@ -246,17 +248,27 @@ class MatrixPcbGenerator:
         dxf = dxfgrabber.readfile(dxf_file)
         for e in dxf.entities:
             if e.dxftype == "LINE":
-                start = np.array((off[0] + e.start[0], off[1] - e.start[1]))
-                end = np.array((off[0] + e.end[0], off[1] - e.end[1]))
+                start = pcbnew.wxPoint(
+                    *roundPoint(
+                        to_point(np.array((off[0] + e.start[0], off[1] - e.start[1])))
+                    )
+                )
+                end = pcbnew.wxPoint(
+                    *roundPoint(
+                        to_point(np.array((off[0] + e.end[0], off[1] - e.end[1])))
+                    )
+                )
                 self.draw_line(start, end, layer)
 
     def draw_line(self, start, end, layer):
         """Draw a line to the given layer specified by its start and end point"""
+        if start == end:
+            return
         seg = pcbnew.PCB_SHAPE(self.board)
         seg.SetLayer(layer)
         seg.SetShape(pcbnew.S_SEGMENT)
-        seg.SetStart(to_point(start))
-        seg.SetEnd(to_point(end))
+        seg.SetStart(start)
+        seg.SetEnd(end)
         self.board.Add(seg)
 
     def add_key(self, ref, pos, row_net, col_net, rotation=0):
@@ -803,13 +815,22 @@ class MatrixPcbGenerator:
         pcbnew.SaveBoard(board_file, self.board)
 
 
+def panelize_board(board_file, panel_file):
+    """Add tabs and break-away panels for manufacturing"""
+    panel = Panel(panel_file)
+    panel.appendBoard(board_file, pcbnew.wxPointMM(0, 0), tolerance=pcbnew.FromMM(1))
+
+
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
     output_dir = os.path.join(f_dir, "matrix-pcb")
+    board_file = os.path.join(output_dir, "matrix-pcb.kicad_pcb")
+    panel_file = os.path.join(output_dir, "matrix-pcb-panel.kicad_pcb")
     # create output directory if doesn't exist already
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     # generate board from template file and save it to the output directory
     generator = MatrixPcbGenerator()
     generator.generate_board(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
-    generator.save_board(os.path.join(output_dir, "matrix-pcb.kicad_pcb"))
+    generator.save_board(board_file)
+    panelize_board(board_file, panel_file)
