@@ -8,8 +8,10 @@ import dxfgrabber
 import numpy as np
 import pcbnew
 from pcbnew import F_Cu, B_Cu
-from kikit.panelize import Panel
+from kikit.units import mm
 from kikit.substrate import roundPoint
+from kikit.panelize import Panel, TabAnnotation, Origin, buildTabs, getOriginCoord
+from kikit.panelize_ui_impl import dummyFramingSubstrate
 
 
 def perp_vec(a):
@@ -165,6 +167,10 @@ class MatrixPcbGenerator:
                 f"Adjust the variable finger_anchor_index in the SCAD file "
                 f"accordingly."
             )
+        # calculate tab positions for panelization
+        self.tab_positions = self.calculate_tab_positions(
+            finger_vals, t_rot, t_off, t_vals, fpc_index
+        )
         # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
@@ -814,11 +820,66 @@ class MatrixPcbGenerator:
         """Save the board to the given output file"""
         pcbnew.SaveBoard(board_file, self.board)
 
+    def calculate_tab_positions(self, finger_vals, t_rot, t_off, t_vals, fpc_index):
+        """Calculate the tab positions for the finger cluster"""
+        annotations = []
+        px = self.pad_size[0] / 2
+        py = self.pad_size[1] / 2
+        x_off = min(finger_vals[-1][0][0], finger_vals[-1][-1][0]) - px
+        min_y = min([col[0][0] for col in finger_vals]) + py
+        w = 5
+        for i, col in enumerate(finger_vals):
+            pos1 = (col[-1][0] - x_off, 0)
+            pos2 = (col[0][0] - x_off, col[0][1] - min_y)
+            annotations.append((pos1, (0, 1)))
+            if i == fpc_index:
+                annotations.append(((pos2[0] - px + w / 2, pos2[1]), (0, -1)))
+            else:
+                annotations.append((pos2, (0, -1)))
+        return annotations
 
-def panelize_board(board_file, panel_file):
-    """Add tabs and break-away panels for manufacturing"""
-    panel = Panel(panel_file)
-    panel.appendBoard(board_file, pcbnew.wxPointMM(0, 0), tolerance=pcbnew.FromMM(1))
+    def get_tab_positions(self):
+        """Return the previously calculated tab positions"""
+        return self.tab_positions
+
+
+class BoardPanelizer:
+    def __init__(self):
+        self.rail_thickness = 5 * mm
+        self.tab_width = 5 * mm
+        self.mousebite_drill = 0.5 * mm
+        self.mousebite_spacing = 1 * mm
+        self.frame_offset = (3 * mm, None)
+        self.origin_offset = np.array((150, 90))
+
+    def panelize_board(self, board_file, panel_file, tab_positions):
+        """Add tabs and break-away panels for manufacturing"""
+        # create a panel and add the board to it
+        panel = Panel(panel_file)
+        bounding_box = panel.appendBoard(
+            board_file,
+            to_point(self.origin_offset),
+            origin=Origin.Center,
+            tolerance=1 * mm,
+        )
+        # calculate partition line from bounding box and a dummy for the frame
+        panel.buildPartitionLineFromBB(
+            dummyFramingSubstrate(panel.substrates, self.frame_offset)
+        )
+        # create tabs from given positions
+        origin = getOriginCoord(Origin.TopLeft, bounding_box)
+        tab_annotations = []
+        for pos, dir in tab_positions:
+            tab_pos = pcbnew.wxPoint(pos[0] * mm + origin[0], pos[1] * mm + origin[1])
+            tab_annotations.append(TabAnnotation(None, tab_pos, dir, self.tab_width))
+        substrate = panel.substrates[0]
+        tabs, cuts = buildTabs(substrate, substrate.partitionLine, tab_annotations)
+        panel.boardSubstrate.union(tabs)
+        # create rails to the top and bottom and mouse bites from the cuts
+        panel.makeRailsTb(self.rail_thickness)
+        panel.makeMouseBites(cuts, self.mousebite_drill, self.mousebite_spacing)
+        panel.copperFillNonBoardAreas()
+        panel.save()
 
 
 if __name__ == "__main__":
@@ -833,4 +894,6 @@ if __name__ == "__main__":
     generator = MatrixPcbGenerator()
     generator.generate_board(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
     generator.save_board(board_file)
-    panelize_board(board_file, panel_file)
+    tab_positions = generator.get_tab_positions()
+    panelizer = BoardPanelizer()
+    panelizer.panelize_board(board_file, panel_file, tab_positions)

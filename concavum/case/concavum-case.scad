@@ -98,7 +98,7 @@ m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
 m_pcb_pad_size = [14, 14];
 m_pcb_thickness = 0.6;
-fpc_pad_size = [19, 5];
+fpc_pad_size = [19, 5.8];
 fpc_offset = [0, 7];
 
 // thumb connector values (shouldn't have to be changed)
