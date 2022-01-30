@@ -345,7 +345,7 @@ class MatrixPcbGenerator:
         if i == fpc_index:
             return
         num = i if right_side else self.col_count - 1 - i
-        t1 = num * d * np.sin(np.pi / 8) + self.track_clearance
+        t1 = num * d * np.sin(np.pi / 8) + self.track_clearance * 1.5
         pos = pos1 if right_side else pos2
         dx = pos[0] + (t1 if right_side else -t1)
         dy = pos[1] - d * num / 2
@@ -688,7 +688,7 @@ class MatrixPcbGenerator:
                 off_path,
                 angled_track_path(
                     off_path[-1],
-                    ((px - 2.54, -5.08) if below else (py - 3.81, -2.54)) + diff,
+                    ((px - 2.54, -5.08) if below else (px - 3.81, -2.54)) + diff,
                 ),
             )
         )
