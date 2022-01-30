@@ -24,7 +24,7 @@ key_distance = [19.05, 19.05];
 
 // range for each column and thumb keys:
 // Automatic PCB generation is supported for up to 6 rows including the thumb row
-// (e.g. col_range = [-1 : 4]) and up to 6 thumb keys (e.g. thumb_range = [-3 : 2])
+// (e.g. col_range = [-1 : 3]) and up to 6 thumb keys (e.g. thumb_range = [-3 : 2])
 col_range = [-1 : 2];
 thumb_range = [-1 : 1];
 
@@ -65,7 +65,7 @@ mount_rim = [5, 3];
 // finger_anchor_index selects the finger column which the thumb connector attaches to.
 // The FPC connector is also added at the same column, automatic PCB generation is
 // only supported for values from 1 to 2.
-finger_anchor_index = 2;
+finger_anchor_index = 1;
 // thumb_anchor_index selects the anchor point in the thumb cluster and should be
 // chosen such that the bending of the thumb connector is minimized.
 thumb_anchor_index = 0;
@@ -96,10 +96,10 @@ $fs = 0.01;
 // key matrix pcb values (shouldn't have to be changed)
 m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
-m_pcb_pad_size = [14, 14];
+m_pcb_pad_size = [13, 14];
 m_pcb_thickness = 0.6;
-fpc_pad_size = [19, 5.8];
-fpc_offset = [0, 7];
+fpc_pad_size = [19, 4];
+fpc_offset = [0, 7.9];
 
 // thumb connector values (shouldn't have to be changed)
 finger_anchor_offset = 0;

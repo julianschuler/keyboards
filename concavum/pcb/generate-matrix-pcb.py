@@ -101,8 +101,8 @@ class MatrixPcbGenerator:
         self.fpc_offset = np.array((0, 5.5))
         self.max_rows = 6
         self.max_cols = 6
-        self.track_width = 0.15
-        self.track_clearance = 0.15
+        self.track_width = 0.13
+        self.track_clearance = 0.13
         self.via_diameter = 0.6
         self.via_hole = 0.3
         self.arc_segments = 120
@@ -827,13 +827,12 @@ class MatrixPcbGenerator:
         py = self.pad_size[1] / 2
         x_off = min(finger_vals[-1][0][0], finger_vals[-1][-1][0]) - px
         min_y = min([col[0][0] for col in finger_vals]) + py
-        w = 5
         for i, col in enumerate(finger_vals):
-            pos1 = (col[-1][0] - x_off, 0)
-            pos2 = (col[0][0] - x_off, col[0][1] - min_y)
+            pos1 = (col[-1][0] - x_off, -1)
+            pos2 = (col[0][0] - x_off, col[0][1] - min_y + 1)
             annotations.append((pos1, (0, 1)))
-            if i == fpc_index:
-                annotations.append(((pos2[0] - px + w / 2, pos2[1]), (0, -1)))
+            if i <= fpc_index:
+                annotations.append(((pos2[0] - 7 + 0.001, pos2[1]), (0, -1)))
             else:
                 annotations.append((pos2, (0, -1)))
         return annotations
@@ -848,8 +847,8 @@ class BoardPanelizer:
         self.rail_thickness = 5 * mm
         self.tab_width = 5 * mm
         self.mousebite_drill = 0.5 * mm
-        self.mousebite_spacing = 1 * mm
-        self.frame_offset = (3 * mm, None)
+        self.mousebite_spacing = 0.75 * mm
+        self.frame_offset = (2 * mm, None)
         self.origin_offset = np.array((150, 90))
 
     def panelize_board(self, board_file, panel_file, tab_positions):
@@ -879,6 +878,7 @@ class BoardPanelizer:
         panel.makeRailsTb(self.rail_thickness)
         panel.makeMouseBites(cuts, self.mousebite_drill, self.mousebite_spacing)
         panel.copperFillNonBoardAreas()
+        panel.addMillFillets(1 * mm)
         panel.save()
 
 
