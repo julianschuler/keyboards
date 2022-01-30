@@ -407,9 +407,9 @@ class MatrixPcbGenerator:
                 dy = 2.9 * mm - self.fpc_offset[1] if fpc_index == 1 else -0.6 * mm
                 path = (
                     (-3.81 * mm, -2.54 * mm) - self.fpc_offset,
-                    (-3.81 * mm, dy - abs(self.col_count - i - 5.31 * mm)),
+                    (-3.81 * mm, dy - abs((self.col_count - i - 5.31) * mm)),
                     ((i - self.col_count + 1.5) * mm, dy),
-                    ((i - self.col_count + 1.5) * mm, 0),
+                    ((i - self.col_count + 1.5) * mm, 0 * mm),
                 )
                 self.add_track_path(path, fpc_pos + self.fpc_offset + off, layer)
             # add a track for a right column
@@ -904,6 +904,7 @@ class BoardPanelizer:
 
 if __name__ == "__main__":
     f_dir = os.path.dirname(__file__)
+    input_file = os.path.join(f_dir, "template/template-matrix-pcb.kicad_pcb")
     output_dir = os.path.join(f_dir, "matrix-pcb")
     board_file = os.path.join(output_dir, "matrix-pcb.kicad_pcb")
     panel_file = os.path.join(output_dir, "matrix-pcb-panel.kicad_pcb")
@@ -912,7 +913,7 @@ if __name__ == "__main__":
         os.mkdir(output_dir)
     # generate board from template file and save it to the output directory
     generator = MatrixPcbGenerator()
-    generator.generate_board(os.path.join(f_dir, "template-matrix-pcb.kicad_pcb"))
+    generator.generate_board(input_file)
     generator.save_board(board_file)
     tab_positions = generator.get_tab_positions()
     panelizer = BoardPanelizer()
