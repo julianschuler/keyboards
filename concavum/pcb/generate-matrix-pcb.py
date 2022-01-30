@@ -865,12 +865,16 @@ class MatrixPcbGenerator:
 
 class BoardPanelizer:
     def __init__(self):
-        self.rail_thickness = 5 * mm
         self.tab_width = 5 * mm
         self.mousebite_drill = 0.5 * mm
         self.mousebite_spacing = 0.75 * mm
         self.frame_offset = (2 * mm, None)
+        self.frame_thickness = 5 * mm
         self.origin_offset = np.array((150 * mm, 90 * mm))
+        self.text1 = "Open Source Hardware: github.com/julianschuler/keyboards"
+        self.text2 = (
+            "This PCB was automatically generated using KiCad, KiKit and Python."
+        )
 
     def panelize_board(self, board_file, panel_file, tab_positions):
         """Add tabs and break-away panels for manufacturing"""
@@ -887,29 +891,52 @@ class BoardPanelizer:
             dummyFramingSubstrate(panel.substrates, self.frame_offset)
         )
         # create tabs from given positions
-        origin = getOriginCoord(Origin.TopLeft, bounding_box)
+        top_left = getOriginCoord(Origin.TopLeft, bounding_box)
+        center = getOriginCoord(Origin.Center, bounding_box)
+        bottom_left = getOriginCoord(Origin.BottomLeft, bounding_box)
         tab_annotations = []
         for pos, dir in tab_positions:
-            tab_pos = to_point((pos[0] + origin[0], pos[1] + origin[1]))
+            tab_pos = to_point((pos[0] + top_left[0], pos[1] + top_left[1]))
             tab_annotations.append(TabAnnotation(None, tab_pos, dir, self.tab_width))
         substrate = panel.substrates[0]
         tabs, cuts = buildTabs(substrate, substrate.partitionLine, tab_annotations)
         panel.boardSubstrate.union(tabs)
         # add extra cuts along the frame for easier depaneling
-        y1 = origin[1] - self.frame_offset[0]
-        y2 = getOriginCoord(Origin.BottomLeft, bounding_box)[1] + self.frame_offset[0]
+        y1 = top_left[1] - self.frame_offset[0]
+        y2 = bottom_left[1] + self.frame_offset[0]
         for cut in list(cuts):
             (x1, _), (x2, _) = cut.coords
             if x1 < x2:
                 cuts.append(LineString([(x2, y1), (x1, y1)]))
             else:
                 cuts.append(LineString([(x2, y2), (x1, y2)]))
-        # create rails to the top and bottom and mouse bites from the cuts
-        panel.makeRailsTb(self.rail_thickness)
+        # add rails to the top and bottom and mouse bites from the cuts
+        panel.makeRailsTb(self.frame_thickness)
         panel.makeMouseBites(cuts, self.mousebite_drill, self.mousebite_spacing)
         panel.copperFillNonBoardAreas()
         panel.addMillFillets(1 * mm)
+        # add text to the frame
+        self.add_frame_text(panel.board, top_left, center, bottom_left)
         panel.save()
+
+    def add_frame_text(self, board, top_left, center, bottom_left):
+        """Add text to the frame"""
+        text_off = self.frame_offset[0] + self.frame_thickness / 2
+        text1_pos = to_point((center[0], top_left[1] - text_off))
+        text2_pos = to_point((center[0], bottom_left[1] + text_off))
+        self.add_text(board, self.text1, text1_pos, pcbnew.F_SilkS)
+        self.add_text(board, self.text2, text2_pos, pcbnew.F_SilkS)
+        self.add_text(board, self.text1, text1_pos, pcbnew.B_SilkS, mirrored=True)
+        self.add_text(board, self.text2, text2_pos, pcbnew.B_SilkS, mirrored=True)
+
+    def add_text(self, board, text, pos, layer, mirrored=False):
+        """Add text to a given position and layer"""
+        text_item = pcbnew.PCB_TEXT(board)
+        text_item.SetText(text)
+        text_item.SetPosition(pos)
+        text_item.SetLayer(layer)
+        text_item.SetMirrored(mirrored)
+        board.Add(text_item)
 
 
 if __name__ == "__main__":
