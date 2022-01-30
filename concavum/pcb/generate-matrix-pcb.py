@@ -214,13 +214,13 @@ class MatrixPcbGenerator:
         """Add keys to the finger cluster"""
         off = self.origin_offset
         for i, col in enumerate(finger_vals):
-            # if i > 0:
             self.add_col_tracks(col, col_conn_vals, i, fpc_index, F_Cu)
+            col_net = col_nets[
+                (self.max_cols if i <= fpc_index else self.col_count) - 1 - i
+            ]
             for j, pos in enumerate(col):
                 ref = f"SW{i+1}{j+1}"
-                self.add_key(
-                    ref, pos[:2] + off, row_nets[j], col_nets[self.col_count - 1 - i]
-                )
+                self.add_key(ref, pos[:2] + off, row_nets[j], col_net)
                 self.add_row_track(col, col_conn_vals, i, j, B_Cu)
                 if j > 0:
                     self.add_col_track(pos[:2] + off, col[j - 1][:2] + off, F_Cu)
@@ -239,7 +239,7 @@ class MatrixPcbGenerator:
                     t_cos * t_pos[1] - t_off[1] + self.origin_offset[1],
                 )
             )
-            col = self.col_count - 1 - i
+            col = self.max_cols - 1 - i
             self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], a)
             self.add_thumb_col_track(i, a, t_vals, t_index, t_conn_pos, B_Cu)
             if i > 0:
@@ -826,12 +826,13 @@ class MatrixPcbGenerator:
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
         x_off = min(finger_vals[-1][0][0], finger_vals[-1][-1][0]) - px
-        min_y = min([col[0][0] for col in finger_vals]) + py
+        max_y = max([col[0][1] for col in finger_vals]) + py
+        min_y = min([col[-1][1] for col in finger_vals]) - py
         for i, col in enumerate(finger_vals):
             pos1 = (col[-1][0] - x_off, -1)
-            pos2 = (col[0][0] - x_off, col[0][1] - min_y + 1)
+            pos2 = (col[0][0] - x_off, max_y - min_y + 1)
             annotations.append((pos1, (0, 1)))
-            if i <= fpc_index:
+            if i == fpc_index:
                 annotations.append(((pos2[0] - 7 + 0.001, pos2[1]), (0, -1)))
             else:
                 annotations.append((pos2, (0, -1)))
