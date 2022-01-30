@@ -12,6 +12,7 @@ from kikit.units import mm
 from kikit.substrate import roundPoint
 from kikit.panelize import Panel, TabAnnotation, Origin, buildTabs, getOriginCoord
 from kikit.panelize_ui_impl import dummyFramingSubstrate
+from shapely.geometry.linestring import LineString
 
 
 def perp_vec(a):
@@ -894,6 +895,15 @@ class BoardPanelizer:
         substrate = panel.substrates[0]
         tabs, cuts = buildTabs(substrate, substrate.partitionLine, tab_annotations)
         panel.boardSubstrate.union(tabs)
+        # add extra cuts along the frame for easier depaneling
+        y1 = origin[1] - self.frame_offset[0]
+        y2 = getOriginCoord(Origin.BottomLeft, bounding_box)[1] + self.frame_offset[0]
+        for cut in list(cuts):
+            (x1, _), (x2, _) = cut.coords
+            if x1 < x2:
+                cuts.append(LineString([(x2, y1), (x1, y1)]))
+            else:
+                cuts.append(LineString([(x2, y2), (x1, y2)]))
         # create rails to the top and bottom and mouse bites from the cuts
         panel.makeRailsTb(self.rail_thickness)
         panel.makeMouseBites(cuts, self.mousebite_drill, self.mousebite_spacing)
