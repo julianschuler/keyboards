@@ -211,8 +211,8 @@ class MatrixPcbGenerator:
         self.add_fpc_connector(fpc_pos, row_nets, col_nets)
         self.add_row_tracks_fpc_conn(fpc_pos, fpc_col, F_Cu)
         self.add_col_tracks_fpc_conn(fpc_pos, fpc_index, col_conn_vals, F_Cu)
-        self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, 1, F_Cu)
-        self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, self.t_col_count, B_Cu)
+        self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, 1, F_Cu, True)
+        self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, self.t_col_count, B_Cu, False)
 
     def add_finger_cluster(
         self, finger_vals, row_nets, col_nets, col_conn_vals, fpc_index
@@ -714,18 +714,14 @@ class MatrixPcbGenerator:
         )
         self.add_track_path(path, key_pos, layer, t_rot)
 
-    def add_thumb_tracks_fpc_conn(self, fpc_pos, f_pos, track_count, layer):
+    def add_thumb_tracks_fpc_conn(self, fpc_pos, f_pos, track_count, layer, row):
         """Add tracks connecting the FPC connector pads with the thumb cluster"""
         pos1 = np.array(fpc_pos[:2]) + self.fpc_offset
         pos2 = np.array((f_pos[0], -f_pos[1]))
         d = self.track_width + self.track_clearance
         for i in range(track_count):
             dx = d * (i - (track_count - 1) / 2)
-            tx = (
-                (i - track_count + 1.5) * mm
-                if track_count > 1
-                else (-self.max_cols + 0.5) * mm
-            )
+            tx = (-self.max_cols + 0.5) * mm if row else (i - track_count + 1.5) * mm
             dy = abs(pos1[0] - pos2[0] + tx - dx) + 0.6 * mm + pos1[1]
             ty = min(dy, pos2[1] - i * d)
             path = np.concatenate(
@@ -871,7 +867,9 @@ class BoardPanelizer:
         self.frame_offset = (2 * mm, None)
         self.frame_thickness = 5 * mm
         self.origin_offset = np.array((150 * mm, 90 * mm))
-        self.text1 = "Open Source Hardware: github.com/julianschuler/keyboards"
+        self.text1 = (
+            "Open Source Hardware    https://github.com/julianschuler/keyboards"
+        )
         self.text2 = (
             "This PCB was automatically generated using KiCad, KiKit and Python."
         )
