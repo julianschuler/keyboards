@@ -1,8 +1,24 @@
-# manuform
+# kicad
+*.000
+*.bak
+*.bck
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups
+*.kicad_prl
+*.sch-bak
+*~
+_autosave-*
+*.tmp
+*-save.pro
+*-save.kicad_pcb
+fp-info-cache
+
+# manuform specific
 layers
 *.FCStd1
 
-# for concavum
+# concavum specific
 matrix-pcb
 gerber
 __pycache__
