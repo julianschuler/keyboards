@@ -98,6 +98,7 @@ m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
 m_pcb_pad_size = [13, 14];
 m_pcb_thickness = 0.6;
+m_pcb_router_diameter = 2;
 fpc_pad_size = [19, 4];
 fpc_offset = [0, 7.9];
 
@@ -316,7 +317,9 @@ col_connector_vals = [for (i = iter(m_pcb_vals)) if (i > 0) let(
         [2, pos1, pos2]
     else let(
     // curved connector vals
-    left = finger_vals[i - 1][s][0].z >= finger_vals[i][s][0].z,
+    pfv = finger_vals[i - 1][s][0],
+    fv = finger_vals[i][s][0],
+    left = (pfv.y < fv.y || (pfv.y == fv.y && pfv.z > fv.z)),
     pos1 = ((left) ? m_pcb_pos : m_pcb_ppos)
         + [((left) ? -1 : 1) * m_pcb_pad_size.x / 2, m_pcb_pad_size.y / 2 - w / 2],
     pos2 = ((left) ? m_pcb_ppos : m_pcb_pos)
@@ -754,12 +757,15 @@ module col_connector(type, pos1, pos2) {
             square([conn_l, w]);
     }
     else {
-        r = abs(pos1.x - pos2.x) / 2;
+        d = m_pcb_router_diameter / 2;
+        r = abs(pos1.x - pos2.x) / 2 - d;
         l = abs(pos2.y - pos1.y) - 2 * r;
         translate(pos1) flip_x(type) {
-            translate([0, -r]) arc(r, w);
-            translate([r, -r - l]) line(l, w);
-            translate([2 * r, -r - l]) rotate(180) arc(r, w);
+            rotate(-90) line(d, w);
+            translate([d, -r]) arc(r, w);
+            translate([d + r, -r - l]) line(l, w);
+            translate([2 * r + d, -r - l]) rotate(180) arc(r, w);
+            translate([2 * r + d, -2 * r - l]) rotate(-90) line(d, w);
         }
     }
 }
@@ -886,7 +892,8 @@ else {
         thumb_connector_vals,
         -col_connector_vals,
         finger_anchor_index,
-        thumb_anchor_index
+        thumb_anchor_index,
+        m_pcb_router_diameter
     );
     matrix_pcb_outline();
 }

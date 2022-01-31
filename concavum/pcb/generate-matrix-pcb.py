@@ -107,7 +107,6 @@ class MatrixPcbGenerator:
         self.via_hole = 0.3 * mm
         self.pad_width_min = 4.91 * mm
         self.arc_segments = 120
-        self.router_diameter = 2 * mm
         self.tab_width = 5 * mm
 
     def generate_board(self, board_template_file):
@@ -137,6 +136,7 @@ class MatrixPcbGenerator:
             col_conn_vals,
             fpc_index,
             t_index,
+            router_diameter,
         ) = literal_eval(scad_output.splitlines()[0][6:].decode())
         # scale parameters to mm
         self.pad_size = np.array(pad_size) * mm
@@ -146,6 +146,7 @@ class MatrixPcbGenerator:
         col_conn_vals = [
             (-cv[0], np.array(cv[1]) * mm, np.array(cv[2]) * mm) for cv in col_conn_vals
         ]
+        self.router_diameter = router_diameter * mm
         t_rot = t_rot + 180
         # set matrix vals
         self.col_count = len(finger_vals)
@@ -744,6 +745,7 @@ class MatrixPcbGenerator:
         arc1 = arc_path(90, 0, self.arc_segments)
         arc2 = arc_path(90, 90, self.arc_segments)
         d = self.track_width + self.track_clearance
+        rd = self.router_diameter / 2
         for i, (c_type, pos1, pos2) in enumerate(col_conn_vals):
             if c_type == 2:
                 b = (track_count[i] - 1) * d / 2
@@ -751,18 +753,24 @@ class MatrixPcbGenerator:
                     c = j * d - b
                     self.add_track(pos1 + off + (0, c), pos2 + off + (0, c), layer)
             else:
-                r = (pos2[0] - pos1[0]) / 2
+                rd = np.sign(pos2[0] - pos1[0]) * self.router_diameter / 2
+                r = (pos2[0] - pos1[0]) / 2 - rd
                 a_r = abs(r)
                 ln = abs(pos1[1] - pos2[1]) - 2 * a_r
                 arc = arc1 if c_type == 0 else arc2
                 b = (track_count[i] - 1) * d / 2
                 for j in range(track_count[i]):
-                    c = j * d - b + r
-                    self.add_track_path(arc * c, pos1 + off + (0, a_r), layer)
+                    c = j * d - b
+                    rc = c + r
+                    self.add_track(pos1 + off + (0, c), pos1 + off + (rd, c), layer)
+                    self.add_track_path(arc * rc, pos1 + off + (rd, a_r), layer)
                     self.add_track(
-                        pos1 + off + (c, a_r), pos1 + off + (c, a_r + ln), layer
+                        pos1 + off + (rc + rd, a_r),
+                        pos1 + off + (rc + rd, a_r + ln),
+                        layer,
                     )
-                    self.add_track_path(arc * -c, pos2 + off - (0, a_r), layer)
+                    self.add_track_path(arc * -rc, pos2 + off - (rd, a_r), layer)
+                    self.add_track(pos2 + off - (0, c), pos2 + off - (rd, c), layer)
 
     def add_thumb_connector_tracks(self, conn_vals, track_count, layer):
         """Add tracks going through the thumb connector"""
@@ -892,9 +900,7 @@ class BoardPanelizer:
         self.mousebite_spacing = 0.75 * mm
         self.frame_thickness = 5 * mm
         self.origin_offset = np.array((150 * mm, 90 * mm))
-        self.text1 = (
-            "Open Source Hardware    https://github.com/julianschuler/keyboards"
-        )
+        self.text1 = "Open Source Hardware - https://github.com/julianschuler/keyboards"
         self.text2 = (
             "This PCB was automatically generated using KiCad, KiKit and Python."
         )
@@ -978,6 +984,7 @@ if __name__ == "__main__":
     generator = MatrixPcbGenerator()
     generator.generate_board(input_file)
     generator.save_board(board_file)
+    # panelize board and save it under a new name in the output directory
     panel_values = generator.get_panel_values()
     panelizer = BoardPanelizer()
     panelizer.panelize_board(board_file, panel_file, panel_values)
