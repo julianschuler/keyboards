@@ -1,0 +1,4 @@
+dxfgrabber
+kikit
+numpy
+shapely
