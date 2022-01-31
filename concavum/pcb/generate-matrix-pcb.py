@@ -107,6 +107,8 @@ class MatrixPcbGenerator:
         self.via_hole = 0.3 * mm
         self.pad_width_min = 4.91 * mm
         self.arc_segments = 120
+        self.router_diameter = 2 * mm
+        self.tab_width = 5 * mm
 
     def generate_board(self, board_template_file):
         """Generate the PCB using the given file as template"""
@@ -144,6 +146,7 @@ class MatrixPcbGenerator:
         col_conn_vals = [
             (-cv[0], np.array(cv[1]) * mm, np.array(cv[2]) * mm) for cv in col_conn_vals
         ]
+        t_rot = t_rot + 180
         # set matrix vals
         self.col_count = len(finger_vals)
         self.row_count = len(finger_vals[0])
@@ -174,7 +177,7 @@ class MatrixPcbGenerator:
             )
         # calculate tab positions for panelization
         self.tab_positions = self.calculate_tab_positions(
-            finger_vals, t_rot, t_off, t_vals, fpc_index
+            finger_vals, t_rot, t_off, t_vals, t_index, fpc_index
         )
         # import the previously generated DXF as the PCB outline
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
@@ -235,8 +238,7 @@ class MatrixPcbGenerator:
         self, t_rot, t_off, t_vals, row_net, col_nets, t_index, t_conn_pos
     ):
         """Add keys to the thumb cluster"""
-        a = t_rot + 180
-        t_rot_rad = np.radians(a)
+        t_rot_rad = np.radians(t_rot)
         t_sin, t_cos = np.sin(t_rot_rad), np.cos(t_rot_rad)
         for i, t_pos in enumerate(t_vals):
             pos = np.array(
@@ -246,14 +248,14 @@ class MatrixPcbGenerator:
                 )
             )
             col = self.max_cols - 1 - i
-            self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], a)
-            self.add_thumb_col_track(i, a, t_vals, t_index, t_conn_pos, B_Cu)
+            self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], t_rot)
+            self.add_thumb_col_track(i, t_rot, t_vals, t_index, t_conn_pos, B_Cu)
             if i > 0:
                 self.add_thumb_row_track(
-                    np.array(t_pos[:2]), np.array(t_vals[i - 1][:2]), pos, F_Cu, a
+                    np.array(t_pos[:2]), np.array(t_vals[i - 1][:2]), pos, F_Cu, t_rot
                 )
             if i == t_index:
-                self.add_thumb_row_conn_track(pos, a, F_Cu)
+                self.add_thumb_row_conn_track(pos, t_rot, F_Cu)
 
     def draw_dxf_lines(self, dxf_file, layer, off=np.zeros(2)):
         """Draw lines from a given DXF file to a specific layer"""
@@ -836,7 +838,9 @@ class MatrixPcbGenerator:
         """Save the board to the given output file"""
         pcbnew.SaveBoard(board_file, self.board)
 
-    def calculate_tab_positions(self, finger_vals, t_rot, t_off, t_vals, fpc_index):
+    def calculate_tab_positions(
+        self, finger_vals, t_rot, t_off, t_vals, t_index, fpc_index
+    ):
         """Calculate the tab positions for the finger cluster"""
         annotations = []
         px = self.pad_size[0] / 2
@@ -844,27 +848,48 @@ class MatrixPcbGenerator:
         x_off = min(finger_vals[-1][0][0], finger_vals[-1][-1][0]) - px
         max_y = max([col[0][1] for col in finger_vals]) + py
         min_y = min([col[-1][1] for col in finger_vals]) - py
+        t_rot_rad = np.radians(t_rot)
+        t_sin, t_cos = np.sin(t_rot_rad), np.cos(t_rot_rad)
+        rot_mat = np.array(((t_cos, t_sin), (-t_sin, t_cos)))
+        x_max = (
+            t_off[0]
+            - x_off
+            - self.tab_width / 2
+            - self.router_diameter
+            + min(
+                rot_mat.dot(t_vals[-1][:2] + np.array(px, py))[0],
+                rot_mat.dot(t_vals[-1][:2] + np.array(-px, py))[0],
+            )
+        )
+        # add tabs for the thumb cluster
+        t_positions = (
+            [t_vals[0], t_vals[-1]] if self.t_col_count >= 4 else [t_vals[t_index]]
+        )
+        for t_pos in t_positions:
+            pos = rot_mat.dot(t_pos[:2] + np.array((px, 0)))
+            pos = pos + (t_off[0], -t_off[1])
+            annotations.append(((pos[0] - x_off, pos[1] - min_y + 1 * mm), (0, -1)))
+        # add tabs for the finger cluster
+        # print((x_max - x_off - self.tab_width - self.router_diameter) / mm)
         for i, col in enumerate(finger_vals):
             pos1 = (col[-1][0] - x_off, -1 * mm)
             pos2 = (col[0][0] - x_off, max_y - min_y + 1 * mm)
+            # top tab
             annotations.append((pos1, (0, 1)))
-            if i == fpc_index:
-                annotations.append(((pos2[0] - 7 * mm + 0.01 * mm, pos2[1]), (0, -1)))
-            else:
+            # bottom tab, add only if it doesn't intersect with the thumb cluster
+            if pos2[0] < x_max:
                 annotations.append((pos2, (0, -1)))
         return annotations
 
-    def get_tab_positions(self):
-        """Return the previously calculated tab positions"""
-        return self.tab_positions
+    def get_panel_values(self):
+        """Return the calculated tab positions and other parameters"""
+        return (self.router_diameter, self.tab_width, self.tab_positions)
 
 
 class BoardPanelizer:
     def __init__(self):
-        self.tab_width = 5 * mm
         self.mousebite_drill = 0.5 * mm
         self.mousebite_spacing = 0.75 * mm
-        self.frame_offset = (2 * mm, None)
         self.frame_thickness = 5 * mm
         self.origin_offset = np.array((150 * mm, 90 * mm))
         self.text1 = (
@@ -874,8 +899,11 @@ class BoardPanelizer:
             "This PCB was automatically generated using KiCad, KiKit and Python."
         )
 
-    def panelize_board(self, board_file, panel_file, tab_positions):
+    def panelize_board(self, board_file, panel_file, panel_values):
         """Add tabs and break-away panels for manufacturing"""
+        # get tab parameters
+        router_diameter, self.tab_width, tab_positions = panel_values
+        self.frame_offset = (router_diameter, None)
         # create a panel and add the board to it
         panel = Panel(panel_file)
         bounding_box = panel.appendBoard(
@@ -912,7 +940,7 @@ class BoardPanelizer:
         panel.makeRailsTb(self.frame_thickness)
         panel.makeMouseBites(cuts, self.mousebite_drill, self.mousebite_spacing)
         panel.copperFillNonBoardAreas()
-        panel.addMillFillets(1 * mm)
+        panel.addMillFillets(router_diameter / 2)
         # add text to the frame
         self.add_frame_text(panel.board, top_left, center, bottom_left)
         panel.save()
@@ -950,6 +978,6 @@ if __name__ == "__main__":
     generator = MatrixPcbGenerator()
     generator.generate_board(input_file)
     generator.save_board(board_file)
-    tab_positions = generator.get_tab_positions()
+    panel_values = generator.get_panel_values()
     panelizer = BoardPanelizer()
-    panelizer.panelize_board(board_file, panel_file, tab_positions)
+    panelizer.panelize_board(board_file, panel_file, panel_values)
