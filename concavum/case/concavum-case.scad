@@ -64,7 +64,7 @@ mount_rim = [5, 3];
 
 // finger_anchor_index selects the finger column which the thumb connector attaches to.
 // The FPC connector is also added at the same column, automatic PCB generation is
-// only supported for values from 1 to 2.
+// only supported for a value of 1.
 finger_anchor_index = 1;
 // thumb_anchor_index selects the anchor point in the thumb cluster and should be
 // chosen such that the bending of the thumb connector is minimized.
@@ -891,9 +891,11 @@ else {
         m_pcb_thumb_vals,
         thumb_connector_vals,
         -col_connector_vals,
+        m_pcb_col_connector_width,
         finger_anchor_index,
         thumb_anchor_index,
-        m_pcb_router_diameter
+        m_pcb_router_diameter,
+        key_distance[0]
     );
     matrix_pcb_outline();
 }

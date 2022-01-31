@@ -134,9 +134,11 @@ class MatrixPcbGenerator:
             t_vals,
             t_conn_vals,
             col_conn_vals,
+            col_conn_width,
             fpc_index,
             t_index,
             router_diameter,
+            key_d,
         ) = literal_eval(scad_output.splitlines()[0][6:].decode())
         # scale parameters to mm
         self.pad_size = np.array(pad_size) * mm
@@ -148,34 +150,14 @@ class MatrixPcbGenerator:
         ]
         self.router_diameter = router_diameter * mm
         t_rot = t_rot + 180
-        # set matrix vals
+        # set matrix values
         self.col_count = len(finger_vals)
         self.row_count = len(finger_vals[0])
         self.t_col_count = len(t_vals)
         self.rows_below = self.cr_off + 1
         self.rows_above = self.row_count - self.rows_below
-        # ensure maximum number of rows, columns and thumb keys is not exceeded
-        if self.row_count >= self.max_rows or self.col_count > self.max_cols:
-            raise ValueError(
-                f"Key matrix has {self.col_count} columns and {self.row_count + 1} "
-                f"rows. Automatic PCB generation is only supported for key matrices "
-                f"with up to {self.max_cols} columns and {self.max_rows} rows "
-                f"including the thumb row."
-            )
-        if self.t_col_count > self.max_cols:
-            raise ValueError(
-                f"Thumb cluster has {self.t_col_count} keys. Automatic PCB "
-                f"generation is only supported for thumb clusters with up to "
-                f"{self.max_cols} keys."
-            )
-        # ensure FPC index is between 1 and 2
-        if fpc_index not in range(1, 3):
-            raise ValueError(
-                f"The FPC index has a value of {fpc_index}. Automatic PCB "
-                f"generation is only supported for FPC indices between 1 and 2. "
-                f"Adjust the variable finger_anchor_index in the SCAD file "
-                f"accordingly."
-            )
+        # perform checks on the given parameters
+        self.check_parameters(fpc_index, col_conn_vals, col_conn_width, key_d)
         # calculate tab positions for panelization
         self.tab_positions = self.calculate_tab_positions(
             finger_vals, t_rot, t_off, t_vals, t_index, fpc_index
@@ -217,6 +199,39 @@ class MatrixPcbGenerator:
         self.add_col_tracks_fpc_conn(fpc_pos, fpc_index, col_conn_vals, F_Cu)
         self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, 1, F_Cu, True)
         self.add_thumb_tracks_fpc_conn(fpc_pos, f_pos, self.t_col_count, B_Cu, False)
+
+    def check_parameters(self, fpc_index, col_conn_vals, cc_w, key_d):
+        """Ensure the given parameters are valid, throw exceptions otherwise"""
+        # ensure maximum number of rows, columns and thumb keys is not exceeded
+        if self.row_count >= self.max_rows or self.col_count > self.max_cols:
+            raise ValueError(
+                f"Key matrix has {self.col_count} columns and {self.row_count + 1} "
+                f"rows. Automatic PCB generation is only supported for key matrices "
+                f"with up to {self.max_cols} columns and {self.max_rows} rows "
+                f"including the thumb row."
+            )
+        if self.t_col_count > self.max_cols:
+            raise ValueError(
+                f"Thumb cluster has {self.t_col_count} keys. Automatic PCB "
+                f"generation is only supported for thumb clusters with up to "
+                f"{self.max_cols} keys."
+            )
+        # ensure FPC index is equal to one
+        if fpc_index != 1:
+            raise ValueError(
+                f"The FPC index has a value of {fpc_index}. Automatic PCB "
+                f"generation is only supported for a FPC index equal to 1. "
+                f"Adjust the variable finger_anchor_index in the SCAD file "
+                f"accordingly."
+            )
+        # ensure the keys are spaced far enough apart
+        min_d = (2 * self.router_diameter + self.pad_size[0]) / mm + cc_w
+        if key_d < min_d:
+            raise ValueError(
+                f"The distance between the key columns of {key_d} mm is "
+                f"lower than the minimun allowable distance of {min_d} mm. "
+                f"Adjust the variable key_distance in the SCAD file accordingly."
+            )
 
     def add_finger_cluster(
         self, finger_vals, row_nets, col_nets, col_conn_vals, fpc_index
@@ -458,9 +473,8 @@ class MatrixPcbGenerator:
         d = self.track_width + self.track_clearance
         cols_right = fpc_index
         cols_left = self.col_count - cols_right - 1
-        # fpc_w = ((self.max_cols + self.max_rows) / 2 - 0.5) * mm
         fpc_w = (self.max_cols + self.max_rows - 1) / 2 * mm
-        pos_y = (cols_right - 1) * d / 2 * mm
+        pos_y = (cols_right - 1) * d / 2
         t1 = max(
             pos[0] - px + self.pad_width_min + self.row_count * d,
             fpc_off[0] + fpc_w + 0.3 * mm + d,
