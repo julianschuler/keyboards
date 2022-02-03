@@ -890,14 +890,13 @@ class MatrixPcbGenerator:
             pos = pos + (t_off[0], -t_off[1])
             annotations.append(((pos[0] - x_off, pos[1] - min_y + 1 * mm), (0, -1)))
         # add tabs for the finger cluster
-        # print((x_max - x_off - self.tab_width - self.router_diameter) / mm)
         for i, col in enumerate(finger_vals):
             pos1 = (col[-1][0] - x_off, -1 * mm)
             pos2 = (col[0][0] - x_off, max_y - min_y + 1 * mm)
             # top tab
             annotations.append((pos1, (0, 1)))
             # bottom tab, add only if it doesn't intersect with the thumb cluster
-            if pos2[0] < x_max:
+            if pos2[0] < x_max and i > fpc_index:
                 annotations.append((pos2, (0, -1)))
         return annotations
 
