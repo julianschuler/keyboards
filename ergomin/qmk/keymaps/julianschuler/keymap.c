@@ -43,10 +43,9 @@
 #define GUI_F11     LGUI(KC_F11)
 #define GUI_F12     LGUI(KC_F12)
 
-#define KC_TEMP     KC_F22
-#define BSP_ALT     LALT_T(KC_TEMP)
 #define TAB_CTL     LCTL_T(KC_TAB)
 #define ENT_GUI     LGUI_T(KC_ENT)
+#define SS_ALT      LALT_T(DE_SS)
 
 
 // special keys
@@ -74,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_VL] = LAYOUT(
 KC_ESC,     DE_V,       DE_DOT,     DE_O,       DE_U,       DE_ADIA,                                        DE_Q,       DE_G,       DE_L,       DE_H,       DE_F,       DE_UNDS, \
 KC_BSPC,    DE_C,       DE_A,       DE_E,       DE_I,       DE_UDIA,                                        DE_B,       DE_T,       DE_R,       DE_N,       DE_S,       DE_J,    \
-DE_SS,      DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_MPLY,                KC_PAUS,    DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS, \
+SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_MPLY,                KC_PAUS,    DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS, \
                                         KC_LGUI,    TAB_CTL,    L_SHIFT,    NUM_L,          SYM_L,      KC_SPC,     ENT_GUI,    KC_LGUI                                          ),
 
 
@@ -88,7 +87,7 @@ DE_SS,      DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_MPLY,
 | BSPC |  A   |  S   |  D   |  F   |  G   |                          |  H   |  J   |  K   |  L   |  Ö   |  Ä   |
 |______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
 |      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
-|  _   |  Y   |  X   |  C   |  V   |  B   | PLAY |            | PAUS |  N   |  M   |  ,   |  .   |  -   |  ß   |
+| ALT  |  Y   |  X   |  C   |  V   |  B   | PLAY |            | PAUS |  N   |  M   |  ,   |  .   |  -   |  ß   |
 |______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
                         |      |      |      |      |      |      |      |      |      |
                         | GUI  |      |      |      |      |      |      |      | GUI  |
@@ -97,8 +96,8 @@ DE_SS,      DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_MPLY,
                                |______|______|______|      |______|______|______| */
 [_QL] = LAYOUT(
 KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA, \
-BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
-DE_UNDS,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,                KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
+KC_BSPC,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
+KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,                KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
                                         KC_LGUI,    TAB_CTL,    L_SHIFT,    NUM_L,          SYM_L,      KC_SPC,     ENT_GUI,    KC_LGUI                                          ),
 
 

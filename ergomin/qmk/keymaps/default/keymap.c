@@ -25,25 +25,27 @@
 #define L_ALT       KC_LALT
 
 // kombination keys
-#define MAX_WIN     LALT(KC_F10)
+#define SFT_TAB     LSFT(KC_TAB)
 #define CTL_ALT     LCTL(KC_LALT)
 #define CTL_SFT     LCTL(KC_LSFT)
-#define ALT_GUI     LALT(KC_LGUI)
+#define CTL_GUI     LCTL(KC_LGUI)
 #define ALT_F4      LALT(KC_F4)
-#define SFT_TAB     LSFT(KC_TAB)
 
-#define SCOPE       LGUI(DE_S)
-#define BROWSER     KC_WSCH
-#define SLICER      LGUI(DE_P)
-#define UPDATES     LGUI(DE_U)
-#define ORGNZR      LGUI(DE_O)
-#define MUSIC       LGUI(DE_M)
-#define TERMNL      LGUI(DE_T)
-#define EXPLOR      KC_MYCM
-#define EDITOR      LGUI(DE_V)
+#define GUI_F1      LGUI(KC_F1)
+#define GUI_F2      LGUI(KC_F2)
+#define GUI_F3      LGUI(KC_F3)
+#define GUI_F4      LGUI(KC_F4)
+#define GUI_F5      LGUI(KC_F5)
+#define GUI_F6      LGUI(KC_F6)
+#define GUI_F7      LGUI(KC_F7)
+#define GUI_F8      LGUI(KC_F8)
+#define GUI_F9      LGUI(KC_F9)
+#define GUI_F10     LGUI(KC_F10)
+#define GUI_F11     LGUI(KC_F11)
+#define GUI_F12     LGUI(KC_F12)
 
-#define BSP_ALT     LALT_T(KC_BSPC)
 #define TAB_CTL     LCTL_T(KC_TAB)
+#define ENT_GUI     LGUI_T(KC_ENT)
 
 
 // special keys
@@ -61,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 | BSPC |  A   |  S   |  D   |  F   |  G   |                          |  H   |  J   |  K   |  L   |  Ö   |  Ä   |
 |______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
 |      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
-| SHFT |  Y   |  X   |  C   |  V   |  B   | PLAY |            | PAUS |  N   |  M   |  ,   |  .   |  -   |  ß   |
+| ALT  |  Y   |  X   |  C   |  V   |  B   | PLAY |            | PAUS |  N   |  M   |  ,   |  .   |  -   |  ß   |
 |______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
                         |      |      |      |      |      |      |      |      |      |
                         | GUI  |      |      |      |      |      |      |      | GUI  |
@@ -70,9 +72,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                |______|______|______|      |______|______|______| */
 [_QL] = LAYOUT(
 KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA, \
-BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
-L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,                KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
-                                        L_GUI,      TAB_CTL,    L_SHIFT,    NUM_L,          SYM_L,      KC_SPC,     KC_ENT,     L_GUI                                            ),
+KC_BSPC,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
+KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,                KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
+                                        L_GUI,      TAB_CTL,    L_SHIFT,    NUM_L,          SYM_L,      KC_SPC,     ENT_GUI,    L_GUI                                            ),
 
 
 
@@ -124,16 +126,17 @@ DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QST,     _______,
 
 
 
+
 /* layer 3: number and movement layer (press number layer key to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| AGUI | CALT | BSPC |  UP  | DEL  | A_F4 |                          |  *   |  7   |  8   |  9   |  :   |  /   |
+| CALT | CSFT | BSPC |  UP  | DEL  | A_F4 |                          |  *   |  7   |  8   |  9   |  :   |  _   |
 |______|______|______|______|______|______|                          |______|______|______|______|______|______|
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| CTL  | GUI  |  <-  | DOWN |  ->  | PGUP |                          |  +   |  4   |  5   |  6   |  .   | BSPC |
+|      | SHFT |  <-  | DOWN |  ->  | PGUP |                          |  +   |  4   |  5   |  6   |  .   | BSPC |
 |______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
 |      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
-| SHFT | CSFT | PSCR | HOME | END  | PGDN |      |            |      |  -   |  1   |  2   |  3   |  ,   |  _   |
+| GUI  | CTL  | CGUI | HOME | END  | PGDN |      |            |      |  /   |  1   |  2   |  3   |  ,   |  -   |
 |______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
                         |      |      |      |      |      |      |      |      |      |
                         |      |      |      |      |      |      |      |      | NNBS |
@@ -141,23 +144,22 @@ DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QST,     _______,
                                |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_NL] = LAYOUT(
-ALT_GUI,    CTL_ALT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_SLSH, \
-KC_LCTL,    KC_LGUI,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,                                        DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC, \
-KC_LSFT,    CTL_SFT,    KC_PSCR,    KC_HOME,    KC_END,     KC_PGDN,    _______,                _______,    DE_MINS,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_UNDS, \
+CTL_ALT,    CTL_SFT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_UNDS, \
+_______,    KC_LSFT,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,                                        DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC, \
+KC_LGUI,    KC_LCTL,    CTL_GUI,    KC_HOME,    KC_END,     KC_PGDN,    _______,                _______,    DE_SLSH,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_MINS, \
                                         _______,    _______,    XXXXXXX,    NUM_L,           FN_L,      KC_SPC,     DE_0,       NNB_SPC                                         ),
-
 
 
 /* layer 4: function keys (press symbol and number layer key together to access)
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-| NONE | SLCK | PREV | PLAY | NEXT | WASD |                          | SCOP | BROW | MAIL | UPDT | ORG  | MSC  |
+|  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                          |  F7  |  F8  |  F9  | F10  | F11  | F12  |
 |______|______|______|______|______|______|                          |______|______|______|______|______|______|
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-|  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                          |  F7  |  F8  |  F9  | F10  | F11  | F12  |
+| WASD | PAUS | PREV | PLAY | NEXT | BRIU |                          | G_F1 | G_F2 | G_F3 | G_F4 | G_F5 | G_F6 |
 |______|______|______|______|______|______|______              ______|______|______|______|______|______|______|
 |      |      |      |      |      |      |      |            |      |      |      |      |      |      |      |
-| RST  | PAUS | MUTE | VOLD | VOLU | QWER |      |            |      | NONE | TERM | EXPL | EDIT | CALC | SLIC |
+| RST  | PSCR | MUTE | VOLD | VOLU | BRID |      |            |      | G_F7 | G_F8 | G_F9 | GF10 | GF11 | GF12 |
 |______|______|______|______|______|______|______|__        __|______|______|______|______|______|______|______|
                         |      |      |      |      |      |      |      |      |      |
                         | NONE |      |      |      |      |      |      |      | NONE |
@@ -165,9 +167,9 @@ KC_LSFT,    CTL_SFT,    KC_PSCR,    KC_HOME,    KC_END,     KC_PGDN,    _______,
                                |      |      |      |      |      |      |      |
                                |______|______|______|      |______|______|______| */
 [_FL] = LAYOUT(
-XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    KC_MAIL,    UPDATES,    ORGNZR,     MUSIC,   \
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,  \
-RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    QWERTZ,     _______,                _______,    XXXXXXX,    TERMNL,     EXPLOR,     EDITOR,     KC_CALC,    SLICER,  \
+WASD,       KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,                                        GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6,  \
+RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    _______,                _______,    GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12, \
                                         XXXXXXX,    XXXXXXX,    XXXXXXX,    FN_L,           FN_L,       XXXXXXX,    XXXXXXX,    XXXXXXX                                          )
 };
 
