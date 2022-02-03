@@ -200,6 +200,7 @@ RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    VOU,    
 
 
 
+uint8_t mod_state;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch(keycode) {
         // fix for MO()
@@ -215,18 +216,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
         // convert Shift-Backspace to Control-Backspace
         case KC_BSPC:
-            if ((get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT) {
-                if (record->event.pressed) {
-                    unregister_code(KC_LSFT);
+            mod_state = get_mods();
+            static bool ctrl_bspc_registered;
+            if (record->event.pressed) {
+                if (mod_state & MOD_MASK_SHIFT) {
+                    del_mods(MOD_MASK_SHIFT);
                     register_code16(LCTL(KC_BSPC));
-                    register_code(KC_LSFT);
+                    ctrl_bspc_registered = true;
+                    set_mods(mod_state);
+                    return false;
                 }
-                else {
-                    unregister_code16(LCTL(KC_BSPC));
-                }
-                return false;
             }
-            break;
+            else {
+                if (ctrl_bspc_registered) {
+                    unregister_code16(LCTL(KC_BSPC));
+                    ctrl_bspc_registered = false;
+                    return false;
+                }
+            }
+            return true;
     }
     return true;
 }
