@@ -240,9 +240,7 @@ class MatrixPcbGenerator:
         off = self.origin_offset
         for i, col in enumerate(finger_vals):
             self.add_col_tracks(col, col_conn_vals, i, fpc_index, F_Cu)
-            col_net = col_nets[
-                (self.max_cols if i <= fpc_index else self.col_count) - 1 - i
-            ]
+            col_net = col_nets[self.max_cols - 1 - i]
             for j, pos in enumerate(col):
                 ref = f"SW{i+1}{j+1}"
                 self.add_key(ref, pos[:2] + off, row_nets[j], col_net)
@@ -444,7 +442,7 @@ class MatrixPcbGenerator:
         px = self.pad_size[0] / 2
         d = self.track_width + self.track_clearance
         tx = self.pad_width_min + (cols_left - i) * d
-        dx = (self.max_cols - i - 1.5) * mm
+        dx = (self.col_count - i - 1.5) * mm
         ty = abs(tx - dx)
         pos_y = (cols_left - 1) * d / 2
         t1 = px - self.pad_width_min - (cols_left) * d
