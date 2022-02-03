@@ -44,7 +44,6 @@
 #define GUI_F11     LGUI(KC_F11)
 #define GUI_F12     LGUI(KC_F12)
 
-#define BSP_ALT     LALT_T(KC_BSPC)
 #define TAB_CTL     LCTL_T(KC_TAB)
 #define ENT_GUI     LGUI_T(KC_ENT)
 
@@ -64,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 | BSPC |  A   |  S   |  D   |  F   |  G   |                          |  H   |  J   |  K   |  L   |  Ö   |  Ä   |
 |______|______|______|______|______|______|                          |______|______|______|______|______|______|
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
-|  _   |  Y   |  X   |  C   |  V   |  B   |                          |  N   |  M   |  ,   |  .   |  -   |  ß   |
+| ALT  |  Y   |  X   |  C   |  V   |  B   |                          |  N   |  M   |  ,   |  .   |  -   |  ß   |
 |______|______|______|______|______|______|__                      __|______|______|______|______|______|______|
                         |      |      |      |                    |      |      |      |
                         |      |      |      |                    |      |      |      |
@@ -73,8 +72,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                         |______|______|______|                    |______|______|______| */
 [_QL] = LAYOUT(
 ROW(    KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA ), \
-ROW(    BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA ), \
-ROW(    DE_UNDS,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,                           DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS   ), \
+ROW(    KC_BSPC,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA ), \
+ROW(    KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,                           DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS   ), \
 T_ROW(                                          TAB_CTL,    L_SHIFT,    NUM_L,                  SYM_L,      KC_SPC,     ENT_GUI                                         )),
 
 
