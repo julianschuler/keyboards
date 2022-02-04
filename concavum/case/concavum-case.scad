@@ -54,13 +54,14 @@ thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
 finger_chamfer = [0, 5.5, 7, 7];
 finger_rim = 6;
 thumb_chamfer = [6, 6, 7, 9];
+thumb_rim = [5, 4];
 
 // keyboard tenting angle and other values
 tenting_angle = 20;
 height = 40;
 mount_height = 80;
-mount_boarder = 5;
-mount_rim = [5, 3];
+mount_border = 5;
+mount_rim = 3;
 
 // finger_anchor_index selects the finger column which the thumb connector attaches to.
 // The FPC connector is also added at the same column, automatic PCB generation is
@@ -93,7 +94,7 @@ e = 0.01;
 $fa = 3;
 $fs = 0.01;
 
-// key matrix pcb values (shouldn't have to be changed)
+// key matrix pcb values (shouldn't be changed)
 m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
 m_pcb_pad_size = [13, 14];
@@ -102,29 +103,29 @@ m_pcb_router_diameter = 2;
 fpc_pad_size = [19, 4];
 fpc_offset = [0, 7.9];
 
-// thumb connector values (shouldn't have to be changed)
+// thumb connector values (shouldn't be changed)
 finger_anchor_offset = 0;
 thumb_anchor_offset = 0;
 thumb_connector_width = 2.3;
 
-// nut and bolt values (shouldn't have to be changed)
+// nut and bolt values (shouldn't be changed)
 bolt_diameter = 3.2;
 nut_width = 5.5;
 nut_height = 2.8;
 nut_rim = [1.5, 2];
 
-// keycap and switch values (shouldn't have to be changed)
+// keycap and switch values (shouldn't be changed)
 keycap_size = [18.4, 12.3, 7.7];
 switch_top_size = [15.6, 10, 6.6];
 switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
 
-// interface pcb values (shouldn't have to be changed)
+// interface pcb values (shouldn't be changed)
 i_pcb_size = [29, 40, 1.6];
 i_pcb_offset = [0, 0, 2];
 i_pcb_mount_point_index = 3;
 
-// port values (shouldn't have to be changed)
+// port values (shouldn't be changed)
 usb_width = 9.2;
 usb_height = 3.4;
 usb_radius = 1.1;
@@ -132,6 +133,10 @@ usb_offset = 14.1;
 jack_radius = 3.1;
 jack_offset = [5.8, 0.55];
 port_offset = [4.5, 0, 1.7];
+
+// bottom plate settings (shouldn't be changed, will be overwritten by export script)
+build_bottom_plate = false;
+bottom_plate_outline = false;
 
 
 // assertions to ensure the above described constraints
@@ -241,7 +246,7 @@ thumb_vals = [for (j = thumb_range) let (
 mount_points = [for (i = [0 : len(finger_vals)]) let (
     l = len(finger_vals),
     dx = key_distance.x / 2,
-    dy = key_distance.y / 2 + mount_boarder,
+    dy = key_distance.y / 2 + mount_border,
     vs = finger_vals[min(i, l - 1)],
     pvs = finger_vals[max(i - 1, 0)],
     m = len(vs) - 1,
@@ -537,9 +542,9 @@ module finger_cluster() {
                     ml = keycap_size.x + abs(co) + abs(xw)
                         + ((cdl != 0) ? cdl : (l ? d : 0))
                         + ((cdr != 0) ? cdr : (r ? d : 0));
-                    mw = dy + md + ((j == 0 || j == len(vs) - 1) ? mount_rim.y : md);
-                    mo = ((j == 0) ? (md - mount_rim.y) / 2
-                        : (j == len(vs) - 1) ? (mount_rim.y - md) / 2 : 0);
+                    mw = dy + md + ((j == 0 || j == len(vs) - 1) ? mount_rim : md);
+                    mo = ((j == 0) ? (md - mount_rim) / 2
+                        : (j == len(vs) - 1) ? (mount_rim - md) / 2 : 0);
                     translate(pos1) rotate([0, a1, 0])
                         translate(pos2) rotate([a2, 0, 0])
                             translate([o, mo, -mount_height / 2])
@@ -561,11 +566,10 @@ module finger_cluster() {
 
 
 module thumb_cluster() {
-    l = keycap_size.x * 1.5 + 2 * mount_rim.x;
+    ml = keycap_size.x * 1.5 + 2 * thumb_rim.x;
     dy = key_distance.y;
-    oy = 2;
-    ml = l;
-    mw = key_distance.y + 2 * mount_rim.y;
+    my = thumb_rim.y;
+    mw = key_distance.y + 2 * my;
     intersection() {
         translate([0, 0, height]) rotate ([0, -tenting_angle, 0])
             translate(thumb_offset) rotate(thumb_rotation)
@@ -574,22 +578,19 @@ module thumb_cluster() {
                     pos = v[0];
                     a = v[1];
                     md = v[2];
-                    w = dy + md + ((i == 0 || i == len(thumb_vals) - 1)
-                        ? mount_rim.y : md);
-                    mo = ((i == 0) ? (md - mount_rim.y) / 2
-                        : (i == len(thumb_vals) - 1) ? (mount_rim.y - md) / 2 : 0);
+                    w = dy + md + ((i == 0 || i == len(thumb_vals) - 1) ? my : md);
+                    mo = ((i == 0) ? (md - dy) / 2
+                        : (i == len(thumb_vals) - 1) ? (my - md) / 2 : 0);
                     translate(pos) rotate([a, 0, 0])
                         translate([0, mo, -mount_height / 2])
-                            cube([l, w, mount_height], center=true);
+                            cube([2 * ml, w, mount_height], center=true);
                 }
         difference() {
             translate([thumb_offset.x, thumb_offset.y, 0])
-                rotate([0, 0, thumb_rotation.z]) difference() {
+                rotate(thumb_rotation.z) difference() {
                     for (v = thumb_vals) {
                         pos = v[0];
-                        x = pos.x;
-                        y = pos.y + oy;
-                        translate([x, y, mount_height / 2])
+                        translate([pos.x, pos.y, mount_height / 2])
                             cube([ml, mw, mount_height], center=true);
                     }
                     for (i = [0, 1]) {
@@ -597,9 +598,9 @@ module thumb_cluster() {
                         for (j = [0, 1]) {
                             d = sqrt(2) * thumb_chamfer[2 * i + j];
                             x = pos.x + sign(j - 0.5) * ml / 2;
-                            y = pos.y + sign(i - 0.5) * mw / 2 + oy;
+                            y = pos.y + sign(i - 0.5) * mw / 2;
                             translate([x, y, mount_height / 2 - e])
-                                rotate([0, 0, 45])
+                                rotate(45)
                                     cube([d, d, mount_height], center=true);
                         }
                     }
@@ -628,15 +629,14 @@ module nut_holder(angle=0) {
 
 
 module nut_holders() {
-    l = keycap_size.x * 0.75 + mount_rim.x;
-    dy = thumb_offset.y + 2.5;
+    dx = keycap_size.x * 0.75 + thumb_rim.x;
     flip_x() for (v = nut_values) {
         pos = mount_points[v[0]] + [v[2], 0];
         a = v[1];
         translate(pos) nut_holder(a);
     }
-    translate([thumb_offset.x, dy, 0]) rotate([0, 0, thumb_rotation.z + 90])
-        translate([0, l, 0]) nut_holder(0);
+    translate([thumb_offset.x, thumb_offset.y]) rotate(thumb_rotation.z)
+        translate([-dx, 0]) nut_holder(90);
 }
 
 
@@ -867,10 +867,40 @@ module matrix_pcb_outline() {
 }
 
 
+module bottom_plate_outline() {
+    t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
+    dx = keycap_size.x * 0.75 + thumb_rim.x - t;
+    difference() {
+        projection(cut=true) {
+            finger_cluster();
+            thumb_cluster();
+        }
+        flip_x() for (v = nut_values) {
+            pos = mount_points[v[0]] + [v[2], 0];
+            a = v[1];
+            translate(pos) rotate(a) translate([0, -t]) circle(d=bolt_diameter);
+        }
+        translate([thumb_offset.x, thumb_offset.y]) rotate(thumb_rotation.z)
+            translate([-dx, 0]) circle(d=bolt_diameter);
+    }
+}
 
-// build case
+
+
 if (build_case) {
-    case();
+    // build bottom plate, either as 3D object or outline
+    if (build_bottom_plate) {
+        if (bottom_plate_outline) {
+            bottom_plate_outline();
+        }
+        else {
+            linear_extrude(shell_thickness) bottom_plate_outline();
+        }
+    }
+    // build case
+    else {
+        case();
+    }
 }
 // show preview of the matrix pcb
 else if ($preview) {
