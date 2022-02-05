@@ -644,14 +644,16 @@ module nut_holder(angle=0) {
 
 
 module nut_holders() {
-    dx = keycap_size.x * 0.75 + thumb_rim.x;
     flip_x() for (v = nut_values) {
         pos = mount_points[v[0]] + [v[2], 0];
         a = v[1];
         translate(pos) nut_holder(a);
     }
-    translate([thumb_offset.x, thumb_offset.y]) rotate(thumb_rotation.z)
-        translate([-dx, 0]) nut_holder(90);
+    v1 = thumb_mount_points[0];
+    v2 = thumb_mount_points[3];
+    dv = (v2 - v1) / 2;
+    a = atan2(-dv.x, dv.y);
+    translate(v1 + dv) rotate(0) nut_holder(a + 90);
 }
 
 
@@ -884,7 +886,10 @@ module matrix_pcb_outline() {
 
 module bottom_plate_outline() {
     t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
-    dx = keycap_size.x * 0.75 + thumb_rim.x - t;
+    v1 = thumb_mount_points[0];
+    v2 = thumb_mount_points[3];
+    dv = (v2 - v1) / 2;
+    a = atan2(-dv.x, dv.y);
     difference() {
         projection(cut=true) {
             finger_cluster();
@@ -892,11 +897,9 @@ module bottom_plate_outline() {
         }
         flip_x() for (v = nut_values) {
             pos = mount_points[v[0]] + [v[2], 0];
-            a = v[1];
-            translate(pos) rotate(a) translate([0, -t]) circle(d=bolt_diameter);
+            translate(pos) rotate(v[1]) translate([0, -t]) circle(d=bolt_diameter);
         }
-        translate([thumb_offset.x, thumb_offset.y]) rotate(thumb_rotation.z)
-            translate([-dx, 0]) circle(d=bolt_diameter);
+        translate(v1 + dv) rotate(a) translate([t, 0]) circle(d=bolt_diameter);
     }
 }
 
