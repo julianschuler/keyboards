@@ -39,7 +39,7 @@ thumb_range = [-1 : 1];
 // offsets along the Y and Z axis are supported (the X value has to be 0).
 // All described constraints are checked using assertions.
 finger_angles = [20, 20, 20, 20, 20, 20];
-finger_rotation = [20, 0, 0, 0, 0, -20];
+finger_rotation = [15, 0, 0, 0, 0, -15];
 finger_offset = [
     [0, 0, 0], [0, 0, 0], [0, 0, -3], [0, 0, 0], [0, -20, 5], [0, -20, 5]
 ];
@@ -47,21 +47,24 @@ finger_offset = [
 // thumb well curvature, offset and rotation
 // thumb_angle has to be greater than 0
 thumb_angle = 15;
-thumb_rotation = [30, 0, 80];
-thumb_offset = [16, -50, 0] - [key_distance.x, 0, 0];
+thumb_rotation = [30, 15, 80];
+thumb_offset = [16, -48, 10] - [key_distance.x, 0, 0];
 
 // finger and thumb chamfer depths and rim values
-finger_chamfer = [0, 5.5, 7, 7];
-finger_rim = 6;
-thumb_chamfer = [6, 6, 7, 9];
-thumb_rim = [5, 4];
+finger_chamfer = [0, 5.5, 12, 9];
+finger_rim = [1, 4];
+finger_rim_offset = 3;
+finger_clearance = 3;
+thumb_chamfer = [5, 7, 10, 7];
+thumb_rim = [2, 4];
+thumb_rim_offset = 0;
+thumb_rim_top_offset = 2;
 
 // keyboard tenting angle and other values
-tenting_angle = 20;
-height = 40;
-mount_height = 80;
-mount_border = 5;
-mount_rim = 3;
+tenting_angle = [15, -20];
+mount_height = 100;
+height_offset = 42;
+half_offset = 40;
 
 // finger_anchor_index selects the finger column which the thumb connector attaches to.
 // The FPC connector is also added at the same column, automatic PCB generation is
@@ -166,10 +169,10 @@ function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i +
 function rotate_pos(angles, pos) = let(
     sx = sin(angles.x),
     sy = sin(angles.y),
-    sz = sin(angles.z),
+    sz = (len(angles) == 3) ? sin(angles.z) : 0,
     cx = cos(angles.x),
     cy = cos(angles.y),
-    cz = cos(angles.z),
+    cz = (len(angles) == 3) ? cos(angles.z) : 1,
     px = pos.x,
     py = pos.y,
     pz = pos.z
@@ -245,8 +248,8 @@ thumb_vals = [for (j = thumb_range) let (
 
 mount_points = [for (i = [0 : len(finger_vals)]) let (
     l = len(finger_vals),
-    dx = key_distance.x / 2,
-    dy = key_distance.y / 2 + mount_border,
+    dx = key_distance.x / 2 + finger_rim.x,
+    dy = key_distance.y / 2 + finger_rim.y,
     vs = finger_vals[min(i, l - 1)],
     pvs = finger_vals[max(i - 1, 0)],
     m = len(vs) - 1,
@@ -261,15 +264,34 @@ mount_points = [for (i = [0 : len(finger_vals)]) let (
     x0 = pos01.x + pos02.x + ((i == l) ? dx : -dx),
     y0 = min(pos01.y, ppos01.y) + min(pos02.y, ppos02.y) - dy,
     xm = posm1.x + posm2.x + ((i == l) ? dx : -dx),
-    ym = max(posm1.y, pposm1.y) + max(posm2.y, pposm2.y) + dy
+    ym = max(posm1.y, pposm1.y) + max(posm2.y, pposm2.y) + dy,
+    x = (i == l) ? max(x0, xm) : min(x0, xm)
     ) each
-        [[x0, y0], [xm, ym]]
+        [[x, y0], [x, ym]]
     ];
 
 mount_path = [[
     each [0 : 2 : 2 * (len(finger_vals))],
     each [2 * len(finger_vals) + 1 : -2 : 1]
 ]];
+
+thumb_mount_points = let(
+    dx = key_distance.x * 0.75 + thumb_rim.x,
+    dy = key_distance.y / 2 + thumb_rim.y,
+    to = thumb_rim_top_offset,
+    t_pos0 = thumb_vals[0][0],
+    t_posm = thumb_vals[len(thumb_vals) - 1][0],
+    pos01 = rotate_pos(tenting_angle,
+        rotate_pos(thumb_rotation, t_pos0 + [-dx, -dy, 0]) + thumb_offset),
+    pos02 = rotate_pos(tenting_angle,
+        rotate_pos(thumb_rotation, t_pos0 + [dx + to, -dy, 0]) + thumb_offset),
+    posm1 = rotate_pos(tenting_angle,
+        rotate_pos(thumb_rotation, t_posm + [-dx, dy, 0]) + thumb_offset),
+    posm2 = rotate_pos(tenting_angle,
+        rotate_pos(thumb_rotation, t_posm + [dx + to, dy, 0]) + thumb_offset)
+    ) [
+        [pos01.x, pos01.y], [pos02.x, pos02.y], [posm2.x, posm2.y], [posm1.x, posm1.y]
+    ];
 
 m_pcb_vals = [for (i = iter(finger_vals)) let (
     h = switch_top_size.z + switch_bottom_size.z,
@@ -349,15 +371,15 @@ thumb_connector_vals = let(
     f_off = [
         -f_val[0].x - f_val[1].x, f_val[0].y + f_val[1].y, f_val[0].z + f_val[1].z
     ],
-    f_pos = f_off + rotate_pos([b, 0, 0], [finger_anchor_offset, -dy, -dz]),
-    t_off = rotate_pos([d, 0, 0], [dx, -thumb_anchor_offset, -dz]),
+    f_pos = f_off + rotate_pos([b, 0], [finger_anchor_offset, -dy, -dz]),
+    t_off = rotate_pos([d, 0], [dx, -thumb_anchor_offset, -dz]),
     t_pos = thumb_offset + rotate_pos(thumb_rotation, t_val[0] + t_off),
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
     r = (abs(diff.y) * sin(a) - abs(diff.x) * cos(a))
         / (cos(c) + sin(a - beta) * (1 - cos(a)) / sin(beta)),
     f = r * tan(a / 2),
-    f_arc = f_pos + rotate_pos([b, 0, 0], [f * sin(a), -f * (1 + cos(a)), 0]),
+    f_arc = f_pos + rotate_pos([b, 0], [f * sin(a), -f * (1 + cos(a)), 0]),
     t_arc = thumb_offset
         + rotate_pos(thumb_rotation, t_val[0] + t_off + [r, r * cos(d), r * sin(d)]),
     // Approximate bending of the connector between thumb and finger cluster
@@ -462,7 +484,7 @@ module switch_cutout() {
 
 
 module switch_cutouts() {
-    translate([0, 0, height]) rotate ([0, -tenting_angle, 0]) {
+    translate([0, 0, height_offset]) rotate (tenting_angle) {
         flip_x() for (i = iter(finger_vals)) {
             vs = finger_vals[i];
             for (j = iter(vs)) {
@@ -515,7 +537,7 @@ module finger_cluster() {
     h = switch_top_size.z;
     s = -col_range[0];
     flip_x() intersection() {
-        translate([0, 0, height]) rotate ([0, tenting_angle, 0])
+        translate([0, 0, height_offset]) rotate([tenting_angle.x, -tenting_angle.y])
             for (i = iter(finger_vals)) {
                 vs = finger_vals[i];
                 l = (i == 0) ? true : finger_vals[i - 1][s][0].z
@@ -542,9 +564,10 @@ module finger_cluster() {
                     ml = keycap_size.x + abs(co) + abs(xw)
                         + ((cdl != 0) ? cdl : (l ? d : 0))
                         + ((cdr != 0) ? cdr : (r ? d : 0));
-                    mw = dy + md + ((j == 0 || j == len(vs) - 1) ? mount_rim : md);
-                    mo = ((j == 0) ? (md - mount_rim) / 2
-                        : (j == len(vs) - 1) ? (mount_rim - md) / 2 : 0);
+                    mw = dy + md
+                        + ((j == 0 || j == len(vs) - 1) ? finger_rim_offset : md);
+                    mo = ((j == 0) ? (md - finger_rim_offset) / 2
+                        : (j == len(vs) - 1) ? (finger_rim_offset - md) / 2 : 0);
                     translate(pos1) rotate([0, a1, 0])
                         translate(pos2) rotate([a2, 0, 0])
                             translate([o, mo, -mount_height / 2])
@@ -557,8 +580,8 @@ module finger_cluster() {
                 pos = mount_points[i * (len(mount_points) - 2) + j];
                 d = sqrt(2) * finger_chamfer[2 * i + j];
                 translate([pos.x, pos.y, mount_height / 2 - e])
-                    rotate([0, 0, -45 + 90 * (i + j)])
-                        cube([d + 10, d, mount_height], center=true);
+                    rotate(-45 + 90 * (i + j))
+                        cube([2 * d, d, mount_height], center=true);
             }
         }
     }
@@ -566,12 +589,10 @@ module finger_cluster() {
 
 
 module thumb_cluster() {
-    ml = keycap_size.x * 1.5 + 2 * thumb_rim.x;
-    dy = key_distance.y;
-    my = thumb_rim.y;
-    mw = key_distance.y + 2 * my;
+    dy = key_distance.y / 2;
+    my = keycap_size.y / 2 + thumb_rim_offset;
     intersection() {
-        translate([0, 0, height]) rotate ([0, -tenting_angle, 0])
+        translate([0, 0, height_offset]) rotate (tenting_angle)
             translate(thumb_offset) rotate(thumb_rotation)
                 for (i = iter(thumb_vals)) {
                     v = thumb_vals[i];
@@ -579,33 +600,27 @@ module thumb_cluster() {
                     a = v[1];
                     md = v[2];
                     w = dy + md + ((i == 0 || i == len(thumb_vals) - 1) ? my : md);
-                    mo = ((i == 0) ? (md - dy) / 2
+                    mo = ((i == 0) ? (md - my) / 2
                         : (i == len(thumb_vals) - 1) ? (my - md) / 2 : 0);
                     translate(pos) rotate([a, 0, 0])
                         translate([0, mo, -mount_height / 2])
-                            cube([2 * ml, w, mount_height], center=true);
+                            cube([mount_height, w, mount_height], center=true);
                 }
         difference() {
-            translate([thumb_offset.x, thumb_offset.y, 0])
-                rotate(thumb_rotation.z) difference() {
-                    for (v = thumb_vals) {
-                        pos = v[0];
-                        translate([pos.x, pos.y, mount_height / 2])
-                            cube([ml, mw, mount_height], center=true);
-                    }
-                    for (i = [0, 1]) {
-                        pos = thumb_vals[i * (len(thumb_vals) - 1)][0];
-                        for (j = [0, 1]) {
-                            d = sqrt(2) * thumb_chamfer[2 * i + j];
-                            x = pos.x + sign(j - 0.5) * ml / 2;
-                            y = pos.y + sign(i - 0.5) * mw / 2;
-                            translate([x, y, mount_height / 2 - e])
-                                rotate(45)
-                                    cube([d, d, mount_height], center=true);
-                        }
-                    }
-                }
-            flip_x() linear_extrude(mount_height) offset(delta=-finger_rim)
+            linear_extrude(mount_height) polygon(thumb_mount_points, convexity=10);
+            m = len(thumb_mount_points);
+            mp = thumb_mount_points;
+            for (i = iter(mp)) {
+                pos = mp[i];
+                d = sqrt(2) * thumb_chamfer[i];
+                dv1 = mp[(i + 1) % m] - pos;
+                dv2 = mp[(i + m - 1) % m] - pos;
+                dv = dv1 / norm(dv1) + dv2 / norm(dv2);
+                a = atan2(-dv.x, dv.y);
+                translate([pos.x, pos.y, mount_height / 2 - e])
+                    rotate(a) cube([2 * d, d, mount_height], center=true);
+            }
+            flip_x() linear_extrude(mount_height) offset(delta=-finger_clearance)
                 polygon(mount_points, mount_path, convexity=10);
         }
     }
@@ -658,7 +673,7 @@ module i_pcb_holder() {
 
 
 module mount(left=true) {
-    translate([(left ? -40 : 40), 0, 0]) flip_x(!left) {
+    translate([left ? -half_offset : half_offset, 0, 0]) flip_x(!left) {
         difference() {
             // main body
             union() {
@@ -675,7 +690,7 @@ module mount(left=true) {
         }
         // preview elements
         interface_pcb();
-        translate([0, 0, height]) rotate ([0, -tenting_angle, 0]) {
+        translate([0, 0, height_offset]) rotate (tenting_angle) {
             keys();
             thumb_connector_visualisation();
         }
