@@ -115,12 +115,17 @@ class MatrixPcbGenerator:
         self.board = pcbnew.LoadBoard(board_template_file)
         # use openscad to generate the PCB outline as DXF file and to get
         # other data as key positions, rotations, etc.
+        parameter_file = os.path.splitext(self.scad_file)[0] + ".json"
         cmd = (
             "openscad",
             "-D",
             "build_matrix_pcb=true",
             "-o",
             self.dxf_file,
+            "-p",
+            parameter_file,
+            "-P",
+            "keyboard-parameters",
             self.scad_file,
         )
         scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)

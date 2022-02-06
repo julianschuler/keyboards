@@ -18,10 +18,10 @@ calculate_shell = false;
 
 
 /* [Key cluster settings] */
-// amount of columns, automatic PCB generation is supported for 2 to 6 columns
-column_count = 6; // [2, 3, 4, 5, 6]
 // amount of rows, automatic PCB generation is supported for 1 to 5 rows
 row_count = 4; // [1, 2, 3, 4, 5]
+// amount of columns, automatic PCB generation is supported for 2 to 6 columns
+column_count = 6; // [2, 3, 4, 5, 6]
 // amount of thumb keys, automatic PCB generation is supported for 1 to 6 keys
 thumb_key_count = 3; // [1, 2, 3, 4, 5, 6]
 
