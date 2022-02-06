@@ -118,7 +118,7 @@ class MatrixPcbGenerator:
         cmd = (
             "openscad",
             "-D",
-            "build_case=false",
+            "build_matrix_pcb=true",
             "-o",
             self.dxf_file,
             self.scad_file,
@@ -221,8 +221,7 @@ class MatrixPcbGenerator:
             raise ValueError(
                 f"The FPC index has a value of {fpc_index}. Automatic PCB "
                 f"generation is only supported for a FPC index equal to 1. "
-                f"Adjust the variable finger_anchor_index in the SCAD file "
-                f"accordingly."
+                f"Adjust the variable fpc_index in the SCAD file accordingly."
             )
         # ensure the keys are spaced far enough apart
         min_d = (2 * self.router_diameter + self.pad_size[0]) / mm + cc_w
