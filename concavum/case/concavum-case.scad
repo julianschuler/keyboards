@@ -91,6 +91,7 @@ keycap_color = "#333333";
 switch_color = "#E6E6E6";
 matrix_pcb_color = "#167A24";
 interface_pcb_color = "#1A1A1A";
+fpc_connector_color = "#6F6F6F";
 
 // rendering options (sensible defaults for 3D printings)
 e = 0.01;
@@ -105,6 +106,8 @@ m_pcb_thickness = 0.6;
 m_pcb_router_diameter = 2;
 fpc_pad_size = [19, 4];
 fpc_offset = [0, 7.9];
+fpc_connector_size = [19, 5.3, 2.5];
+fpc_connector_offset = [0, 1.8];
 
 // thumb connector values (shouldn't be changed)
 finger_anchor_offset = 0;
@@ -377,7 +380,7 @@ thumb_connector_vals = let(
     diff = f_pos - t_pos,
     beta = atan((1 - cos(a)) / (sin(a) * cos(b))),
     r = (abs(diff.y) * sin(a) - abs(diff.x) * cos(a))
-        / (cos(c) + sin(a - beta) * (1 - cos(a)) / sin(beta)),
+        / (1 + sin(a - beta) * (1 - cos(a)) / sin(beta)),
     f = r * tan(a / 2),
     f_arc = f_pos + rotate_pos([b, 0], [f * sin(a), -f * (1 + cos(a)), 0]),
     t_arc = thumb_offset
@@ -449,15 +452,15 @@ module keys() {
                 pos2 = vs[j][1];
                 a1 = vs[j][2];
                 a2 = vs[j][3];
-                translate(pos1) rotate([0, a1, 0])
-                    translate(pos2) rotate([a2, 0, 0]) key();
+                translate(pos1) rotate([0, a1])
+                    translate(pos2) rotate([a2, 0]) key();
             }
         }
         translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
             pos = v[0];
             a = v[1];
             pw = v[2];
-            translate(pos) rotate([a, 0, 0]) key(1.5);
+            translate(pos) rotate([a, 0]) key(1.5);
         }
     }
 }
@@ -469,9 +472,19 @@ module interface_pcb() {
         x = -pos.x;
         y = pos.y - i_pcb_size.y / 2 - shell_thickness;
         z = i_pcb_size.z / 2;
-        color(interface_pcb_color) translate([x, y, z] + i_pcb_offset)
-            cube(i_pcb_size, center=true);
+        translate([x, y, z] + i_pcb_offset) {
+            color(interface_pcb_color) cube(i_pcb_size, center=true);
+            translate([0, -i_pcb_size.y / 2, i_pcb_size.z / 2])
+                fpc_connector();
+        }
     }
+}
+
+
+module fpc_connector() {
+    color(fpc_connector_color)
+        translate([-fpc_connector_size.x / 2, 0] - fpc_connector_offset)
+            cube(fpc_connector_size);
 }
 
 
@@ -492,14 +505,14 @@ module switch_cutouts() {
                 pos2 = vs[j][1];
                 a1 = vs[j][2];
                 a2 = vs[j][3];
-                translate(pos1) rotate([0, a1, 0])
-                    translate(pos2) rotate([a2, 0, 0]) switch_cutout();
+                translate(pos1) rotate([0, a1])
+                    translate(pos2) rotate([a2, 0]) switch_cutout();
             }
         }
         translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
             pos = v[0];
             a = v[1];
-            translate(pos) rotate([a, 0, 0]) switch_cutout();
+            translate(pos) rotate([a, 0]) switch_cutout();
         }
     }
 }
@@ -517,7 +530,7 @@ module port_cutouts(left=true) {
     x = -pos.x;
     y = pos.y - shell_thickness / 2;
     z = i_pcb_size.z;
-    translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0, 0]) if (left) {
+    translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0]) if (left) {
         translate([jo[0] - o, 0, 0]) minkowski() {
             cube([w - 2 * r, l - 2 * r, h - e], center=true);
             cylinder(e, r=r, center=true);
@@ -568,8 +581,8 @@ module finger_cluster() {
                         + ((j == 0 || j == len(vs) - 1) ? finger_rim_offset : md);
                     mo = ((j == 0) ? (md - finger_rim_offset) / 2
                         : (j == len(vs) - 1) ? (finger_rim_offset - md) / 2 : 0);
-                    translate(pos1) rotate([0, a1, 0])
-                        translate(pos2) rotate([a2, 0, 0])
+                    translate(pos1) rotate([0, a1])
+                        translate(pos2) rotate([a2, 0])
                             translate([o, mo, -mount_height / 2])
                                 cube([ml, mw, mount_height], center=true);
                 }
@@ -602,7 +615,7 @@ module thumb_cluster() {
                     w = dy + md + ((i == 0 || i == len(thumb_vals) - 1) ? my : md);
                     mo = ((i == 0) ? (md - my) / 2
                         : (i == len(thumb_vals) - 1) ? (my - md) / 2 : 0);
-                    translate(pos) rotate([a, 0, 0])
+                    translate(pos) rotate([a, 0])
                         translate([0, mo, -mount_height / 2])
                             cube([mount_height, w, mount_height], center=true);
                 }
@@ -631,7 +644,7 @@ module nut_holder(angle=0) {
     h = nut_rim[0] + nut_height;
     w = nut_width + 2 * nut_rim[1];
     t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
-    rotate([0, 0, angle]) translate([0, -t, 0]) difference() {
+    rotate(angle) translate([0, -t, 0]) difference() {
         union() {
             cylinder(h, d=w / cos(30), $fn=6);
             translate([-w / 2 / cos(30), 0, 0]) cube([w / cos(30), t, h]);
@@ -755,7 +768,7 @@ module arc(r, w, angle=90) {
         }
         translate([r / 2 + w / 2 - e, e])
             square([r + w + 2 * e, 2 * r + w + 2 * e], center=true);
-        rotate([0, 0, -angle]) translate([-r / 2 - w / 2 + e, e])
+        rotate(-angle) translate([-r / 2 - w / 2 + e, e])
             square([r + w + 2 * e, 2 * r + w + 2 * e], center=true);
     }
 }
@@ -805,10 +818,14 @@ module thumb_connector_visualisation() {
         w = thumb_connector_width;
 
         color(matrix_pcb_color) {
-            // arcs
-            translate(f_pos) rotate([b, 0, 0]) rotate(90)
-                translate([0, -r, -m_pcb_thickness]) flip_x()
+            translate(f_pos) rotate([b, 0]) {
+                // FPC connector pad
+                translate([-fpc_pad_size.x / 2, 0, -m_pcb_thickness])
+                    cube([fpc_pad_size.x, fpc_pad_size.y, m_pcb_thickness]);
+                // arcs
+                rotate(90) translate([0, -r, -m_pcb_thickness]) flip_x()
                     linear_extrude(m_pcb_thickness) arc(r, w, a);
+            }
             translate(t_pos) rotate(thumb_rotation + [d, 0, 0]) rotate(-90)
                     translate([-r, 0, -m_pcb_thickness])
                         linear_extrude(m_pcb_thickness) arc(r, w);
@@ -825,11 +842,13 @@ module thumb_connector_visualisation() {
             }
         }
 
+        translate(f_pos) rotate([b + 180, 0]) rotate(180) translate([0, 0, m_pcb_thickness]) fpc_connector();
+
         // keys
-        flip_x() translate(f_val[0]) rotate([0, f_val[2], 0])
-            translate(f_val[1]) rotate([f_val[3], 0, 0]) key();
+        flip_x() translate(f_val[0]) rotate([0, f_val[2]])
+            translate(f_val[1]) rotate([f_val[3], 0]) key();
         translate(thumb_offset) rotate(thumb_rotation)
-            translate(t_val[0]) rotate([t_val[1], 0, 0]) key(1.5);
+            translate(t_val[0]) rotate([t_val[1], 0]) key(1.5);
     }
 }
 
