@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is a small interactive test to play around with bezier curves to
 # approximate the bending of the thumb connector of the pcb.
 
@@ -59,7 +61,6 @@ fig, ax = plt.subplots(1, 2)
 ax[0].axis("equal")
 ax[0].set_title("Bending Approximation")
 ax[1].set_title("Curvature")
-# ax[1].axis("equal")
 patch = patches.PathPatch(path, facecolor="none", lw=2)
 ax[0].add_patch(patch)
 

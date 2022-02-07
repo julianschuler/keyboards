@@ -420,7 +420,7 @@ thumb_connector_vals = let(
     // Approximate bending of the connector between thumb and finger cluster
     // with a bezier curve and calculate resulting length offset.
     // Bezier curve control points were empirically chosen to reduce curvature
-    // while following the given constraints (see bending_approximation.py).
+    // while following the given constraints (see bending-approximation.py).
     bd = t_arc - f_arc,
     bx = sin(a) * bd.x - cos(a) * bd.y,
     bezier_points = [
