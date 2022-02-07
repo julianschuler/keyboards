@@ -2,7 +2,7 @@
 // show the keys during preview
 show_keys = true;
 
-// show the interface pcb during preview
+// show the interface PCB during preview
 show_interface_pcb = true;
 
 // show a visualisation of the bending of the PCB thumb connector
@@ -52,7 +52,7 @@ thumb_offset = [-3.05, -48, 10];
 
 /* [Keyboard settings] */
 // thickness of the keyboard shell
-shell_thickness = 2;
+shell_thickness = 1.6;
 
 // depths of the chamfers in the corners of the finger cluster
 finger_chamfers = [0, 5.5, 12, 9];
@@ -77,7 +77,7 @@ thumb_rim_top_offset = 2;
 tilting_angle = [15, -20];
 
 // value the cluster is offset along the Z axis to create a valid keyboard
-height_offset = 42;
+height_offset = 43;
 
 // value each half is offset along the X axis
 half_offset = 40;
@@ -104,6 +104,8 @@ fpc_connector_color = "#6F6F6F";
 
 
 /* [Rendering and export options] */
+// build key matrix PCB instead of the keyboard
+build_matrix_pcb = false;
 // adjust only if the shell calculation fails, small values are recommended
 shell_fn = 15; 
 // minium angle, sensible default for 3D printing
@@ -117,7 +119,7 @@ module __Customizer_Limit__() {}
 // epsilon used in differences and intersections (shouldn't be changed)
 e = 0.01;
 
-// key matrix pcb values (shouldn't be changed)
+// key matrix PCB values (shouldn't be changed)
 m_pcb_col_connector_width = 2;
 m_pcb_straight_conn_width = 2.5;
 m_pcb_pad_size = [13, 14];
@@ -148,7 +150,7 @@ switch_top_size = [15.6, 10, 6.6];
 switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
 
-// interface pcb values (shouldn't be changed)
+// interface PCB values (shouldn't be changed)
 i_pcb_size = [29, 40, 1.6];
 i_pcb_offset = [0, 0, 2];
 i_pcb_mount_point_index = 3;
@@ -163,10 +165,10 @@ jack_offset = [5.8, 0.55];
 port_offset = [4.5, 0, 1.7];
 
 // build matrix PCB outline instead of the keyboard (will be overwritten externally)
-build_matrix_pcb = false;
+build_matrix_pcb_outline = false;
 // bottom plate settings (shouldn't be changed, will be overwritten by export script)
 build_bottom_plate = false;
-bottom_plate_outline = false;
+build_bottom_plate_outline = false;
 
 
 // assertions to ensure the validity of the input
@@ -774,7 +776,7 @@ module keyboard() {
 }
 
 
-module m_pcb_pad_with_connector(conn_l, x1, x2, y) {
+module m_pcb_pad_with_connector(conn_l, x1, x2, y, holes, hole_dir=1) {
     difference() {
         union() {
             w = m_pcb_straight_conn_width;
@@ -782,12 +784,12 @@ module m_pcb_pad_with_connector(conn_l, x1, x2, y) {
             translate([x1, y]) square([w, conn_l]);
             translate([x2, y]) square([w, conn_l]);
         }
-        if ($preview) {
+        if (holes) {
             circle(d=4);
-            translate([3.81, 2.54]) circle(d=1.5);
-            translate([2.54, 5.08]) circle(d=1.5);
-            translate([-3.81, 2.54]) circle(d=1.5);
-            translate([-2.54, 5.08]) circle(d=1.5);
+            translate([3.81, 2.54] * hole_dir) circle(d=1.5);
+            translate([2.54, 5.08] * hole_dir) circle(d=1.5);
+            translate([-3.81, 2.54] * hole_dir) circle(d=1.5);
+            translate([-2.54, 5.08] * hole_dir) circle(d=1.5);
 
         }
     }
@@ -887,7 +889,7 @@ module thumb_connector_visualisation() {
 }
 
 
-module matrix_pcb_outline() {
+module matrix_pcb_outline(holes=false) {
     // finger cluster
     flip_x() for (i = iter(m_pcb_vals)) {
         ps = m_pcb_vals[i];
@@ -904,7 +906,7 @@ module matrix_pcb_outline() {
             x1 = max(0, m_pcb_ppos.x - m_pcb_pos.x) - m_pcb_pad_size.x / 2;
             x2 = min(0, m_pcb_ppos.x - m_pcb_pos.x) + m_pcb_pad_size.x / 2 - w;
             y = -conn_l - m_pcb_pad_size.y / 2 + e;
-            translate(m_pcb_pos) m_pcb_pad_with_connector(conn_l, x1, x2, y);
+            translate(m_pcb_pos) m_pcb_pad_with_connector(conn_l, x1, x2, y, holes);
         }
     }
     // thumb connector
@@ -928,7 +930,7 @@ module matrix_pcb_outline() {
         x1 = -m_pcb_pad_size.x / 2;
         x2 = m_pcb_pad_size.x / 2 - m_pcb_straight_conn_width;
         y = -conn_l - m_pcb_pad_size.y / 2 + e;
-        translate(pos) m_pcb_pad_with_connector(conn_l, x1, x2, y);
+        translate(pos) m_pcb_pad_with_connector(conn_l, x1, x2, y, holes, -1);
     }
     // FPC connector pad
     fpc_val = m_pcb_vals[fpc_index][0];
@@ -958,31 +960,16 @@ module bottom_plate_outline() {
 
 
 
-if (!build_matrix_pcb) {
-    // build bottom plate, either as 3D object or outline
-    if (build_bottom_plate) {
-        if (bottom_plate_outline) {
-            bottom_plate_outline();
-        }
-        else {
-            linear_extrude(shell_thickness) bottom_plate_outline();
-        }
-    }
-    // build keyboard
-    else {
-        keyboard();
-    }
+// build bottom plate, either as 3D object or outline
+if (build_bottom_plate) {
+    linear_extrude(shell_thickness) bottom_plate_outline();
 }
-// show preview of the matrix pcb
-else if ($preview) {
-    color(matrix_pcb_color) linear_extrude(m_pcb_thickness)
-    matrix_pcb_outline();
-    translate([0, 0, -thumb_connector_vals[8].z + switch_bottom_size.x / 2])
-        thumb_connector_visualisation();
+else if (build_bottom_plate_outline) {
+    bottom_plate_outline();
 }
-// 2D render version of the matrix pcb outline
-else {
-    // output values for automatic pcb generation
+// matrix PCB outline used for automatic PCB generation
+else if (build_matrix_pcb_outline) {
+    // keyboard parameters for automatic PCB generation
     echo(
         m_pcb_pad_size,
         home_row_index,
@@ -999,4 +986,15 @@ else {
         key_distance[0]
     );
     matrix_pcb_outline();
+}
+// build matrix PCB
+else if (build_matrix_pcb) {
+    color(matrix_pcb_color) linear_extrude(m_pcb_thickness)
+    matrix_pcb_outline(holes=true);
+    translate([0, 0, -thumb_connector_vals[8].z + switch_bottom_size.x / 2])
+        thumb_connector_visualisation();
+}
+// build keyboard
+else {
+    keyboard();
 }

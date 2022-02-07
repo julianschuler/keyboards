@@ -119,7 +119,7 @@ class MatrixPcbGenerator:
         cmd = (
             "openscad",
             "-D",
-            "build_matrix_pcb=true",
+            "build_matrix_pcb_outline=true",
             "-o",
             self.dxf_file,
             "-p",

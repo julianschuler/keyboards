@@ -16,9 +16,7 @@ if __name__ == "__main__":
     cmd = (
         "openscad",
         "-D",
-        "build_bottom_plate=true",
-        "-D",
-        "bottom_plate_outline=true" if outline else "bottom_plate_outline=false",
+        "build_bottom_plate_outline=true" if outline else "build_bottom_plate=true",
         "-o",
         output_file,
         scad_file,
