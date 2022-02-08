@@ -107,7 +107,7 @@ fpc_connector_color = "#6F6F6F";
 // build key matrix PCB instead of the keyboard
 build_matrix_pcb = false;
 // adjust only if the shell calculation fails, small values are recommended
-shell_fn = 15; 
+shell_fn = 15;
 // minium angle, sensible default for 3D printing
 $fa = 3;
 // minimum segment size, sensible default for 3D printing
@@ -151,9 +151,15 @@ switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
 
 // interface PCB values (shouldn't be changed)
-i_pcb_size = [29, 40, 1.6];
+i_pcb_size = [30, 38, 1.6];
 i_pcb_offset = [0, 0, 2];
 i_pcb_mount_point_index = 3;
+i_pcb_mounting_hole_diameter = 2.2;
+i_pcb_mounting_hole_offset = 2.5;
+i_pcb_mounting_hole_clearance = 0.1;
+i_pcb_holder_width = 8;
+i_pcb_holder_thickness = 2;
+i_pcb_holder_clearance = 0.2;
 
 // port values (shouldn't be changed)
 usb_width = 9.2;
@@ -243,7 +249,7 @@ finger_vals = [for (i = range(column_count)) let (
     h = switch_top_size.z,
     dx = key_distance.x,
     dy = key_distance.y,
-    a1 = (i == 0) ? finger_rotation[0] 
+    a1 = (i == 0) ? finger_rotation[0]
         : ((i == column_count - 1) ? -finger_rotation[1] : 0),
     a2 = finger_angles[i],
     c1 = (a1 == 0) ? 0 : dx / 2 / tan(abs(a1 / 2)),
@@ -334,7 +340,7 @@ m_pcb_vals = [for (i = iter(finger_vals)) let (
     ky = key_distance.y,
     sy = m_pcb_pad_size.y,
     sx = m_pcb_pad_size.x,
-    a1 = (i == 0) ? finger_rotation[0] 
+    a1 = (i == 0) ? finger_rotation[0]
         : ((i == column_count - 1) ? -finger_rotation[1] : 0),
     a2 = finger_angles[i],
     c1 = (a1 == 0) ? 0 : (kx - sx) / 2 / tan(abs(a1 / 2)),
@@ -504,9 +510,19 @@ module interface_pcb() {
         x = -pos.x;
         y = pos.y - i_pcb_size.y / 2 - shell_thickness;
         z = i_pcb_size.z / 2;
+        d = i_pcb_mounting_hole_diameter;
+        o = i_pcb_mounting_hole_offset;
+        h = i_pcb_size.z + 2 * e;
+        fy = fpc_connector_offset.y;
         translate([x, y, z] + i_pcb_offset) {
-            color(interface_pcb_color) cube(i_pcb_size, center=true);
-            translate([0, -i_pcb_size.y / 2, i_pcb_size.z / 2])
+            color(interface_pcb_color) difference() {
+                cube(i_pcb_size, center=true);
+                translate([i_pcb_size.x / 2 - o, -i_pcb_size.y / 2 + o])
+                    cylinder(d=d, h=h, center=true);
+                translate([-i_pcb_size.x / 2 + o, -i_pcb_size.y / 2 + o])
+                    cylinder(d=d, h=h, center=true);
+            }
+            translate([0, -i_pcb_size.y / 2 + fy, i_pcb_size.z / 2])
                 fpc_connector();
         }
     }
@@ -665,7 +681,7 @@ module thumb_cluster() {
                 translate([pos.x, pos.y, safe_height / 2 - e])
                     rotate(a) cube([2 * d, d, safe_height], center=true);
             }
-            flip_x() linear_extrude(safe_height) 
+            flip_x() linear_extrude(safe_height)
                 offset(delta=finger_clearance - finger_rim.y)
                     polygon(mount_points, mount_path, convexity=10);
         }
@@ -704,19 +720,25 @@ module nut_holders() {
 
 
 module i_pcb_holder() {
-    l1 = 2;
-    l2 = 10;
-    h1 = i_pcb_offset.z;
+    l1 = i_pcb_holder_width;
+    l2 = i_pcb_holder_thickness;
+    t = i_pcb_holder_clearance;
+    h1 = i_pcb_offset.z - t;
     h2 = h1 + i_pcb_size.z;
     pos = mount_points[i_pcb_mount_point_index];
     x1 = -pos.x + i_pcb_offset.x;
     x2 = -mount_points[0].x;
-    y1 = pos.y + l1 / 2 - shell_thickness + i_pcb_offset.y - i_pcb_size.y;
-    y2 = pos.y - i_pcb_size.y - shell_thickness + i_pcb_offset.y - l2 / 2;
-    w1 = i_pcb_size.x / 3;
+    y = pos.y + i_pcb_offset.y - i_pcb_size.y - shell_thickness - t;
+    w1 = i_pcb_size.x;
     w2 = x2 - x1 + w1 / 2;
-    translate([x1, y1, h1 / 2]) cube([w1, l1 + 2 * e, h1], center=true);
-    translate([x2 - w2 / 2, y2, h2 / 2]) cube([w2, l2, h2], center=true);
+    d = i_pcb_mounting_hole_diameter - 2 * i_pcb_mounting_hole_clearance;
+    o = i_pcb_mounting_hole_offset;
+    ox1 = x2 - w2 / 2;
+    ox2 = i_pcb_size.x / 2 - o;
+    translate([ox1, y + l1 / 2, h1 / 2]) cube([w2, l1 + 2 * e, h1], center=true);
+    translate([ox1, y - l2 / 2, h2 / 2]) cube([w2, l2, h2], center=true);
+    translate([x1 + ox2, y + o + t, h1 - e]) cylinder(d=d, h=i_pcb_size.z);
+    translate([x1 - ox2, y + o + t, h1 - e]) cylinder(d=d, h=i_pcb_size.z);
 }
 
 
