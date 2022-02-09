@@ -98,9 +98,9 @@ safe_height = 100;
 /* [Colors] */
 keycap_color = "#333333";
 switch_color = "#E6E6E6";
-matrix_pcb_color = "#167A24";
-interface_pcb_color = "#1A1A1A";
-fpc_connector_color = "#6F6F6F";
+matrix_pcb_color = "#008C4A";
+interface_pcb_color = "#78246A";
+fpc_connector_color = "#8F8F8F";
 
 
 /* [Rendering and export options] */
