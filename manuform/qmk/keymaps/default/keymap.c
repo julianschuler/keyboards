@@ -221,22 +221,3 @@ XXXXXXX,    KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    QWERTZ,     _______,
                                                     XXXXXXX,    FN_L,                                   FN_L,       XXXXXXX,                                                     \
                                                     XXXXXXX,    XXXXXXX,                                XXXXXXX,    XXXXXXX                                                      )
 };
-
-
-
-// fix for MO()
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode) {
-        case QK_MOMENTARY ... QK_MOMENTARY_MAX:;
-            uint8_t layer = keycode & 0xFF;
-            if (record->event.pressed) {
-                layer_on(layer);
-            }
-            else {
-                layer_off(layer);
-            }
-        break;
-    }
-    return true;
-}
-
