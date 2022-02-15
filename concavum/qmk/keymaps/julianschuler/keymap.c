@@ -201,17 +201,6 @@ T_ROW(                                          VOU,        XXXXXXX,    FN_L,   
 uint8_t mod_state;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch(keycode) {
-        // fix for MO()
-        case QK_MOMENTARY ... QK_MOMENTARY_MAX:;
-            uint8_t layer = keycode & 0xFF;
-            if (record->event.pressed) {
-                layer_off(_NL);
-                layer_on(layer);
-            }
-            else {
-                layer_off(layer);
-            }
-            return false;
         // convert Shift-Backspace to Control-Backspace
         case KC_BSPC:
             mod_state = get_mods();

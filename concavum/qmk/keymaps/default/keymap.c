@@ -172,22 +172,3 @@ ROW(    WASD,       KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,    
 ROW(    RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,                        GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12 ), \
 T_ROW(                                          XXXXXXX,    XXXXXXX,    FN_L,                   FN_L,       XXXXXXX,    XXXXXXX                                         ))
 };
-
-
-
-// fix for MO()
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode) {
-        case QK_MOMENTARY ... QK_MOMENTARY_MAX:;
-            uint8_t layer = keycode & 0xFF;
-            if (record->event.pressed) {
-                layer_on(layer);
-            }
-            else {
-                layer_off(layer);
-            }
-        break;
-    }
-    return true;
-}
-
