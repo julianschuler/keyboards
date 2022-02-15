@@ -1,0 +1,49 @@
+// Symbols mostly ordered by character frequency according to 
+// http://xahlee.info/comp/computer_language_char_distribution.html
+
+// home row
+COMB(l_par,     DE_LPRN,    DE_E, DE_I)     /*  (    */
+COMB(r_par,     DE_RPRN,    DE_T, DE_R)     /*  )    */
+COMB(quot,      DE_QUOT,    DE_A, DE_E)     /*  '    */
+COMB(equal,     DE_EQL,     DE_R, DE_N)     /*  =    */
+COMB(dquot,     DE_DQUO,    DE_A, DE_I)     /*  "    */
+COMB(slash,     DE_SLSH,    DE_T, DE_N)     /*  /    */
+COMB(semcol,    DE_SCLN,    DE_C, DE_I)     /*  ;    */
+COMB(astr,      DE_ASTR,    DE_T, DE_S)     /*  *    */
+COMB(colon,     DE_COLN,    DE_C, DE_E)     /*  :    */
+COMB(hash,      DE_HASH,    DE_R, DE_S)     /*  #    */
+
+COMB(dollar,    DE_DLR,     DE_C, DE_A)     /*  $    */
+COMB(exclm,     DE_EXLM,    DE_N, DE_S)     /*  !    */
+
+// upper row
+COMB(l_cbr,     DE_LCBR,    DE_O, DE_U)     /*  {    */
+COMB(r_cbr,     DE_RCBR,    DE_G, DE_L)     /*  }    */
+COMB(less,      DE_LABK,    DE_DOT, DE_O)   /*  <    */
+COMB(more,      DE_RABK,    DE_L, DE_H)     /*  >    */
+COMB(ampr,      DE_AMPR,    DE_DOT, DE_U)   /*  &    */
+COMB(bslash,    DE_BSLS,    DE_G, DE_H)     /*  \    */
+
+COMB(at,        DE_AT,      DE_V, DE_U)     /*  @    */
+COMB(pipe,      DE_PIPE,    DE_G, DE_F)     /*  |    */
+COMB(plus,      DE_PLUS,    DE_V, DE_O)     /*  +    */
+COMB(percent,   DE_PIPE,    DE_L, DE_F)     /*  %    */
+
+COMB(grave,     DE_GRV,     DE_V, DE_DOT)   /*  `    */
+COMB(tilde,     DE_TILD,    DE_H, DE_F)     /*  ~    */
+
+// lower row
+COMB(l_brc,     DE_LBRC,    DE_COMM, DE_Y)  /*  [    */
+COMB(r_brc,     DE_RBRC,    DE_D, DE_W)     /*  ]    */
+COMB(zero,      DE_0,       DE_X, DE_Y)     /*  0    */
+COMB(one,       DE_1,       DE_D, DE_M)     /*  1    */
+COMB(two,       DE_2,       DE_X, DE_COMM)  /*  2    */
+COMB(three,     DE_3,       DE_W, DE_M)     /*  3    */
+COMB(four,      DE_4,       DE_Z, DE_Y)     /*  4    */
+COMB(five,      DE_5,       DE_D, DE_K)     /*  5    */
+COMB(six,       DE_6,       DE_Z, DE_COMM)  /*  6    */
+COMB(seven,     DE_7,       DE_W, DE_K)     /*  7    */
+
+COMB(eight,     DE_8,       DE_Z, DE_X)     /*  8    */
+COMB(nine,      DE_9,       DE_M, DE_K)     /*  9    */
+

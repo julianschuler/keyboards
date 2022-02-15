@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "keymap_german.h"
+#include "g/keymap_combo.h"
 
 // layer definitions
 #define _VL         0
