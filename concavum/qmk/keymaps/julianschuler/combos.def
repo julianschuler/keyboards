@@ -6,7 +6,7 @@ COMB(l_par,     DE_LPRN,    DE_E, DE_I)     /*  (    */
 COMB(r_par,     DE_RPRN,    DE_T, DE_R)     /*  )    */
 COMB(quot,      DE_QUOT,    DE_A, DE_E)     /*  '    */
 COMB(equal,     DE_EQL,     DE_R, DE_N)     /*  =    */
-COMB(dquot,     DE_DQOT,    DE_A, DE_I)     /*  "    */
+COMB(dquot,     DE_DQUO,    DE_A, DE_I)     /*  "    */
 COMB(slash,     DE_SLSH,    DE_T, DE_N)     /*  /    */
 COMB(semcol,    DE_SCLN,    DE_C, DE_I)     /*  ;    */
 COMB(astr,      DE_ASTR,    DE_T, DE_S)     /*  *    */
@@ -19,8 +19,8 @@ COMB(exclm,     DE_EXLM,    DE_N, DE_S)     /*  !    */
 // upper row
 COMB(l_cbr,     DE_LCBR,    DE_O, DE_U)     /*  {    */
 COMB(r_cbr,     DE_RCBR,    DE_G, DE_L)     /*  }    */
-COMB(less,      DE_LESS,    DE_DOT, DE_O)   /*  <    */
-COMB(more,      DE_MORE,    DE_L, DE_H)     /*  >    */
+COMB(less,      DE_LABK,    DE_DOT, DE_O)   /*  <    */
+COMB(more,      DE_RABK,    DE_L, DE_H)     /*  >    */
 COMB(ampr,      DE_AMPR,    DE_DOT, DE_U)   /*  &    */
 COMB(bslash,    DE_BSLS,    DE_G, DE_H)     /*  \    */
 

@@ -143,9 +143,9 @@ T_ROW(                                          DE_1,       KC_SPC,     _______,
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
 [_SL] = LAYOUT(
-ROW(    DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                        DE_BSLS,    DE_LESS,    DE_MORE,    DE_EQL,     DE_MINS,    DE_PARA ), \
+ROW(    DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                        DE_BSLS,    DE_LABK,    DE_RABK,    DE_EQL,     DE_MINS,    DE_SECT ), \
 ROW(    _______,    DE_DOT,     DE_SLSH,    DE_LBRC,    DE_RBRC,    DE_EXLM,                        DE_TILD,    DE_LPRN,    DE_RPRN,    DE_SCLN,    DE_COLN,    DE_PERC ), \
-ROW(    DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QST,                         DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQOT,    DE_QUOT,    DE_GRV  ), \
+ROW(    DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,                        DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQUO,    DE_QUOT,    DE_GRV  ), \
 T_ROW(                                          SFT_TAB,    KC_SPC,     FN_L,                   SYM_L,      TG(_NL),    _______                                         )),
 
 
