@@ -12,6 +12,7 @@ if __name__ == "__main__":
     output_file = sys.argv[1]
     f_dir = os.path.dirname(__file__)
     scad_file = os.path.join(f_dir, "concavum-case.scad")
+    parameter_file = os.path.splitext(scad_file)[0] + ".json"
     outline = os.path.splitext(output_file)[1].lower() in [".dxf", ".svg"]
     cmd = (
         "openscad",
@@ -19,6 +20,10 @@ if __name__ == "__main__":
         "build_bottom_plate_outline=true" if outline else "build_bottom_plate=true",
         "-o",
         output_file,
+        "-p",
+        parameter_file,
+        "-P",
+        "keyboard-parameters",
         scad_file,
     )
     scad_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
