@@ -6,6 +6,8 @@
 
 #define XXX KC_NO
 
+// dummy layout to supress warnings
+#define LAYOUT(...) {__VA_ARGS__}
 
 // get the first elements from the parameters
 #define _GET_ELEMS_1(a, b, c, d, e, f) a
@@ -74,21 +76,21 @@
 #endif
 
 
-// define LAYOUT according to the amount of rows
+// define LAYER according to the amount of rows
 #if MATRIX_ROWS == 2
-    #define LAYOUT(row1, thumb_row) \
+    #define LAYER(row1, thumb_row) \
                   {thumb_row, row1}
 #elif MATRIX_ROWS == 3
-    #define LAYOUT(row2, row1, thumb_row) \
+    #define LAYER(row2, row1, thumb_row) \
                   {thumb_row, row1, row2}
 #elif MATRIX_ROWS == 4
-    #define LAYOUT(row3, row2, row1, thumb_row) \
+    #define LAYER(row3, row2, row1, thumb_row) \
                   {thumb_row, row1, row2, row3}
 #elif MATRIX_ROWS == 5
-    #define LAYOUT(row4, row3, row2, row1, thumb_row) \
+    #define LAYER(row4, row3, row2, row1, thumb_row) \
                   {thumb_row, row1, row2, row3, row4}
 #elif MATRIX_ROWS == 6
-    #define LAYOUT(row5, row4, row3, row2, row1, thumb_row) \
+    #define LAYER(row5, row4, row3, row2, row1, thumb_row) \
                   {thumb_row, row1, row2, row3, row4, row5}
 #else
     // row count is out of range, report error

@@ -70,7 +70,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                         | TAB  | SHFT | NUMS |                    | SYMS | SPC  | ENTR |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_VL] = LAYOUT(
+[_VL] = LAYER(
 ROW(    KC_ESC,     DE_V,       DE_DOT,     DE_O,       DE_U,       DE_ADIA,                        DE_Q,       DE_G,       DE_L,       DE_H,       DE_F,       DE_UNDS ), \
 ROW(    KC_BSPC,    DE_C,       DE_A,       DE_E,       DE_I,       DE_UDIA,                        DE_B,       DE_T,       DE_R,       DE_N,       DE_S,       DE_J    ), \
 ROW(    SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,                        DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS ), \
@@ -94,7 +94,7 @@ T_ROW(                                          TAB_CTL,    L_SHIFT,    NUM_L,  
                         | TAB  | SHFT | NUMS |                    | SYMS | SPC  | ENTR |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_QL] = LAYOUT(
+[_QL] = LAYER(
 ROW(    KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA ), \
 ROW(    KC_BSPC,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,                           DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA ), \
 ROW(    KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,                           DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS   ), \
@@ -118,7 +118,7 @@ T_ROW(                                          TAB_CTL,    L_SHIFT,    NUM_L,  
                         |  1   | SPC  |      |                    |      | NONE | ENTR |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_WL] = LAYOUT(
+[_WL] = LAYER(
 ROW(    KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                           DE_T,       DE_Z,       DE_U,       DE_I,       DE_O,       DE_P    ), \
 ROW(    KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,                           DE_G,       DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA ), \
 ROW(    KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,                           DE_B,       DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS ), \
@@ -142,7 +142,7 @@ T_ROW(                                          DE_1,       KC_SPC,     _______,
                         | STAB | SPC  |  FN  |                    | SYMS | TGNL |      |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_SL] = LAYOUT(
+[_SL] = LAYER(
 ROW(    DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                        DE_BSLS,    DE_LABK,    DE_RABK,    DE_EQL,     DE_MINS,    DE_SECT ), \
 ROW(    _______,    DE_DOT,     DE_SLSH,    DE_LBRC,    DE_RBRC,    DE_EXLM,                        DE_TILD,    DE_LPRN,    DE_RPRN,    DE_SCLN,    DE_COLN,    DE_PERC ), \
 ROW(    DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,                        DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQUO,    DE_QUOT,    DE_GRV  ), \
@@ -166,7 +166,7 @@ T_ROW(                                          SFT_TAB,    KC_SPC,     FN_L,   
                         |      | NONE | NUMS |                    |  FN  | SPC  |  0   |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_NL] = LAYOUT(
+[_NL] = LAYER(
 ROW(    CTL_ALT,    CTL_SFT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_UNDS ), \
 ROW(    _______,    KC_LSFT,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,                        DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC ), \
 ROW(    KC_LGUI,    KC_LCTL,    CTL_GUI,    KC_HOME,    KC_END,     KC_PGDN,                        DE_SLSH,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_MINS ), \
@@ -190,7 +190,7 @@ T_ROW(                                          _______,    XXXXXXX,    NUM_L,  
                         | VOU  | NONE |  FN  |                    |  FN  | NONE | QWER |
                         |      |      |      |                    |      |      |      |
                         |______|______|______|                    |______|______|______| */
-[_FL] = LAYOUT(
+[_FL] = LAYER(
 ROW(    KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12  ), \
 ROW(    WASD,       KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,                        GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6  ), \
 ROW(    RESET,      KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,                        GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12 ), \
