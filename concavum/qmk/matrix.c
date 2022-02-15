@@ -28,7 +28,7 @@ static matrix_row_t read_cols(void) {
     matrix_row_t state = ~PIND >> 2;
     // read cols of right side
     uint16_t port = mcp23017_read_port();
-    state |= port << MATRIX_COLS;
+    state |= port << (MAX_MATRIX_COLS / 2);
     return state;
 }
 

@@ -7,6 +7,7 @@
 // matrix settings, do not change
 #define ALL_MATRIX_ROW_PINS F0, F7, F6, F5, F4, F1
 #define ALL_SECONDARY_ROW_PINS (1<<0), (1<<7), (1<<6), (1<<3), (1<<4), (1<<5)
+#define MAX_MATRIX_COLS 12
 #define DIODE_DIRECTION COL2ROW
 
 // usb settings

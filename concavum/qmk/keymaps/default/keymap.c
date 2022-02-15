@@ -53,7 +53,7 @@
 #define NNB_SPC     UC(0x202F)
 
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MAX_MATRIX_COLS] = {
 /* layer 0: qwertz
  _________________________________________                            _________________________________________
 |      |      |      |      |      |      |                          |      |      |      |      |      |      |
