@@ -19,7 +19,7 @@
 // modifier keys
 #define L_SHIFT     KC_LSFT
 #define R_SHIFT     KC_RSFT
-#define L_CTRL      KC_LCTL    
+#define L_CTRL      KC_LCTL
 #define R_CTRL      KC_RCTL
 #define L_GUI       KC_LGUI
 #define L_ALT       KC_LALT
@@ -77,13 +77,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                | ALT  | CTRL |                    | CTRL | ALT  |
                                |______|______|                    |______|______|  */
 [_QL] = LAYOUT(
-KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA, \
-BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,       KC_MPRV,    KC_MPLY,    KC_MNXT,    DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA, \
-L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,    KC_MUTE,    KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,   \
-                                                                                                                                                                                 \
-                                                TAB_CTL,    L_SHIFT,                                        KC_SPC,     KC_ENT,                                                  \
-                                                    L_GUI,      NUM_L,                                  SYM_L,      L_GUI,                                                       \
-                                                    L_ALT,      L_CTRL,                                 R_CTRL,     L_ALT                                                        ),
+KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA,
+BSP_ALT,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,       KC_MPRV,    KC_MPLY,    KC_MNXT,    DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA,
+L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,    KC_MUTE,    KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,
+
+                                                TAB_CTL,    L_SHIFT,                                        KC_SPC,     KC_ENT,
+                                                    L_GUI,      NUM_L,                                  SYM_L,      L_GUI,
+                                                    L_ALT,      L_CTRL,                                 R_CTRL,     L_ALT
+),
 
 
 
@@ -111,13 +112,14 @@ L_SHIFT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,
                                |  3   |  4   |                    |      |      |
                                |______|______|                    |______|______|  */
 [_WL] = LAYOUT(
-KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           DE_T,       DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,    \
-KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,       _______,    _______,    _______,    DE_G,       DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA, \
-KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,    _______,    _______,    DE_B,       DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS, \
-                                                                                                                                                                                 \
-                                                DE_1,       KC_SPC,                                         XXXXXXX,    KC_ENT,                                                  \
-                                                    DE_2,       _______,                                _______,    KC_LGUI,                                                     \
-                                                    DE_3,       DE_4,                                   _______,    _______                                                      ),
+KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           DE_T,       DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,
+KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,       _______,    _______,    _______,    DE_G,       DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,
+KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,    _______,    _______,    DE_B,       DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,
+
+                                                DE_1,       KC_SPC,                                         XXXXXXX,    KC_ENT,
+                                                    DE_2,       _______,                                _______,    KC_LGUI,
+                                                    DE_3,       DE_4,                                   _______,    _______
+),
 
 
 
@@ -145,14 +147,14 @@ KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,
                                |      |      |                    |      |      |
                                |______|______|                    |______|______|  */
 [_SL] = LAYOUT(
-DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                                        DE_BSLS,    DE_LABK,    DE_RABK,    DE_EQL,     DE_MINS,    DE_SECT, \
-_______,    DE_DOT,     DE_SLSH,    DE_LBRC,    DE_RBRC,    DE_EXLM,    _______,    _______,    _______,    DE_TILD,    DE_LPRN,    DE_RPRN,    DE_SCLN,    DE_COLN,    DE_PERC, \
-DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,    _______,    _______,    _______,    DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQUO,    DE_QUOT,    DE_GRV,  \
-                                                                                                                                                                                 \
-                                                SFT_TAB,    KC_SPC,                                         _______,    _______,                                                 \
-                                                    _______,    FN_L,                                   SYM_L,      _______,                                                     \
-                                                    _______,    _______,                                _______,    _______                                                      ),
+DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                                        DE_BSLS,    DE_LABK,    DE_RABK,    DE_EQL,     DE_MINS,    DE_SECT,
+_______,    DE_DOT,     DE_SLSH,    DE_LBRC,    DE_RBRC,    DE_EXLM,    _______,    _______,    _______,    DE_TILD,    DE_LPRN,    DE_RPRN,    DE_SCLN,    DE_COLN,    DE_PERC,
+DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,    _______,    _______,    _______,    DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQUO,    DE_QUOT,    DE_GRV,
 
+                                                SFT_TAB,    KC_SPC,                                         _______,    _______,
+                                                    _______,    FN_L,                                   SYM_L,      _______,
+                                                    _______,    _______,                                _______,    _______
+),
 
 
 /* layer 3: number and movement layer (press number layer key to access)
@@ -179,14 +181,14 @@ DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,    _______,
                                |      |      |                    |      |      |
                                |______|______|                    |______|______|  */
 [_NL] = LAYOUT(
-ALT_GUI,    CTL_ALT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_SLSH, \
-KC_LCTL,    KC_LGUI,    KC_LEFT,    KC_DOWN,    KC_RGHT,    MAX_WIN,    _______,    _______,    _______,    DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC, \
-KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,    _______,    _______,    DE_MINS,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_UNDS, \
-                                                                                                                                                                                 \
-                                                _______,    XXXXXXX,                                        KC_SPC,     DE_0,                                                    \
-                                                    _______,    NUM_L,                                  FN_L,       NNB_SPC,                                                     \
-                                                    _______,    _______,                                _______,    _______                                                      ),
+ALT_GUI,    CTL_ALT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_SLSH,
+KC_LCTL,    KC_LGUI,    KC_LEFT,    KC_DOWN,    KC_RGHT,    MAX_WIN,    _______,    _______,    _______,    DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC,
+KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,    _______,    _______,    DE_MINS,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_UNDS,
 
+                                                _______,    XXXXXXX,                                        KC_SPC,     DE_0,
+                                                    _______,    NUM_L,                                  FN_L,       NNB_SPC,
+                                                    _______,    _______,                                _______,    _______
+),
 
 
 /* layer 4: function keys (press symbol and number layer key together to access)
@@ -213,11 +215,12 @@ KC_LSFT,    CTL_SFT,    KC_PGUP,    KC_PGDN,    KC_HOME,    KC_END,     _______,
                                | NONE | NONE |                    | NONE | NONE |
                                |______|______|                    |______|______|  */
 [_FL] = LAYOUT(
-XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    SLICER,     UPDATES,    ORGNZR,     MUSIC,   \
-KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,      _______,    RESET,      _______,    KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,  \
-XXXXXXX,    KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    QWERTZ,     _______,    _______,    _______,    XXXXXXX,    TERMNL,     EXPLOR,     EDITOR,     SYSTEM,     XXXXXXX, \
-                                                                                                                                                                                 \
-                                                XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,                                                 \
-                                                    XXXXXXX,    FN_L,                                   FN_L,       XXXXXXX,                                                     \
-                                                    XXXXXXX,    XXXXXXX,                                XXXXXXX,    XXXXXXX                                                      )
+XXXXXXX,    KC_SLCK,    KC_MPRV,    KC_MPLY,    KC_MNXT,    WASD,                                           SCOPE,      BROWSER,    SLICER,     UPDATES,    ORGNZR,     MUSIC,
+KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,      _______,    RESET,      _______,    KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,
+XXXXXXX,    KC_PAUS,    KC_MUTE,    KC_VOLD,    KC_VOLU,    QWERTZ,     _______,    _______,    _______,    XXXXXXX,    TERMNL,     EXPLOR,     EDITOR,     SYSTEM,     XXXXXXX,
+
+                                                XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,
+                                                    XXXXXXX,    FN_L,                                   FN_L,       XXXXXXX,
+                                                    XXXXXXX,    XXXXXXX,                                XXXXXXX,    XXXXXXX
+),
 };
