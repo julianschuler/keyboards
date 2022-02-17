@@ -51,11 +51,6 @@
 #define SS_ALT      LALT_T(DE_SS)
 
 
-// special keys
-#define OMEGA       UC(0x03A9)
-#define NNB_SPC     UC(0x202F)
-
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* layer 0: vou
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
@@ -143,11 +138,11 @@ KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,
 
 /* layer 3: symbol layer (press symbol layer key to access)
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
- * │ ° │ * │ + │ { │ } │ ^ │               │ \ │ < │ > │ = │ - │ § │
+ * │ ° │ + │ < │ ' │ { │ ^ │               │ \ │ } │ & │ > │ - │ § │
  * ├───┼───┼───┼───┼───┼───┤ ┌───┬───┬───┐ ├───┼───┼───┼───┼───┼───┤
- * │   │ . │ / │ [ │ ] │ ! │ │   │   │   │ │ ~ │ ( │ ) │ ; │ : │ % │
+ * │ . │ : │ ; │ " │ ( │ ! │ │   │   │   │ │ ~ │ ) │ = │ / │ * │ ` │
  * ├───┼───┼───┼───┼───┼───┤ ├───┼───┼───┤ ├───┼───┼───┼───┼───┼───┤
- * │ € │ µ │ Ω │ @ │ & │ ? │ │   │   │   │ │ | │ # │ $ │ " │ ' │ ` │
+ * │ µ │ 0 │ @ │ $ │ [ │ ? │ │   │   │   │ │ | │ ] │ # │ % │ 1 │ € │
  * └───┴───┴───┴───┴───┴───┘ └───┴───┴───┘ └───┴───┴───┴───┴───┴───┘
  *                   ┌───┬───┐           ┌───┬───┐
  *                   │   │   │           │   │   │
@@ -159,9 +154,9 @@ KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,
  *                    └───┴───┘         └───┴───┘
  */
 [_SL] = LAYOUT(
-DE_DEG,     DE_ASTR,    DE_PLUS,    DE_LCBR,    DE_RCBR,    DE_CIRC,                                        DE_BSLS,    DE_LABK,    DE_RABK,    DE_EQL,     DE_MINS,    DE_SECT,
-_______,    DE_DOT,     DE_SLSH,    DE_LBRC,    DE_RBRC,    DE_EXLM,    _______,    _______,    _______,    DE_TILD,    DE_LPRN,    DE_RPRN,    DE_SCLN,    DE_COLN,    DE_PERC,
-DE_EURO,    DE_MICR,    OMEGA,      DE_AT,      DE_AMPR,    DE_QUES,    _______,    _______,    _______,    DE_PIPE,    DE_HASH,    DE_DLR,     DE_DQUO,    DE_QUOT,    DE_GRV,
+DE_DEG,     DE_PLUS,    DE_LABK,    DE_QUOT,    DE_LCBR,    DE_CIRC,                                        DE_BSLS,    DE_RCBR,    DE_AMPR,    DE_RABK,    DE_MINS,    DE_SECT,
+DE_DOT,     DE_COLN,    DE_SCLN,    DE_DQUO,    DE_LPRN,    DE_EXLM,    _______,    _______,    _______,    DE_TILD,    DE_RPRN,    DE_EQL,     DE_SLSH,    DE_ASTR,    DE_GRV,
+DE_MICR,    DE_0,       DE_AT,      DE_DLR,     DE_LBRC,    DE_QUES,    _______,    _______,    _______,    DE_PIPE,    DE_RBRC,    DE_HASH,    DE_PERC,    DE_1,       DE_EURO,
 
                                                 SFT_TAB,    KC_SPC,                                         _______,    _______,
                                                     _______,    FN_L,                                   SYM_L,      _______,
@@ -192,7 +187,7 @@ _______,    KC_LSFT,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,    _______,
 KC_LGUI,    KC_LCTL,    CTL_GUI,    KC_HOME,    KC_END,     KC_PGDN,    _______,    _______,    _______,    DE_SLSH,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_MINS,
 
                                                 _______,    XXXXXXX,                                        KC_SPC,     DE_0,
-                                                    _______,    NUM_L,                                  FN_L,       NNB_SPC,
+                                                    _______,    NUM_L,                                  FN_L,       _______,
                                                     _______,    _______,                                _______,    _______
 ),
 
