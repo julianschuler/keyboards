@@ -106,21 +106,21 @@ DE_MICR,    DE_0,       DE_AT,      DE_DLR,     DE_LBRC,    DE_QUES,    _______,
 
 /* layer 3: number and movement layer (press number layer key to access)
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
- * │C_A│C_S│BSP│ ᐃ │DEL│AF4│               │ * │ 7 │ 8 │ 9 │ : │ _ │
+ * │C_G│C_A│BSP│ ᐃ │DEL│AF4│               │ * │ 7 │ 8 │ 9 │ : │ _ │
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
- * │   │SFT│ ᐊ │ ᐁ │ ᐅ │PUP│               │ + │ 4 │ 5 │ 6 │ . │BSP│
+ * │C_S│SFT│ ᐊ │ ᐁ │ ᐅ │PUP│               │ + │ 4 │ 5 │ 6 │ . │BSP│
  * ├───┼───┼───┼───┼───┼───┼───┐       ┌───┼───┼───┼───┼───┼───┼───┤
- * │GUI│CTL│C_G│HOM│END│PDN│   │       │   │ / │ 1 │ 2 │ 3 │ , │ - │
+ * │GUI│CTL│INS│HOM│END│PDN│   │       │   │ / │ 1 │ 2 │ 3 │ , │ - │
  * └───┴───┴───┴─┬─┴─┬─┴─┬─┴─┬─┴─┐   ┌─┴─┬─┴─┬─┴─┬─┴─┬─┴───┴───┴───┘
  *               │   │   │   │   │   │   │   │   │   │
- *               └───┤   │XXX│NUM│   │FN │SPC│ 0 ├───┘
+ *               └───┤   │   │NUM│   │FN │SPC│ 0 ├───┘
  *                   └───┴───┴───┘   └───┴───┴───┘
  */
 [_NL] = LAYOUT(
-CTL_ALT,    CTL_SFT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_UNDS,
-_______,    KC_LSFT,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,                                        DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC,
-KC_LGUI,    KC_LCTL,    CTL_GUI,    KC_HOME,    KC_END,     KC_PGDN,    _______,                _______,    DE_SLSH,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_MINS,
-                                        _______,    _______,    XXXXXXX,    NUM_L,           FN_L,      KC_SPC,     DE_0,       _______
+CTL_GUI,    CTL_ALT,    KC_BSPC,    KC_UP,      KC_DEL,     ALT_F4,                                         DE_ASTR,    DE_7,       DE_8,       DE_9,       DE_COLN,    DE_UNDS,
+CTL_SFT,    KC_LSFT,    KC_LEFT,    KC_DOWN,    KC_RGHT,    KC_PGUP,                                        DE_PLUS,    DE_4,       DE_5,       DE_6,       DE_DOT,     KC_BSPC,
+KC_LGUI,    KC_LCTL,    KC_INS,     KC_HOME,    KC_END,     KC_PGDN,    _______,                _______,    DE_SLSH,    DE_1,       DE_2,       DE_3,       DE_COMM,    DE_MINS,
+                                        _______,    _______,    _______,    NUM_L,           FN_L,      KC_SPC,     DE_0,       _______
 ),
 
 
