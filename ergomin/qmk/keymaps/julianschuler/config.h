@@ -5,9 +5,6 @@
 #define ONESHOT_TAP_TOGGLE 3
 #define ONESHOT_TIMEOUT 200
 
-// unicode input mode
-#define UNICODE_SELECTED_MODES UC_LNX
-
 // combo settings
 #define COMBO_VARIABLE_LEN
 #define COMBO_TERM 25
