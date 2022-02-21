@@ -10,6 +10,9 @@ visualize_bending = true;
 // number of segments used to visualize the bending connector
 bending_visualisation_segs = 500;
 
+// show the bottom plate during preview
+show_bottom_plate = false;
+
 // render parts during preview, preview will take longer but is more responsive
 render_preview = false;
 
@@ -53,6 +56,9 @@ thumb_offset = [-3.05, -48, 10];
 /* [Keyboard settings] */
 // thickness of the keyboard shell
 shell_thickness = 1.6;
+
+// thickness of the bottom plate
+bottom_plate_thickness = 1.6;
 
 // depths of the chamfers in the corners of the finger cluster
 finger_chamfers = [0, 5.5, 12, 9];
@@ -140,6 +146,8 @@ thumb_connector_width = 2.3;
 
 // nut and bolt values (shouldn't be changed)
 bolt_diameter = 3.2;
+bolt_head_height = 1.86;
+bolt_length = 8;
 nut_width = 5.5;
 nut_height = 2.8;
 nut_rim = [1.5, 2];
@@ -591,6 +599,14 @@ module port_cutouts(left=true) {
 }
 
 
+module bolt_cutout() {
+    h = bolt_head_height;
+    d = bolt_diameter;
+    cylinder(d=d, h=bolt_length);
+    translate([0, 0, -e]) cylinder(d1=d + 2 * h + 2 * e, d2=d, h=h + e);
+}
+
+
 module finger_cluster() {
     w = keycap_size.x / 2 - switch_bottom_size.x / 2;
     d = key_distance.x - keycap_size.x + e;
@@ -689,6 +705,26 @@ module thumb_cluster() {
 }
 
 
+module bottom_plate() {
+    t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
+    v1 = thumb_mount_points[0];
+    v2 = thumb_mount_points[3];
+    dv = (v2 - v1) / 2;
+    a = atan2(-dv.x, dv.y);
+    difference() {
+        linear_extrude(shell_thickness) projection(cut=true) {
+            finger_cluster();
+            thumb_cluster();
+        }
+        flip_x() for (v = nut_values) {
+            pos = mount_points[v[0]] + [v[2], 0];
+            translate(pos) rotate(v[1]) translate([0, -t]) bolt_cutout();
+        }
+        translate(v1 + dv) rotate(a) translate([t, 0]) bolt_cutout();
+    }
+}
+
+
 module nut_holder(angle=0) {
     h = nut_rim[0] + nut_height;
     w = nut_width + 2 * nut_rim[1];
@@ -698,9 +734,9 @@ module nut_holder(angle=0) {
             cylinder(h, d=w / cos(30), $fn=6);
             translate([-w / 2 / cos(30), 0, 0]) cube([w / cos(30), t, h]);
         }
-        translate([0, 0, -e]) cylinder(nut_rim[0] + 2 * e, d=bolt_diameter);
         translate([0, 0, nut_rim[0]])
             cylinder(nut_height + e, d=nut_width / cos(30), $fn=6);
+        translate([0, 0, -bottom_plate_thickness]) bolt_cutout();
     }
 }
 
@@ -763,6 +799,9 @@ module mount(left=true) {
         translate([0, 0, height_offset]) rotate (tilting_angle) {
             keys();
             thumb_connector_visualisation();
+        }
+        if (show_bottom_plate && $preview) {
+            translate([0, 0, -bottom_plate_thickness]) bottom_plate();
         }
     }
 }
@@ -961,33 +1000,14 @@ module matrix_pcb_outline(holes=false) {
 }
 
 
-module bottom_plate_outline() {
-    t = max(shell_thickness, nut_rim[1]) + nut_width / 2;
-    v1 = thumb_mount_points[0];
-    v2 = thumb_mount_points[3];
-    dv = (v2 - v1) / 2;
-    a = atan2(-dv.x, dv.y);
-    difference() {
-        projection(cut=true) {
-            finger_cluster();
-            thumb_cluster();
-        }
-        flip_x() for (v = nut_values) {
-            pos = mount_points[v[0]] + [v[2], 0];
-            translate(pos) rotate(v[1]) translate([0, -t]) circle(d=bolt_diameter);
-        }
-        translate(v1 + dv) rotate(a) translate([t, 0]) circle(d=bolt_diameter);
-    }
-}
-
-
 
 // build bottom plate, either as 3D object or outline
 if (build_bottom_plate) {
-    linear_extrude(shell_thickness) bottom_plate_outline();
+    bottom_plate();
 }
 else if (build_bottom_plate_outline) {
-    bottom_plate_outline();
+    projection(cut=true) translate([0, 0, -bottom_plate_thickness + e])
+        bottom_plate();
 }
 // matrix PCB outline used for automatic PCB generation
 else if (build_matrix_pcb_outline) {
