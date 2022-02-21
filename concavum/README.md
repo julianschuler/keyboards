@@ -16,7 +16,7 @@ The amount of switches and keycaps depends on the number of rows, columns and th
 * 2-12x DSA keycaps 1.5U
 * 8x countersunk screws M3x8
 * 8x nuts M3
-* 6x rubber feet
+* 8x rubber feet
 * 1x TRRS to TRRS cable 30cm (make sure it is the 4-pole variant)
 * ~150-350g of PETG filament for the 3D printed case (heavily dependent on the size)
 
@@ -29,15 +29,19 @@ Now you can start adjusting the keyboard to your needs, the default values adjus
 
 ### Printing and testing the case
 When you are done with your modifications, render the Case using `F6` and export it as STL or AMF.
+Support material is required for printing. However, use support blockers for the nut holders as it is nearly impossible to remove support material from their inside.
+For the other print settings the Slicer defaults for PETG and a layer height of 0.2mm should be fine.
+
 It is highly recommended to print only one half for now, adding the switches and keycaps and testing the feel first. It may take a few iterations, really take your time to find a configuration that fits your hands!
 
 If you are happy with your configuration, you can now print the second half and add the remaining switches and keycaps.
 
-The bottom plate of the keyboard can either be 3D printed as well or e.g. cut out of aluminum. It can thus be either exported as an outline or 3D object using
+The bottom plate of the keyboard can either be 3D printed as well or e.g. cut out of aluminum. It can thus be either exported as a 3D object or outline using
 ```
 python3 case/export-bottom-plate.py [output file name]
 ```
-where the file extension determines its type (e.g. `bottom-plate.amf` or `bottom-plate.dxf`). After printing/cutting, use a countersink drill bit to allow the screw heads to sit flush later.
+where the file extension determines its type (e.g. `bottom-plate.amf` or `bottom-plate.dxf`). In case of cutting, chamfer the holes afterwards using a countersink drill bit to allow the screw heads to sit flush later.
+
 
 ### Generating the PCB
 To generate the matrix PCB, install [KiCad 6.0](https://www.kicad.org/download/) and [Python 3](https://www.python.org/downloads/). Afterwards, switch to the `pcb` subfolder and install the Python dependencies by executing
@@ -64,7 +68,8 @@ After exporting, you will find two zip files in the `gerber` subfolder: One for 
 The two PCB types require different thicknesses: 0.6mm for the matrix PCB and 1.6mm for the interface PCB. Also, note that your PCB manufacturer has to support track widths and minimum clearances of 0.15mm each. You need at least 2 boards of each type (one type of board for each half).
 
 ### Assembly
-Ensure that the orientation of the switch pins is aligned with the holes of the matrix PCB.
+First, insert the M3 nuts into their holders (you may need to remove a few keys if you have already assembled those during testing).
+Afterwards, add the key switches while ensuring that the orientation of the pins is aligned with the holes of the matrix PCB.
 
 To assemble the PCBs, take two interface and two matrix PCBs and lay them each down with different sides facing up. Now you can solder the complementary SMD components onto all four PCBs.
 **Important: Only solder the SMD components to the top of each PCB! Otherwise the keyboard will not work!**
@@ -74,7 +79,7 @@ The matrix PCB has to be bend during this procedure. Therefore, start to solder 
 
 Finally, you can add the FPC cables to connect the interface and matrix PCBs of each half and slide the interface PCBs into their dedicated holders.
 
-The keyboard can now be closed up by inserting the M3 nuts into their holders and screwing on the bottom plate.
+The keyboard can now be closed up by screwing on the bottom plate and attaching the rubber feet.
 
 ## Building the firmware
 ### Setting up QMK
