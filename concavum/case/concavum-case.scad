@@ -152,7 +152,7 @@ plate_indent = 1.5;
 
 // interface PCB values (shouldn't be changed)
 i_pcb_size = [30, 38, 1.6];
-i_pcb_offset = [0, 0, 2];
+i_pcb_offset = [0, -0.2, 2];
 i_pcb_mount_point_index = 3;
 i_pcb_mounting_hole_diameter = 2.2;
 i_pcb_mounting_hole_offset = 2.5;
@@ -168,7 +168,7 @@ usb_radius = 1.1;
 usb_offset = 14.1;
 jack_radius = 3.1;
 jack_offset = [5.8, 0.55];
-port_offset = [4.5, 0, 1.7];
+port_offset = [3.8, 0, 1.7];
 
 // build matrix PCB outline instead of the keyboard (will be overwritten externally)
 build_matrix_pcb_outline = false;
@@ -576,7 +576,7 @@ module port_cutouts(left=true) {
     h = shell_thickness + 2 * e;
     pos = mount_points[i_pcb_mount_point_index];
     x = -pos.x;
-    y = pos.y - shell_thickness / 2;
+    y = pos.y - shell_thickness / 2 - i_pcb_offset.y;
     z = i_pcb_size.z;
     translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0]) if (left) {
         translate([jo[0] - o, 0, 0]) minkowski() {
