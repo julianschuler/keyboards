@@ -346,7 +346,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "interface-pcb.kicad_pro",
+    "filename": "interface-pcb-32u4.kicad_pro",
     "version": 1
   },
   "net_settings": {
