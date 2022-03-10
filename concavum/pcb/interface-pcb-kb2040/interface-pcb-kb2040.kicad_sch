@@ -1615,7 +1615,7 @@
     (property "Value" "100n" (id 1) (at 210.82 100.3299 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (id 2) (at 207.9752 102.87 0)
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (id 2) (at 207.9752 102.87 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 207.01 99.06 0)
@@ -1779,7 +1779,7 @@
       (reference "#PWR0101") (unit 1) (value "+3.3V") (footprint "")
     )
     (path "/8afb3065-5901-4646-b749-d92eee19184b"
-      (reference "C1") (unit 1) (value "100n") (footprint "Capacitor_SMD:C_0603_1608Metric")
+      (reference "C1") (unit 1) (value "100n") (footprint "Capacitor_SMD:C_1206_3216Metric")
     )
     (path "/d385ebb9-fe43-4fe3-ae5a-b83665559f7f"
       (reference "H1") (unit 1) (value "MountingHole_Pad") (footprint "MountingHole:MountingHole_2.2mm_M2_Pad_Via")
