@@ -1,4 +1,4 @@
-(footprint "FPC-Connector" (version 20211014) (generator pcbnew)
+(footprint "FPC_Connector" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
   (tedit 61F87B30)
   (attr smd)
@@ -6,7 +6,7 @@
     (effects (font (size 1.143 1.143) (thickness 0.152)) (justify left))
     (tstamp a26bdee6-0e16-4ea6-87f7-fb32c714896e)
   )
-  (fp_text value "FPC-SMD_P1.00-12P_LCS-XJ-H2.5" (at 0 -2.54) (layer "F.Fab") hide
+  (fp_text value "FPC_SMD_P1.00_12P_LCS_XJ_H2.5" (at 0 -2.54) (layer "F.Fab") hide
     (effects (font (size 1.143 1.143) (thickness 0.152)) (justify left))
     (tstamp 94c3d0e3-d7fb-421d-bbb4-5c800d76c809)
   )

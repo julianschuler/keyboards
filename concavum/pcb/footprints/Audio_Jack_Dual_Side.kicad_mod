@@ -1,4 +1,4 @@
-(footprint "Audio-Jack-Dual-Side" (version 20211014) (generator pcbnew)
+(footprint "Audio_Jack_Dual_Side" (version 20211014) (generator pcbnew)
   locked (layer "F.Cu")
   (tedit 61F87C4F)
   (property "Sheetfile" "interface-pcb.kicad_sch")

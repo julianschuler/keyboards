@@ -2314,7 +2314,7 @@
     (property "Value" "FPC_connector" (id 1) (at 240.03 126.9999 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Custom:FPC-Connector" (id 2) (at 238.76 124.46 0)
+    (property "Footprint" "Custom:FPC_Connector" (id 2) (at 238.76 124.46 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 238.76 124.46 0)
@@ -2434,7 +2434,7 @@
     (property "Value" "ATmega32U4-A" (id 1) (at 142.24 31.75 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Custom:TQFP-44-Rounded-Pads" (id 2) (at 151.13 82.55 0)
+    (property "Footprint" "Custom:TQFP_44_Rounded_Pads" (id 2) (at 151.13 82.55 0)
       (effects (font (size 1.27 1.27) italic) hide)
     )
     (property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7766-8-bit-AVR-ATmega16U4-32U4_Datasheet.pdf" (id 3) (at 151.13 82.55 0)
@@ -2507,7 +2507,7 @@
     (uuid 6a3147f7-4763-47a0-97d1-d1711a55bb9d)
     (property "Reference" "J2" (id 0) (at 64.135 99.06 0))
     (property "Value" "Audio_Jack" (id 1) (at 64.135 101.6 0))
-    (property "Footprint" "Custom:Audio-Jack-Dual-Side" (id 2) (at 66.04 107.95 0)
+    (property "Footprint" "Custom:Audio_Jack_Dual_Side" (id 2) (at 66.04 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 66.04 107.95 0)
@@ -2699,8 +2699,8 @@
     (in_bom yes) (on_board yes)
     (uuid b2676d98-45fd-4fbc-be14-66c9e122701b)
     (property "Reference" "J3" (id 0) (at 129.54 160.02 0))
-    (property "Value" "ISP_pads" (id 1) (at 129.54 162.56 0))
-    (property "Footprint" "Custom:ISP-Pads" (id 2) (at 134.62 161.29 0)
+    (property "Value" "ISP_Pads" (id 1) (at 129.54 162.56 0))
+    (property "Footprint" "Custom:ISP_Pads" (id 2) (at 134.62 161.29 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 134.62 161.29 0)
@@ -2954,13 +2954,13 @@
       (reference "J1") (unit 1) (value "USB_C_Port") (footprint "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12")
     )
     (path "/6a3147f7-4763-47a0-97d1-d1711a55bb9d"
-      (reference "J2") (unit 1) (value "Audio_Jack") (footprint "Custom:Audio-Jack-Dual-Side")
+      (reference "J2") (unit 1) (value "Audio_Jack") (footprint "Custom:Audio_Jack_Dual_Side")
     )
     (path "/b2676d98-45fd-4fbc-be14-66c9e122701b"
-      (reference "J3") (unit 1) (value "ISP_pads") (footprint "Custom:ISP-Pads")
+      (reference "J3") (unit 1) (value "ISP_Pads") (footprint "Custom:ISP_Pads")
     )
     (path "/44d37f7c-27b7-4246-9e5b-dfcd81b85bf8"
-      (reference "J4") (unit 1) (value "FPC_connector") (footprint "Custom:FPC-Connector")
+      (reference "J4") (unit 1) (value "FPC_connector") (footprint "Custom:FPC_Connector")
     )
     (path "/13621f30-38eb-438c-99e2-f2bda3f08c97"
       (reference "R1") (unit 1) (value "5.1k") (footprint "Resistor_SMD:R_0603_1608Metric")
@@ -2984,7 +2984,7 @@
       (reference "R7") (unit 1) (value "1k") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/4e171e27-0952-4a5f-bd26-afc8662a6d9a"
-      (reference "U1") (unit 1) (value "ATmega32U4-A") (footprint "Custom:TQFP-44-Rounded-Pads")
+      (reference "U1") (unit 1) (value "ATmega32U4-A") (footprint "Custom:TQFP_44_Rounded_Pads")
     )
     (path "/48cffc50-fb06-4eb1-9b93-78f85a43b110"
       (reference "U2") (unit 1) (value "MCP23017_SO") (footprint "Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm")

@@ -1,4 +1,4 @@
-(footprint "ISP-Pads" (version 20211014) (generator pcbnew)
+(footprint "ISP_Pads" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
   (tedit 61F87DDA)
   (attr smd)
@@ -6,7 +6,7 @@
     (effects (font (size 1.143 1.143) (thickness 0.152)) (justify left))
     (tstamp 1108f7d7-1300-4e64-9d0c-b460edb02c0e)
   )
-  (fp_text value "ISP Pads" (at -3.302 -3.048) (layer "B.Fab") hide
+  (fp_text value "ISP_Pads" (at -3.302 -3.048) (layer "B.Fab") hide
     (effects (font (size 1.143 1.143) (thickness 0.152)) (justify left mirror))
     (tstamp e17afcb0-49dd-4f12-a913-1d8e2e4c5b94)
   )

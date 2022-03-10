@@ -270,7 +270,7 @@
     )
   )
 
-  (footprint "Custom:Audio-Jack-Dual-Side" locked (layer "F.Cu")
+  (footprint "Custom:Audio_Jack_Dual_Side" locked (layer "F.Cu")
     (tedit 61F87C4F) (tstamp 2e989e21-a1e8-42fb-88bc-90b86bc3c254)
     (at 163.6 86.8 -90)
     (property "Sheetfile" "interface-pcb-32u4.kicad_sch")
@@ -561,7 +561,7 @@
     )
   )
 
-  (footprint "Custom:FPC-Connector" (layer "F.Cu")
+  (footprint "Custom:FPC_Connector" (layer "F.Cu")
     (tedit 61F87B30) (tstamp 66e429ab-5bfc-44d1-aa13-226f0a2b169d)
     (at 154.5 111.6)
     (property "Sheetfile" "interface-pcb-32u4.kicad_sch")
@@ -699,7 +699,7 @@
       (net 53 "unconnected-(H1-Pad1)") (pinfunction "1") (pintype "input+no_connect") (tstamp f9d8cb6e-9c63-4d3d-96d0-601a897e5bd0))
   )
 
-  (footprint "Custom:TQFP-44-Rounded-Pads" (layer "F.Cu")
+  (footprint "Custom:TQFP_44_Rounded_Pads" (layer "F.Cu")
     (tedit 61F87780) (tstamp 7a049f60-81da-4f43-97b9-4697f544c134)
     (at 153.1 103 -90)
     (descr "44-Lead Plastic Thin Quad Flatpack (PT) - 10x10x1.0 mm Body [TQFP] (see Microchip Packaging Specification 00000049BS.pdf)")
@@ -1226,7 +1226,7 @@
     )
   )
 
-  (footprint "Custom:ISP-Pads" (layer "F.Cu")
+  (footprint "Custom:ISP_Pads" (layer "F.Cu")
     (tedit 61F87DDA) (tstamp 893e404c-85a0-48e8-9725-eef1b796e7fd)
     (at 148.3 93.7 180)
     (property "Sheetfile" "interface-pcb-32u4.kicad_sch")
@@ -1237,7 +1237,7 @@
       (effects (font (size 1.143 1.143) (thickness 0.152)) (justify right))
       (tstamp d4271cdf-2b7a-4efd-8fa1-f506ca5d8e3f)
     )
-    (fp_text value "ISP_pads" (at -3.302 -3.048) (layer "B.Fab") hide
+    (fp_text value "ISP_Pads" (at -3.302 -3.048) (layer "B.Fab") hide
       (effects (font (size 1.143 1.143) (thickness 0.152)) (justify right mirror))
       (tstamp 80974d09-14d4-49e4-885a-2070ecdadbdc)
     )

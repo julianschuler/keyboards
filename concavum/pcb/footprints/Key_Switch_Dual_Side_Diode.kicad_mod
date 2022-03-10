@@ -1,4 +1,4 @@
-(footprint "key-switch" (version 20211014) (generator pcbnew)
+(footprint "Key_Switch_Dual_Side_Diode" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
   (tedit 61F2A1DB)
   (descr "Cherry MX keyswitch")

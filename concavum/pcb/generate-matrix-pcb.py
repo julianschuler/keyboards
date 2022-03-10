@@ -93,8 +93,8 @@ class MatrixPcbGenerator:
         """Constructor of the PCB generator"""
         f_dir = os.path.dirname(__file__)
         self.footprint_path = os.path.join(f_dir, "footprints")
-        self.key_footprint_name = "Key-Switch"
-        self.fpc_footprint_name = "FPC-Connector"
+        self.key_footprint_name = "Key_Switch_Dual_Side_Diode"
+        self.fpc_footprint_name = "FPC_Connector"
         self.scad_file = os.path.join(f_dir, "../case/concavum-case.scad")
         self.dxf_file = os.path.join(gettempdir(), "outline-matrix-pcb.dxf")
         self.origin_offset = np.array((195 * mm, 90 * mm))

@@ -1,4 +1,4 @@
-(footprint "TQFP-44-Rounded-Pads" (version 20211014) (generator pcbnew)
+(footprint "TQFP_44_Rounded-Pads" (version 20211014) (generator pcbnew)
   (layer "F.Cu")
   (tedit 61F87780)
   (descr "44-Lead Plastic Thin Quad Flatpack (PT) - 10x10x1.0 mm Body [TQFP] (see Microchip Packaging Specification 00000049BS.pdf)")
