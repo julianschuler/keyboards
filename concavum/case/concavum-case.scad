@@ -55,7 +55,7 @@ thumb_offset = [-3.05, -48, 10];
 
 /* [Keyboard settings] */
 // thickness of the keyboard shell
-shell_thickness = 1.6;
+shell_thickness = 2.1;
 
 // thickness of the bottom plate
 bottom_plate_thickness = 1.6;
