@@ -43,7 +43,7 @@
 #define ENT_GUI     LGUI_T(KC_ENT)
 
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MAX_MATRIX_COLS] = {
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* layer 0: qwertz
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │ESC│ Q │ W │ E │ R │ T │               │ Z │ U │ I │ O │ P │ Ü │

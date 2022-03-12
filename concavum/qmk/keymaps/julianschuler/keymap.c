@@ -47,7 +47,7 @@
 #define SS_ALT      LALT_T(DE_SS)
 
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MAX_MATRIX_COLS] = {
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* layer 0: vou
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │ESC│ V │ . │ O │ U │ Ä │               │ Q │ G │ L │ H │ F │ _ │

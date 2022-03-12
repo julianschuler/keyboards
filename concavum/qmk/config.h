@@ -10,6 +10,10 @@
 #define MAX_MATRIX_COLS 12
 #define DIODE_DIRECTION COL2ROW
 
+// default matrix values to supress errors during first compilation
+#define MATRIX_COLS 12
+#define MATRIX_ROWS 6
+
 // usb settings
 #define USB_POLLING_INTERVAL_MS 1
 #define FORCE_NKRO
