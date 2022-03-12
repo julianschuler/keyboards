@@ -7,12 +7,13 @@
 // matrix settings, do not change
 #define ALL_MATRIX_ROW_PINS F0, F7, F6, F5, F4, F1
 #define ALL_SECONDARY_ROW_PINS (1<<0), (1<<7), (1<<6), (1<<3), (1<<4), (1<<5)
+#define MATRIX_COL_PINS { D2, D3, D4, D5, D6, D7 }
 #define MAX_MATRIX_COLS 12
 #define DIODE_DIRECTION COL2ROW
 
 // default matrix values to supress errors during first compilation
-#define MATRIX_COLS 12
 #define MATRIX_ROWS 6
+#define MATRIX_COLS 12
 
 // usb settings
 #define USB_POLLING_INTERVAL_MS 1
