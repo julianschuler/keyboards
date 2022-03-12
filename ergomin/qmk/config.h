@@ -9,7 +9,7 @@
 #define MATRIX_COLS 12
 #define MATRIX_ROW_PINS { D2, C6, C7, E2 }
 #define MATRIX_COL_PINS { D3, D5, D4, D6, D7, B4 }
-#define SECONDARY_ROW_PINS_ARRAY { (1<<7), (1<<4), (1<<3), (1<<2) }
+#define SECONDARY_ROW_PINS { (1<<7), (1<<4), (1<<3), (1<<2) }
 #define DIODE_DIRECTION COL2ROW
 
 // usb settings
@@ -28,5 +28,8 @@
 // disable unused modules
 #define NO_ACTION_MACRO
 #define NO_ACTION_FUNCTION
+
+// i2c frequency
+#define F_SCL 800000
 
 #endif
