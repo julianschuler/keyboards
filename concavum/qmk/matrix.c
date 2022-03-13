@@ -36,7 +36,7 @@ static matrix_row_t read_cols(void) {
         state |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
     }
     // read columns of the right side
-    matrix_row_t port = mcp23017_read_port();
+    matrix_row_t port = ~mcp23017_read_port();
     state |= port << SPLIT_MATRIX_COLS;
     return state;
 }
