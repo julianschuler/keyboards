@@ -1,3 +1,6 @@
+# board setting
+MCU = RP2040
+
 # debounce options
 DEBOUNCE_TYPE = sym_eager_pk
 
