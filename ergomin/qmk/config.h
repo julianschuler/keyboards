@@ -19,6 +19,7 @@
 #define PRODUCT_ID 0xC6AF
 #define DEVICE_VER 0x0000
 #define PRODUCT Ergomin
+#define MANUFACTURER QMK
 
 // timing settings
 #define DEBOUNCE 15
@@ -30,6 +31,6 @@
 #define NO_ACTION_FUNCTION
 
 // i2c frequency
-#define F_SCL 800000
+#define F_SCL 800000UL
 
 #endif

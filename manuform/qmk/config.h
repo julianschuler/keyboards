@@ -23,6 +23,7 @@
 #define PRODUCT_ID 0xB6AF
 #define DEVICE_VER 0x0000
 #define PRODUCT Manuform
+#define MANUFACTURER QMK
 
 // timing settings
 #define DEBOUNCE 15
