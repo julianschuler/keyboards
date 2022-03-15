@@ -1,5 +1,5 @@
-#ifndef MANUFORM_H
-#define MANUFORM_H
+#ifndef ERGOMIN_H
+#define ERGOMIN_H
 
 #include "quantum.h"
 

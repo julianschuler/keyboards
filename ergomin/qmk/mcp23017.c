@@ -4,65 +4,39 @@
 
 
 static i2c_status_t mcp23017_status = I2C_STATUS_ERROR;
-bool i2c_initialized = false;
 
 
 void mcp23017_init(void) {
     mcp23017_status = I2C_STATUS_SUCCESS;
+    i2c_init();
 
-    if (!i2c_initialized) {
-        _delay_ms(1000);
-        i2c_init();  // on pins D(1,0)
-        i2c_initialized = true;
-    }
-    i2c_init();  // on pins D(1,0)
-
-    // Set pin direction
-    mcp23017_status = i2c_start(I2C_ADDR_WRITE, MCP23017_TIMEOUT);  if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(IODIRA, MCP23017_TIMEOUT);          if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(0b01100011, MCP23017_TIMEOUT);      if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(0b11111111, MCP23017_TIMEOUT);      if (mcp23017_status) goto out;
-    i2c_stop();
+    // set pin direction
+    const uint8_t pin_dir[] = { IODIRA, 0b00000000, 0b11111111 };
+    mcp23017_status = i2c_transmit(MCP23017_ADDR, pin_dir, 3, MCP23017_TIMEOUT);
+    if (mcp23017_status) return;
 
     // set pull-up
-    mcp23017_status = i2c_start(I2C_ADDR_WRITE, MCP23017_TIMEOUT);  if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(GPPUA, MCP23017_TIMEOUT);           if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(0b00000000, MCP23017_TIMEOUT);      if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(0b00111111, MCP23017_TIMEOUT);      if (mcp23017_status) goto out;
-    i2c_stop();
+    const uint8_t pullup[] = { GPPUA, 0b00000000, 0b11111111 };
+    mcp23017_status = i2c_transmit(MCP23017_ADDR, pullup, 3, MCP23017_TIMEOUT);
+    if (mcp23017_status) return;
 
     // set all outputs high
-    mcp23017_status = i2c_start(I2C_ADDR_WRITE, MCP23017_TIMEOUT);  if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(GPIOA, MCP23017_TIMEOUT);           if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(0b11111111, MCP23017_TIMEOUT);
-out:
-    i2c_stop();
+    const uint8_t output[] = { GPIOA, 0b11111111 };
+    mcp23017_status = i2c_transmit(MCP23017_ADDR, output, 2, MCP23017_TIMEOUT);
 }
 
 
 
 uint8_t mcp23017_read_port(void) {
-    uint8_t data = 0x00;
+    uint8_t data = 0xFF;
     // reading GPIOB (column port) since in mcp23017's sequential mode
     // it is addressed directly after writing to GPIOA in select_row()
-    mcp23017_status = i2c_start(I2C_ADDR_READ, MCP23017_TIMEOUT);   if (mcp23017_status) goto out;
-    mcp23017_status = i2c_read_nack(MCP23017_TIMEOUT);              if (mcp23017_status < 0) goto out;
-    data            = ~(uint8_t)mcp23017_status;
-    mcp23017_status = I2C_STATUS_SUCCESS;
-out:
-    i2c_stop();
+    mcp23017_status = i2c_receive(MCP23017_ADDR, &data, 1, MCP23017_TIMEOUT);
     return data;
-
 }
 
 
 void mcp23017_write_port(uint8_t data) {
-    mcp23017_status = i2c_start(I2C_ADDR_WRITE, MCP23017_TIMEOUT);  if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(GPIOA, MCP23017_TIMEOUT);           if (mcp23017_status) goto out;
-    mcp23017_status = i2c_write(data, MCP23017_TIMEOUT);
-out:
-    i2c_stop();
+    const uint8_t port[] = { GPIOA, data };
+    mcp23017_status = i2c_transmit(MCP23017_ADDR, port, 2, MCP23017_TIMEOUT);
 }
-
-    
-bool mcp23017_reset_required(void) { return mcp23017_status != I2C_STATUS_SUCCESS; }
