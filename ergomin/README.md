@@ -19,7 +19,7 @@ The ergomin uses a PCB to keep wiring neat and simple, despite the PCB and its c
 
 ## Building the firmware
 The firmware is powered by QMK, [install QMK](https://docs.qmk.fm/#/newbs_getting_started) if not already done.
-After the installation it is necassary to add a simlink to the qmk/ subfolder of this repository to the QMK keyboards/ directory, for linux e.g by
+After the installation it is necessary to add a symlink to the qmk/ subfolder of this repository to the QMK keyboards/ directory, for Linux e.g by
 ```
 ln -s /path/to/ergomin/qmk /path/to/qmk/keyboards/ergomin
 ```
@@ -33,7 +33,7 @@ Make sure to have a look at the excellent [QMK Documentation](https://docs.qmk.f
 
 ## Building the keyboard
 ### Case
-Start by printing the case split into top and bottom pieces. For the top pieces you have to insert the embedded M3 nuts during printing. I recommend using PrusaSlicer for slicing, since the necassary print pause is already configured in the attached 3MF files.
+Start by printing the case split into top and bottom pieces. For the top pieces you have to insert the embedded M3 nuts during printing. I recommend using PrusaSlicer for slicing, since the necessary print pause is already configured in the attached 3MF files.
 
 ### PCB
 The heart of the Ergomin is the PCB. It is designed in such a way that the PCB for the left and right half are the same. 
@@ -51,7 +51,7 @@ The ergomin should be recognized by your OS as a USB keyboard, now you can try t
 Disconnect the keyboard from your computer and remove the TRRS cable.
 
 The halves can now be inserted into their top pieces and the keyboard switches can be inserted from the top. Make sure they click in place and their pins reach through the holes in the PCBs. 
-When all switches are in places, they can be soldered from the bottom.
+With all switches in place, they can be soldered from the bottom.
 
 The keyboard can now be closed up using the bottom pieces of the case and the M3x8 screws. If the screws aren't flush with the bottom, you can use a countersink bit to enlargen the recesses.
 After attaching the keycaps and rubber feet, the build is completed.
@@ -61,6 +61,9 @@ When flashing e.g. a new keymap to the Ergomin, it has to be reset. This can be 
 
 It is highly recommended to always include this RESET keycode somewhere in your custom keymap, as the physical reset button can't be reached anymore after the switches are soldered.
 
+## Possible modifications
+![Modified Ergomin with tenting feet](img/ergomin-tenting-feet.jpg)
+To increase the ergonomics, tenting feet may be added. I modified [these foldable tenting feet](https://www.thingiverse.com/thing:4491679) by increasing their length (to increase the tenting angle) and adding a cutout to still access the screws. Due to the "No Derivatives"-flag in the model license I am unfortunately not able to share my modified version. The modifications can still be done in a few minutes directly in PrusaSlicer and the feet afterwards printed and glued to the bottom of the case.
+
 ## License
 This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
-
