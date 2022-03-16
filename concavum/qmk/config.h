@@ -35,6 +35,10 @@
 #define MATRIX_ROWS 6
 #define MATRIX_COLS 12
 
+// activate entering the boot loader by double tapping the reset button
+#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
+#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 500U
+
 // usb settings
 #define USB_POLLING_INTERVAL_MS 1
 #define FORCE_NKRO
