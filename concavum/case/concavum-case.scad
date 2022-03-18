@@ -89,7 +89,7 @@ height_offset = 43;
 half_offset = 40;
 
 // polygon indices to add the nut holders to, format: [i, rotation, offset]
-nut_values = [[5, 0, 3], [11, 0, 5.5], [8, 180, 7]];
+nut_values = [[5, 0, 7], [11, 0, 5.5], [8, 180, 7]];
 
 // finger indices to add extra width to, format: [col, row, extra_width_amount]
 extra_widths = [[4, 0, -19.05], [3, 2, 38.1], [3, 3, 38.1]];
@@ -110,6 +110,8 @@ fpc_connector_color = "#8F8F8F";
 
 
 /* [Rendering and export options] */
+// build the ATmega32u4 variant instead of the KB2040 variant
+build_atmega32u4_variant = false;
 // build key matrix PCB instead of the keyboard
 build_matrix_pcb = false;
 // adjust only if the shell calculation fails, small values are recommended
@@ -159,11 +161,11 @@ switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
 
 // interface PCB values (shouldn't be changed)
-i_pcb_size = [30, 38, 1.6];
-i_pcb_offset = [0, -0.2, 2];
+i_pcb_size = build_atmega32u4_variant ? [30, 38, 1.6] : [36, 42, 1.6];
+i_pcb_offset = build_atmega32u4_variant ? [0, -0.2, 2] : [-2.2, -0.2, 2];
 i_pcb_mount_point_index = 3;
 i_pcb_mounting_hole_diameter = 2.2;
-i_pcb_mounting_hole_offset = 2.5;
+i_pcb_mounting_hole_offset = build_atmega32u4_variant ? 2.5 : 3;
 i_pcb_mounting_hole_clearance = 0.1;
 i_pcb_holder_width = 8;
 i_pcb_holder_thickness = 2;
@@ -173,10 +175,11 @@ i_pcb_holder_clearance = 0.2;
 usb_width = 9.2;
 usb_height = 3.4;
 usb_radius = 1.1;
-usb_offset = 14.1;
+usb_offset = build_atmega32u4_variant ? 14.1 : 19.5;
 jack_radius = 3.1;
-jack_offset = [5.8, 0.55];
-port_offset = [3.8, 0, 1.7];
+jack_offset = [5.3, 0.55];
+port_offset = [build_atmega32u4_variant ? 3.8 : 7.3, 0, 1.7];
+kb2040_pcb_thickness = 1.6;
 
 // build matrix PCB outline instead of the keyboard (will be overwritten externally)
 build_matrix_pcb_outline = false;
@@ -579,6 +582,7 @@ module port_cutouts(left=true) {
     l = usb_height;
     r = usb_radius;
     o = usb_offset;
+    uz = build_atmega32u4_variant ? 0 : kb2040_pcb_thickness;
     jr = jack_radius;
     jo = jack_offset;
     h = shell_thickness + 2 * e;
@@ -587,7 +591,7 @@ module port_cutouts(left=true) {
     y = pos.y - shell_thickness / 2 - i_pcb_offset.y;
     z = i_pcb_size.z;
     translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0]) if (left) {
-        translate([jo[0] - o, 0, 0]) minkowski() {
+        translate([jo[0] - o, uz, 0]) minkowski() {
             cube([w - 2 * r, l - 2 * r, h - e], center=true);
             cylinder(e, r=r, center=true);
         }

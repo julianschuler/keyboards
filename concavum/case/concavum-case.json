@@ -5,6 +5,7 @@
             "$fs": "0.01",
             "bending_visualisation_segs": "500",
             "bottom_plate_thickness": "1.6",
+            "build_atmega32u4_variant": "false",
             "build_matrix_pcb": "false",
             "calculate_shell": "false",
             "column_count": "6",
