@@ -4,9 +4,12 @@ The Concavum is a fully parametric split keyboard featuring an ergonomic layout 
 
 It can be adjusted to have 1-5 rows, 2-6 columns and 1-6 thumb keys per half and provides a script to automatically generate a PCB for the key matrix, so no hand-wiring is required.
 
-Each half has thus 2 PCBs: The automatically generated matrix PCB which is dependent on key count, offsets, etc. and a generic interface PCB which can be used for all sizes. Both PCBs are connected internally using a FPC cable, the halves are connected externally through an TRRS cable.
+Each half has thus 2 PCBs: The automatically generated matrix PCB, which is dependent on key count, offsets, etc., and a generic interface PCB which can be used for all sizes. Both PCBs are connected internally using a FPC cable, the halves are connected externally through a TRRS cable.
 
-The Concavum is more complicated to build than my previous keyboards: If you want to built your own, you have to have access to a 3D printer and should be familiar with SMD soldering.
+## Variants
+The Concavum comes in two versions: A KB2040 and an ATmega32u4 variant. They mainly differ in the microcontroller used, the default version using the KB2040 is highly recommended. The other version based on the ATmega32u4 requires really fine SMD soldering (e.g. 0.5mm pitch for the USB-C connector), uses a less capable microcontroller and is at the time of writing even more expensive.
+
+Furthermore, due to the ongoing semiconductor shortage I wasn't able to verify that the ATmega32u4 version is actually working properly.
 
 ## Building the keyboard
 ### Parts list (excluding the PCBs and complementary components)
@@ -26,6 +29,8 @@ Start by installing [OpenSCAD](https://openscad.org/downloads.html) if not alrea
 Open the file `case/concavum-case.scad` in OpenSCAD and switch to the Customizer (`Window > Customizer`). Select the preset with the name `keyboard-paramters` in the first drop down menu (the preview should now show a cluster with 6 columns and 3 rows).
 
 Now you can start adjusting the keyboard to your needs, the default values adjusted to my hands should provide a good starting point. Always save your changes to the preset `keyboard-parameters` as the values of this preset will be used for the automatic matrix PCB generation later.
+
+> When building the ATmega32u4 variant, select `build_atmega32u4_variant` in the last section.
 
 ### Printing and testing the case
 When you are done with your modifications, render the Case using `F6` and export it as STL or AMF.
@@ -57,6 +62,9 @@ and afterwards export the gerber files for both the matrix and interface PCBs us
 ```
 python3 export-compressed-gerber.py
 ```
+
+> When building the ATmega32u4 variant, use `python3 export-compressed-gerber 32u4` instead.
+
 When exporting the gerber files, a DRC is performed. If there is no output, everything worked as expected. If you still would like to inspect the generated matrix PCB, you can open the PCB file using PcbNew (the PCB editor of KiCad):
 ```
 pcbnew matrix-pcb/matrix-pcb-panel.kicad_pcb
@@ -99,7 +107,10 @@ Make sure to have a look at the excellent [QMK documentation](https://docs.qmk.f
 ### Adjusting the keymap
 After creating your first keymap, you can start by setting `MATRIX_ROWS`, `MATRIX_COLS` and `THUMB_KEYS` in `qmk/keymaps/<github_username>/config.h` according to your keyboard matrix.
 
+> When building the ATmega32u4 variant, set `MCU = atmega32u4` in your `rules.mk`.
+
 Next, head over to `qmk/keymaps/<github_username>/keymap.c` and adjust the keymap to your liking. Note that there is a slight difference to other keyboards built using QMK (due to the adjustable key count):
+
 
 A hypothetical layer for a keyboard with 4x2 keys in the finger cluster and 2 keys in the thumb cluster would be usually described like this:
 ```
@@ -119,15 +130,20 @@ T_ROW(      KC_I,               KC_J        )
 ```
 Your newly created keymap will already follow this convention, you just have to keep this in mind when altering the number of rows.
 
-When you are finished, you can connect the keyboard via USB and flash the firmware using
+When you are finished, you can connect the keyboard via USB.
+Put the KB2040 into the bootloader mode by holding the boot button and tapping the reset button, the KB2040 should now show up as a flash drive. After mounting the drive you can flash the firmware using
 ```
 qmk flash -kb concavum -km <github_username>
 ```
 
-### Reflashing the firmware
-When flashing e.g. a new keymap to the Concavum, it has to be reset. This can be done by hitting a key with the `RESET` keycode. By default, this `RESET` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
+> New ATmega32u4 chips have the Atmel-DFU preflashed, the first flashing will work without reset.
 
-It is highly recommended to keep this `RESET` keycode in any keymap you create as the Concavum doesn't have a physical reset button.
+### Reflashing the firmware
+When flashing e.g. a new keymap to the Concavum, it has to be put into the bootloader mode. This can be done by hitting a key with the `RESET` keycode or double tapping the reset button on the KB2040. By default, this `RESET` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
+
+It is highly recommended to keep this `RESET` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
+
+> The ATmega32u4 variant doesn't have a physical reset button at all.
 
 ## License
 This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
