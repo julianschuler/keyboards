@@ -6,11 +6,6 @@
 
 #define XXX KC_NO
 
-// RESET keycode is not available for the rp2040 for now, replace with KC_NO
-#if defined(MCU_RP)
-    #define RESET KC_NO
-#endif
-
 // dummy layout to supress warnings
 #define LAYOUT(...) {__VA_ARGS__}
 

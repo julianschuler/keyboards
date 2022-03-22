@@ -139,9 +139,9 @@ qmk flash -kb concavum -km <github_username>
 > New ATmega32u4 chips have the Atmel-DFU preflashed, the first flashing will work without reset.
 
 ### Reflashing the firmware
-When flashing e.g. a new keymap to the Concavum, it has to be put into the bootloader mode. This can be done by hitting a key with the `RESET` keycode or double tapping the reset button on the KB2040. By default, this `RESET` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
+When flashing e.g. a new keymap to the Concavum, it has to be put into the bootloader mode. This can be done by hitting a key with the `QK_BOOT` keycode or double tapping the reset button on the KB2040. By default, this `QK_BOOT` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
 
-It is highly recommended to keep this `RESET` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
+It is highly recommended to keep this `QK_BOOT` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
 
 > The ATmega32u4 variant doesn't have a physical reset button at all.
 

@@ -154,7 +154,7 @@ T_ROW(                                          _______,    _______,    NUM_L,  
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
  * │WAS│PAU│PRE│PLA│NEX│BUP│               │GF1│GF2│GF3│GF4│GF5│GF6│
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
- * │RST│PSC│MUT│VDN│VUP│BDN│               │GF7│GF8│GF9│G10│G11│G12│
+ * │QBT│PSC│MUT│VDN│VUP│BDN│               │GF7│GF8│GF9│G10│G11│G12│
  * └───┴───┴───┴─┬─┴─┬─┴─┬─┴─┐           ┌─┴─┬─┴─┬─┴─┬─┴───┴───┴───┘
  *               │   │   │   │           │   │   │   │
  *               │VOU│XXX│FN │           │FN │XXX│QWE│
@@ -163,7 +163,7 @@ T_ROW(                                          _______,    _______,    NUM_L,  
 [_FL] = LAYER(
 ROW(    KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12  ),
 ROW(    WASD,       KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,                        GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6  ),
-ROW(    RESET,      KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,                        GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12 ),
+ROW(    QK_BOOT,    KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,                        GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12 ),
 T_ROW(                                          VOU,        XXXXXXX,    FN_L,                   FN_L,       XXXXXXX,    QWERTZ                                          )
 ),
 };
