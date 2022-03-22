@@ -30,7 +30,7 @@ Open the file `case/concavum-case.scad` in OpenSCAD and switch to the Customizer
 
 Now you can start adjusting the keyboard to your needs, the default values adjusted to my hands should provide a good starting point. Always save your changes to the preset `keyboard-parameters` as the values of this preset will be used for the automatic matrix PCB generation later.
 
-> When building the ATmega32u4 variant, select `build_atmega32u4_variant` in the last section.
+> **Note:** When building the ATmega32u4 variant, select `build_atmega32u4_variant` in the last section.
 
 ### Printing and testing the case
 When you are done with your modifications, render the Case using `F6` and export it as STL or AMF.
@@ -63,7 +63,7 @@ and afterwards export the gerber files for both the matrix and interface PCBs us
 python3 export-compressed-gerber.py
 ```
 
-> When building the ATmega32u4 variant, use `python3 export-compressed-gerber 32u4` instead.
+> **Note:** When building the ATmega32u4 variant, use `python3 export-compressed-gerber 32u4` instead.
 
 When exporting the gerber files, a DRC is performed. If there is no output, everything worked as expected. If you still would like to inspect the generated matrix PCB, you can open the PCB file using PcbNew (the PCB editor of KiCad):
 ```
@@ -107,7 +107,7 @@ Make sure to have a look at the excellent [QMK documentation](https://docs.qmk.f
 ### Adjusting the keymap
 After creating your first keymap, you can start by setting `MATRIX_ROWS`, `MATRIX_COLS` and `THUMB_KEYS` in `qmk/keymaps/<github_username>/config.h` according to your keyboard matrix.
 
-> When building the ATmega32u4 variant, set `MCU = atmega32u4` in your `rules.mk`.
+> **Note:** When building the ATmega32u4 variant, set `MCU = atmega32u4` in your `rules.mk`.
 
 Next, head over to `qmk/keymaps/<github_username>/keymap.c` and adjust the keymap to your liking. Note that there is a slight difference to other keyboards built using QMK (due to the adjustable key count):
 
@@ -136,14 +136,15 @@ Put the KB2040 into the bootloader mode by holding the boot button and tapping t
 qmk flash -kb concavum -km <github_username>
 ```
 
-> New ATmega32u4 chips have the Atmel-DFU preflashed, the first flashing will work without reset.
+> **Note:** New ATmega32u4 chips have the Atmel-DFU preflashed, the first flashing will work without reset.
 
 ### Reflashing the firmware
 When flashing e.g. a new keymap to the Concavum, it has to be put into the bootloader mode. This can be done by hitting a key with the `QK_BOOT` keycode or double tapping the reset button on the KB2040. By default, this `QK_BOOT` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
 
 It is highly recommended to keep this `QK_BOOT` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
 
-> The ATmega32u4 variant doesn't have a physical reset button at all.
+> **Note:** The ATmega32u4 variant doesn't have a physical reset button at all.
+---
 
 ## License
 This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
