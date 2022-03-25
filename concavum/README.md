@@ -34,8 +34,7 @@ Now you can start adjusting the keyboard to your needs, the default values adjus
 
 ### Printing and testing the case
 When you are done with your modifications, render the Case using `F6` and export it as STL or AMF.
-Support material is required for printing. However, use support blockers for the nut holders as it is nearly impossible to remove support material from their inside.
-For the other print settings the Slicer defaults for PETG and a layer height of 0.2mm should be fine.
+Support material is required for printing. However, use support blockers for the nut holders as it is nearly impossible to remove support material from their inside. You can find example print files under [`case/example-print-files`](case/example-print-files) which should give an idea on how to adjust the support material and print settings.
 
 It is highly recommended to print only one half for now, adding the switches and keycaps and testing the feel first. It may take a few iterations, really take your time to find a configuration that fits your hands!
 
