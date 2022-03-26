@@ -716,7 +716,7 @@ module bottom_plate() {
     dv = (v2 - v1) / 2;
     a = atan2(-dv.x, dv.y);
     difference() {
-        linear_extrude(shell_thickness) projection(cut=true) {
+        linear_extrude(bottom_plate_thickness) projection(cut=true) {
             finger_cluster();
             thumb_cluster();
         }
