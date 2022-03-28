@@ -1,4 +1,5 @@
 # Concavum
+![Concavum image](img/concavum.jpg)
 ## Overview
 The Concavum is a fully parametric split keyboard featuring an ergonomic layout with ortholinear (non-staggered) columns and concave key wells.
 
@@ -10,6 +11,9 @@ Each half has thus 2 PCBs: The automatically generated matrix PCB, which is depe
 The Concavum comes in two versions: A KB2040 and an ATmega32u4 variant. They mainly differ in the microcontroller used, the default version using the KB2040 is highly recommended. The other version based on the ATmega32u4 requires really fine SMD soldering (e.g. 0.5mm pitch for the USB-C connector), uses a less capable microcontroller and is at the time of writing even more expensive.
 
 Furthermore, due to the ongoing semiconductor shortage I wasn't able to verify that the ATmega32u4 version is actually working properly.
+
+![Interface PCB variants](img/concavum-interface-pcb-variants.jpg)
+*Interface PCB variants: KB2040 variant on the left side, ATmega32u4 variant on the right side.*
 
 ## Building the keyboard
 ### Parts list (excluding the PCBs and complementary components)
@@ -81,10 +85,16 @@ Afterwards, add the key switches while ensuring that the orientation of the pins
 To assemble the PCBs, take two interface and two matrix PCBs and lay them each down with different sides facing up. Now you can solder the complementary SMD components onto all four PCBs.
 **Important: Only solder the SMD components to the top of each PCB! Otherwise the keyboard will not work!**
 
+![Assembled PCBs](img/concavum-assembled-pcbs.jpg)
+*Assembled PCBs and FPC connectors needed for the whole keyboard, with the rails and tabs still connected for the left matrix PCB. The interface PCBs shown are from the ATmega32u4 variant.*
+
 Afterwards, you can carefully break off the rails and tabs of the matrix PCBs, ideally over an edge. You can now fit the matrix PCBs into the cases, the sides with the diodes and FPC connector facing outwards.
 The matrix PCB has to be bend during this procedure. Therefore, start to solder the switches at the top row and work your way down to the bottom rows and the thumb cluster.
 
 Finally, you can add the FPC cables to connect the interface and matrix PCBs of each half and slide the interface PCBs into their dedicated holders.
+
+![Fully assembled keyboard](img/concavum-fully-assembled.jpg)
+*Fully assembled keyboard without bottom plates, on the left a half with the ATmega32u4 variant is shown, on the right the KB2040 variant can be seen.*
 
 The keyboard can now be closed up by screwing on the bottom plate and attaching the rubber feet.
 
