@@ -6,6 +6,7 @@ All keyboards in chronological order:
 | ---                   | ---                                          | ---                                                                                |
 | [Manuform](manuform/) | ![Manuform image](manuform/img/manuform.jpg) | 50% hand-wired keyboard focussed on ergonomic typing with ortholinear columns      |
 | [Ergomin](ergomin/)   | ![Ergomin image](ergomin/img/ergomin.jpg)    | 40% PCB based split keyboard focussed on ergonomic typing with ortholinear columns |
+| [Concavum](concavum/) | ![Concavum image](concavum/img/concavum.jpg) | Fully parametric ergonomic split keyboard with automatically generated matrix PCB  |
 
 ## License
 This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
