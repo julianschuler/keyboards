@@ -1,13 +1,13 @@
 #include QMK_KEYBOARD_H
-#include "mcp23017.h"
+#include "mcp2301x.h"
 
 #define SPLIT_MATRIX_COLS (MATRIX_COLS / 2)
 
-typedef uint8_t mcp23017_pin_t;
+typedef uint8_t mcp2301x_pin_t;
 
 static const pin_t          row_pins[MATRIX_ROWS]           = MATRIX_ROW_PINS;
 static const pin_t          col_pins[MAX_MATRIX_COLS / 2]   = MATRIX_COL_PINS;
-static const mcp23017_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
+static const mcp2301x_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
 
 
 static void select_row(uint8_t row) {
@@ -16,7 +16,7 @@ static void select_row(uint8_t row) {
     writePinLow(row_pins[row]);
     // select port expander row
     uint8_t port = ~secondary_row_pins[row];
-    mcp23017_write_port(port);
+    mcp2301x_write_port(port);
 }
 
 
@@ -36,7 +36,7 @@ static matrix_row_t read_cols(void) {
         state |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
     }
     // read columns of the right side
-    matrix_row_t port = ~mcp23017_read_port();
+    matrix_row_t port = ~mcp2301x_read_port();
     state |= port << SPLIT_MATRIX_COLS;
     return state;
 }
@@ -52,7 +52,7 @@ void matrix_init_custom(void) {
         setPinInputHigh(col_pins[i]);
     }
     // initialize the port expander pins in a similar way
-    mcp23017_init();
+    mcp2301x_init();
 }
 
 
