@@ -9,6 +9,7 @@
 
 #define MCP23017_ADDR (0x20 << 1)
 #define MCP23017_TIMEOUT 50
+#define MCP23017_STARTUP_DELAY 1000
 
 
 void mcp23017_init(void);

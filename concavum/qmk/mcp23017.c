@@ -3,11 +3,20 @@
 #include "mcp23017.h"
 
 
+#if defined(__AVR__)
+    #define SLEEP_MS(t) _delay_ms(t)
+#elif defined(__CHIBIOS__)
+    #define SLEEP_MS(t) chThdSleepMilliseconds(t)
+#endif
+
+
 static i2c_status_t mcp23017_status = I2C_STATUS_ERROR;
 
 
 void mcp23017_init(void) {
     mcp23017_status = I2C_STATUS_SUCCESS;
+
+    SLEEP_MS(MCP23017_STARTUP_DELAY);
     i2c_init();
 
     // set pin direction
