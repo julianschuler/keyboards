@@ -96,7 +96,7 @@ T_ROW(                                          DE_1,       KC_SPC,     _______,
  *               │STB│SPC│FN │           │SYM│   │   │
  *               └───┴───┴───┘           └───┴───┴───┘
  */
-[_SL] = LAYOUT(
+[_SL] = LAYER(
 ROW(    DE_DEG,     DE_PLUS,    DE_LABK,    DE_QUOT,    DE_LCBR,    DE_CIRC,                        DE_BSLS,    DE_RCBR,    DE_AMPR,    DE_RABK,    DE_MINS,    DE_SECT ),
 ROW(    DE_DOT,     DE_COLN,    DE_SCLN,    DE_DQUO,    DE_LPRN,    DE_EXLM,                        DE_TILD,    DE_RPRN,    DE_EQL,     DE_SLSH,    DE_ASTR,    DE_GRV  ),
 ROW(    DE_MICR,    DE_0,       DE_AT,      DE_DLR,     DE_LBRC,    DE_QUES,                        DE_PIPE,    DE_RBRC,    DE_HASH,    DE_PERC,    DE_1,       DE_EURO ),
