@@ -10,6 +10,8 @@ Each half has thus 2 PCBs: The automatically generated matrix PCB, which is depe
 ## Variants
 The Concavum comes in two versions: A KB2040 and an ATmega32u4 variant. They mainly differ in the microcontroller used, the default version using the KB2040 is highly recommended. The other version based on the ATmega32u4 requires really fine SMD soldering (e.g. 0.5mm pitch for the USB-C connector), uses a less capable microcontroller and is at the time of writing even more expensive.
 
+In addition, the KB2040 variant support both MCP23017 and MCP23018 port expander ICs for the right half, the ATmega32u4 variant only the MCP23017.
+
 Furthermore, due to the ongoing semiconductor shortage I wasn't able to verify that the ATmega32u4 version is actually working properly.
 
 ![Interface PCB variants](img/concavum-interface-pcb-variants.jpg)
