@@ -111,33 +111,14 @@ Now you should be able to compile the keyboard firmware by executing
 qmk compile -kb concavum -km default
 ```
 
-Make sure to have a look at the excellent [QMK documentation](https://docs.qmk.fm/#/newbs_building_firmware) on how to create and customize your own keymap.
+Make sure to have a look at the excellent [QMK documentation](https://docs.qmk.fm/#/newbs_building_firmware) on how to create your own keymap.
 
 ### Adjusting the keymap
 After creating your first keymap, you can start by setting `MATRIX_ROWS`, `MATRIX_COLS` and `THUMB_KEYS` in `qmk/keymaps/<github_username>/config.h` according to your keyboard matrix.
 
 > **Note:** When building the ATmega32u4 variant, set `MCU = atmega32u4` in your `rules.mk`.
 
-Next, head over to `qmk/keymaps/<github_username>/keymap.c` and adjust the keymap to your liking. Note that there is a slight difference to other keyboards built using QMK (due to the adjustable key count):
-
-
-A hypothetical layer for a keyboard with 4x2 keys in the finger cluster and 2 keys in the thumb cluster would be usually described like this:
-```
-[BASE] = LAYOUT(
-    KC_A,   KC_B,       KC_C,   KC_D,
-    KC_E,   KC_F,       KC_G,   KC_H,
-        KC_I,               KC_J
-),
-```
-For the Concavum, the layout above has to be written in the following way:
-```
-[BASE] = LAYER(
-ROW(    KC_A,   KC_B,       KC_C,   KC_D    ),
-ROW(    KC_E,   KC_F,       KC_G,   KC_H    ),
-T_ROW(      KC_I,               KC_J        )
-),
-```
-Your newly created keymap will already follow this convention, you just have to keep this in mind when altering the number of rows.
+Next, head over to `qmk/keymaps/<github_username>/keymap.c` and adjust the keymap to your liking. Make sure the amount of keys is correct, especially when you modified the above values compared to the default.
 
 When you are finished, you can connect the keyboard via USB.
 Put the KB2040 into the bootloader mode by holding the boot button and tapping the reset button, the KB2040 should now show up as a flash drive. After mounting the drive you can flash the firmware using
