@@ -102,6 +102,16 @@ The keyboard can now be closed up by screwing on the bottom plate and attaching 
 
 ## Building the firmware
 ### Setting up QMK
+> **Note:** Currently the RP2040 support is not yet merged to the master branch. For now you have to install the development version instead:
+> ```
+> python3 -m pip install --user qmk
+> git clone https://github.com/KarlK90/qmk_firmware/
+> cd qmk_firmware/
+> qmk config user.qmk_home=$(pwd)
+> git checkout feature/raspberry-pi-rp2040-support
+> make git-submodules
+> ```
+
 The firmware is powered by QMK, [install QMK](https://docs.qmk.fm/#/newbs_getting_started) if not already done.
 After the installation, it is necassary to add a simlink to the `qmk` subfolder of this repository to the QMK `keyboards` directory, for linux e.g by
 ```
