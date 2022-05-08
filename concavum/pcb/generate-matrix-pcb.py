@@ -182,8 +182,6 @@ class MatrixPcbGenerator:
         self.draw_dxf_lines(self.dxf_file, pcbnew.Edge_Cuts, self.origin_offset)
         # get row and col nets
         nets = self.board.GetNetsByName()
-        # for net in nets.values():
-        #     net.SetNetClass(self.netclass)
         row_nets = [nets[f"ROW{i+1}"] for i in range(self.max_rows)]
         col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
@@ -568,7 +566,7 @@ class MatrixPcbGenerator:
             off1 = extra_pos[k + 1] if below else r_pos
             off2 = r_pos if below else extra_pos[k + 1]
             c = min(cm, abs(off1[0] - off2[0]) / 2)
-            points = (
+            points = [
                 (tx if left_half else -tx, ty - c if below else -ty + c) + off1,
                 (tx + c if left_half else -tx - c, ty if below else -ty) + off1,
                 (
@@ -579,8 +577,11 @@ class MatrixPcbGenerator:
                     (tx if left_half else -tx) + off2[0],
                     (ty + c if below else -ty - c) + off1[1],
                 ),
-            )
-            extra_points.extend(points)
+            ]
+            if below:
+                extra_points = points + extra_points
+            else:
+                extra_points.extend(points)
         return extra_points
 
     def row_conn_path(self, left_half, below, short, off_path_end):
@@ -729,7 +730,7 @@ class MatrixPcbGenerator:
                 )
             )
             dy = abs(pos1[0] - pos2[0] + tx - dx) + 0.6 * mm + pos1[1]
-            ty = min(dy, pos2[1] - i * d)
+            ty = pos2[1] if i == track_count - 1 else min(dy, pos2[1] - i * d)
             path = np.concatenate(
                 (
                     ((tx, 0 * mm) + pos1,),
