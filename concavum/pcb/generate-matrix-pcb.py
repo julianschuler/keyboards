@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import subprocess
 from ast import literal_eval
 from tempfile import gettempdir
@@ -101,11 +102,11 @@ class MatrixPcbGenerator:
         self.fpc_offset = np.array((0 * mm, 5.5 * mm))
         self.max_rows = 6
         self.max_cols = 6
-        self.track_width = 0.13 * mm
-        self.track_clearance = 0.13 * mm
+        self.track_width = 0.15 * mm
+        self.track_clearance = 0.15 * mm
         self.via_diameter = 0.6 * mm
         self.via_hole = 0.3 * mm
-        self.pad_width_min = 4.91 * mm
+        self.pad_width_min = 4.96 * mm
         self.arc_segments = 120
         self.tab_width = 5 * mm
 
@@ -163,6 +164,16 @@ class MatrixPcbGenerator:
         self.rows_above = self.row_count - self.rows_below
         # perform checks on the given parameters
         self.check_parameters(fpc_index, col_conn_vals, col_conn_width, key_d)
+        # if maximum number of rows are required, reduce track width and
+        # track clearances and issue warning
+        if self.row_count + 1 == self.max_rows:
+            self.track_width = 0.13 * mm
+            self.track_clearance = 0.13 * mm
+            print(
+                "Warning: Maximum number of rows used. "
+                "Track width and clearance was reduced to 0.13mm.",
+                file=sys.stderr,
+            )
         # calculate tab positions for panelization
         self.tab_positions = self.calculate_tab_positions(
             finger_vals, t_rot, t_off, t_vals, t_index, fpc_index
@@ -395,17 +406,18 @@ class MatrixPcbGenerator:
             y_off1 = (num - (2 if right_side else 1)) / 2 * d
             y_off2 = (num - (1 if right_side else 2)) / 2 * d
             tx = self.pad_width_min + d * 2
-            c = px - tx - self.track_clearance - (num - 1) * d * np.sin(np.pi / 8)
+            c1 = self.track_clearance
+            c2 = px - tx - c1 - (num - 1) * d * np.sin(np.pi / 8)
             conn_path = (
                 pos1 - (0, y_off1),
-                np.array((lower_key[0] - tx - c, pos1[1] - y_off1)),
-                np.array((lower_key[0] - tx, pos1[1] - y_off1 + c)),
+                np.array((lower_key[0] - tx - c2, pos1[1] - y_off1)),
+                np.array((lower_key[0] - tx, pos1[1] - y_off1 + c2)),
                 lower_key + (-tx, 6.7 * mm - tx),
-                lower_key + (-2.4 * mm, 4.3 * mm),
-                lower_key + (2.4 * mm, 4.3 * mm),
+                lower_key + (-2.5 * mm + c1, 4.2 * mm + c1),
+                lower_key + (2.5 * mm - c1, 4.2 * mm + c1),
                 lower_key + (tx, 6.7 * mm - tx),
-                np.array((lower_key[0] + tx, pos2[1] - y_off2 + c)),
-                np.array((lower_key[0] + tx + c, pos2[1] - y_off2)),
+                np.array((lower_key[0] + tx, pos2[1] - y_off2 + c2)),
+                np.array((lower_key[0] + tx + c2, pos2[1] - y_off2)),
                 pos2 - (0 * mm, y_off2),
             )
             for j in range(num):
@@ -437,7 +449,7 @@ class MatrixPcbGenerator:
             else:
                 c_type, pos1, pos2 = col_conn_vals[fpc_index - 1]
                 pos = np.array(pos2 if c_type == 0 else pos1)
-                self.add_right_col_track_fpc_conn(fpc_off, fpc_index, pos, i, layer)
+                self.add_right_col_track_fpc_conn(fpc_off, fpc_index, pos, layer)
 
     def add_left_col_track_fpc_conn(self, fpc_off, fpc_index, pos, i, layer):
         """Helper function for adding a track between a left column and FPC pad"""
@@ -469,57 +481,25 @@ class MatrixPcbGenerator:
         )
         self.add_track_path(path, off, F_Cu)
 
-    def add_right_col_track_fpc_conn(self, fpc_off, fpc_index, pos, i, layer):
+    def add_right_col_track_fpc_conn(self, fpc_off, fpc_index, pos, layer):
         """Helper function for adding a track between a right column and FPC pad"""
         px = self.pad_size[0] / 2
         d = self.track_width + self.track_clearance
         cols_right = fpc_index
-        cols_left = self.col_count - cols_right - 1
-        fpc_w = (self.max_cols + self.max_rows - 1) / 2 * mm
         pos_y = (cols_right - 1) * d / 2
-        t1 = max(
-            pos[0] - px + self.pad_width_min + self.row_count * d,
-            fpc_off[0] + fpc_w + 0.3 * mm + d,
-        )
-        t2 = pos[0] - t1 - (cols_right - 1) * d
-        c1 = t2 - self.track_clearance
-        c2 = t1 - fpc_w - fpc_off[0] - np.tan(np.pi / 8) * (d + 0.3 * mm)
-        off_path1 = (
+        t1 = px - self.pad_width_min - (self.row_count + cols_right - 1) * d
+        c1 = t1 - self.track_clearance
+        tx = self.pad_width_min + self.row_count * d
+        dx = (self.max_rows - 0.5) * mm
+        ty = abs(tx - dx)
+        path = (
             (0, pos_y) + pos,
-            (-t2 + c1, pos_y) + pos,
-            (-t2, pos_y + c1) + pos,
-            (-t2, pos_y + c1 + d) + pos,
-        )
-        off_path2 = (
-            (t1 - fpc_off[0], 0.9 * mm - c2) + fpc_off,
-            (t1 - fpc_off[0], 0.9 * mm - c2 + d) + fpc_off,
-            (t1 - c2 - fpc_off[0], 0.9 * mm + d) + fpc_off,
-            (fpc_w, 0.9 * mm + d) + fpc_off,
-        )
-        end_pos = ((i - self.col_count + 1.5) * mm, 0) + fpc_off
-        # a via and a track on the opposite layer is needed
-        if i == self.col_count - 1 and fpc_index == 2:
-            via_pos = (fpc_w - d, 0.9 * mm + (cols_right + 1) * d) + fpc_off
-            conn_path = (via_pos,)
-            self.add_track_path(
-                angled_track_path((0, 0.6 * mm) + end_pos, via_pos),
-                self.origin_offset,
-                opposite_layer(layer),
-            )
-            self.add_via(via_pos + self.origin_offset)
-        # a direct connection is possible
-        else:
-            conn_path = (
-                (0.3 * mm + d, 0.9 * mm + d) + end_pos,
-                (0 * mm, 0.6 * mm) + end_pos,
-                end_pos,
-            )
-        path = np.concatenate(
-            (
-                offset_path(off_path1, (self.col_count - 1 - i) * d),
-                offset_path(off_path2, -(i - cols_left - 1) * d),
-                conn_path,
-            )
+            (-t1 + c1, pos_y) + pos,
+            (-t1, pos_y + c1) + pos,
+            (-t1, pos_y + c1 + d) + pos,
+            (tx, -0.6 * mm - ty) + fpc_off,
+            (dx, -0.6 * mm) + fpc_off,
+            (dx, 0 * mm) + fpc_off,
         )
         self.add_track_path(path, self.origin_offset, layer)
 
@@ -632,10 +612,8 @@ class MatrixPcbGenerator:
             # the second row is always at a fixed offset to the FPC connector
             if i == 0:
                 path = (
-                    (1.5 * mm, 0 * mm),
-                    (1.5 * mm, -0.6 * mm),
-                    (0 * mm, -2.1 * mm),
-                    (0 * mm, 2.4 * mm) - self.fpc_offset,
+                    (0.5 * mm, 0 * mm),
+                    (0.5 * mm, 2.4 * mm) - self.fpc_offset,
                 )
                 self.add_track_path(
                     path, fpc_pos + self.fpc_offset + off, opposite_layer(layer)
@@ -646,7 +624,7 @@ class MatrixPcbGenerator:
                 diff = fpc_pos + self.fpc_offset - pos
                 d = self.track_width + self.track_clearance
                 tx = self.pad_width_min + i * d
-                dx = (i + 1.5) * mm
+                dx = (i + 0.5) * mm
                 ty = abs(tx - dx)
                 path = np.concatenate(
                     (
@@ -737,10 +715,19 @@ class MatrixPcbGenerator:
         """Add tracks connecting the FPC connector pads with the thumb cluster"""
         pos1 = np.array(fpc_pos[:2]) + self.fpc_offset
         pos2 = np.array((f_pos[0], -f_pos[1]))
+        fpc_w = (self.max_rows + self.max_cols) // 2
         d = self.track_width + self.track_clearance
         for i in range(track_count):
             dx = d * (i - (track_count - 1) / 2)
-            tx = (-self.max_cols + 0.5) * mm if row else (i - track_count + 1.5) * mm
+            tx = (
+                (-fpc_w + 0.5) * mm
+                if row
+                else (
+                    (fpc_w - 0.5) * mm
+                    if i == track_count - 1
+                    else (i - track_count + 1.5) * mm
+                )
+            )
             dy = abs(pos1[0] - pos2[0] + tx - dx) + 0.6 * mm + pos1[1]
             ty = min(dy, pos2[1] - i * d)
             path = np.concatenate(
@@ -849,11 +836,12 @@ class MatrixPcbGenerator:
         fpc = pcbnew.FootprintLoad(self.footprint_path, self.fpc_footprint_name)
         pads = fpc.Pads()
         pads[0].SetNet(row_nets[0])
-        for i, pad in enumerate(pads[1:]):
-            if i in range(self.max_cols):
+        for i, pad in enumerate(pads[1 : self.max_cols + self.max_rows - 1]):
+            if i < self.max_cols - 1:
                 pad.SetNet(col_nets[i])
-            elif i - self.max_cols in range(self.max_rows - 1):
-                pad.SetNet(row_nets[i - self.max_cols + 1])
+            else:
+                pad.SetNet(row_nets[i - self.max_cols + 2])
+        pads[self.max_cols + self.max_rows - 1].SetNet(col_nets[-1])
         fpc.SetPosition(to_point(fpc_pos + off))
         fpc.SetReference("U1")
         self.board.Add(fpc)

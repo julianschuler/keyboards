@@ -8,15 +8,15 @@
 #if defined(__AVR_ATmega32U4__)
     // atmega32u4 specific settings
     // pin settings
-    #define ALL_MATRIX_ROW_PINS F0, F7, F6, F5, F4, F1
-    #define MATRIX_COL_PINS { D2, D3, D4, D5, D6, D7 }
+    #define ALL_MATRIX_ROW_PINS F0, D7, F7, F6, F5, F4
+    #define MATRIX_COL_PINS { D2, D3, D4, D5, D6, F1 }
     // i2c frequency
     #define F_SCL 800000UL
 #elif defined(MCU_RP)
     // rp2040 specific settings
     // pin settings
-    #define ALL_MATRIX_ROW_PINS GP9, GP19, GP20, GP18, GP26, GP27
-    #define MATRIX_COL_PINS { GP8, GP7, GP6, GP5, GP4, GP10 }
+    #define ALL_MATRIX_ROW_PINS GP9, GP10, GP19, GP20, GP18, GP26
+    #define MATRIX_COL_PINS { GP8, GP7, GP6, GP5, GP4, GP27 }
     // i2c settings
     #define I2C_DRIVER I2CD2
     #define I2C1_SDA_PIN GP2

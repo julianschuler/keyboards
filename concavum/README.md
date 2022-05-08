@@ -52,7 +52,6 @@ python3 case/export-bottom-plate.py [output file name]
 ```
 where the file extension determines its type (e.g. `bottom-plate.amf` or `bottom-plate.dxf`). In case of cutting, chamfer the holes afterwards using a countersink drill bit to allow the screw heads to sit flush later.
 
-
 ### Generating the PCB
 To generate the matrix PCB, install [KiCad 6.0](https://www.kicad.org/download/) and [Python 3](https://www.python.org/downloads/). Afterwards, switch to the `pcb` subfolder and install the Python dependencies by executing
 ```
@@ -78,7 +77,10 @@ pcbnew matrix-pcb/matrix-pcb-panel.kicad_pcb
 #### Ordering the PCBs and complementary components
 After exporting, you will find two zip files in the `gerber` subfolder: One for the interface PCB and one for the generated matrix PCB.
 
-The two PCB types require different thicknesses: 0.6mm for the matrix PCB and 1.6mm for the interface PCB. Also, note that your PCB manufacturer has to support track widths and minimum clearances of 0.15mm each. You need at least 2 boards of each type (one type of board for each half).
+The two PCB types require different thicknesses: 0.6mm for the matrix PCB and 1.6mm for the interface PCB. 
+You need at least 2 boards of each type (one type of board for each half).
+
+> **Note:** For the matrix PCB, your PCB manufacturer has to support track widths and minimum clearances of 0.15mm each. In the special case of keyboards with the maximum number of rows, tracks and minimum clearances of 0.13mm each have to be supported.
 
 ### Assembly
 First, insert the M3 nuts into their holders (you may need to remove a few keys if you have already assembled those during testing).
