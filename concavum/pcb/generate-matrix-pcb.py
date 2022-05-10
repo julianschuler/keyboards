@@ -108,7 +108,7 @@ class MatrixPcbGenerator:
         self.via_hole = 0.3 * mm
         self.pad_width_min = 4.96 * mm
         self.arc_segments = 120
-        self.tab_width = 5 * mm
+        self.tab_width = 10 * mm
 
     def generate_board(self, board_template_file):
         """Generate the PCB using the given file as template"""
@@ -854,7 +854,7 @@ class MatrixPcbGenerator:
     def calculate_tab_positions(
         self, finger_vals, t_rot, t_off, t_vals, t_index, fpc_index
     ):
-        """Calculate the tab positions for the finger cluster"""
+        """Calculate the tab positions for the finger and thumb cluster"""
         annotations = []
         px = self.pad_size[0] / 2
         py = self.pad_size[1] / 2
@@ -876,7 +876,7 @@ class MatrixPcbGenerator:
         )
         # add tabs for the thumb cluster
         t_positions = (
-            [t_vals[0], t_vals[-1]] if self.t_col_count >= 4 else [t_vals[t_index]]
+            [t_vals[0], t_vals[-1]] if self.t_col_count >= 3 else [t_vals[t_index]]
         )
         for t_pos in t_positions:
             pos = rot_mat.dot(t_pos[:2] + np.array((px, 0)))
