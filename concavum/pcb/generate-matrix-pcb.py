@@ -65,7 +65,7 @@ def to_point(pos):
 
 def arc_path(arc_angle, rotation, arc_segments):
     """Calulate the points for path describing an arc with radius 1"""
-    a = np.linspace(rotation, arc_angle + rotation, arc_segments * arc_angle // 360)
+    a = np.linspace(rotation, arc_angle + rotation, int(arc_segments * arc_angle / 360))
     a_rad = np.radians(a)
     return np.array(list(zip(np.sin(a_rad), np.cos(a_rad))))
 
@@ -135,8 +135,6 @@ class MatrixPcbGenerator:
             pad_size,
             self.cr_off,
             finger_vals,
-            t_rot,
-            t_off,
             t_vals,
             t_conn_vals,
             col_conn_vals,
@@ -146,16 +144,19 @@ class MatrixPcbGenerator:
             router_diameter,
             key_d,
         ) = literal_eval(scad_output.splitlines()[0][6:].decode())
+        (_, phi, _, _, _, _, _, _, _, _, f_pos, _, t_conn_pos, t_off) = t_conn_vals
+        t_rot = phi + 180
         # scale parameters to mm
+        f_pos = np.array(f_pos) * mm
+        t_conn_pos = np.array(t_conn_pos) * mm
+        t_off = np.array(t_off) * mm
         self.pad_size = np.array(pad_size) * mm
         finger_vals = np.array(finger_vals) * mm
-        t_off = np.array(t_off) * mm
         t_vals = np.array(t_vals) * mm
         col_conn_vals = [
             (-cv[0], np.array(cv[1]) * mm, np.array(cv[2]) * mm) for cv in col_conn_vals
         ]
         self.router_diameter = router_diameter * mm
-        t_rot = t_rot + 180
         # set matrix values
         self.col_count = len(finger_vals)
         self.row_count = len(finger_vals[0])
@@ -189,7 +190,6 @@ class MatrixPcbGenerator:
             finger_vals, row_nets[1:], col_nets, col_conn_vals, fpc_index
         )
         # add keys to the thumb cluster
-        t_conn_pos = np.array(t_conn_vals[14]) * mm
         self.add_thumb_cluster(
             t_rot, t_off, t_vals, row_nets[0], col_nets, t_index, t_conn_pos
         )
@@ -207,7 +207,6 @@ class MatrixPcbGenerator:
         # add FPC connector and its tracks
         fpc_col = finger_vals[fpc_index]
         fpc_pos = fpc_col[0][:2]
-        f_pos = np.array(t_conn_vals[12]) * mm
         self.add_fpc_connector(fpc_pos, row_nets, col_nets)
         self.add_row_tracks_fpc_conn(fpc_pos, fpc_col, F_Cu)
         self.add_col_tracks_fpc_conn(fpc_pos, fpc_index, col_conn_vals, F_Cu)
@@ -776,10 +775,9 @@ class MatrixPcbGenerator:
                     self.add_track_path(arc * -rc, pos2 + off - (rd, a_r), layer)
                     self.add_track(pos2 + off - (0, c), pos2 + off - (rd, c), layer)
 
-    def add_thumb_connector_tracks(self, conn_vals, track_count, layer):
+    def add_thumb_connector_tracks(self, t_conn_vals, track_count, layer):
         """Add tracks going through the thumb connector"""
-        a = conn_vals[1]
-        (r, _, _, _, _, _, conn_l, _, _, _, _, _, f_pos, f_arc, t_pos, _) = conn_vals
+        (r, phi, _, _, _, _, _, _, _, conn_l, f_pos, f_arc, t_pos, _) = t_conn_vals
         r = r * mm
         conn_l = conn_l * mm
         f_pos = np.array(f_pos) * mm
@@ -787,17 +785,17 @@ class MatrixPcbGenerator:
         t_pos = np.array(t_pos) * mm
         off = self.origin_offset
         d = self.track_width + self.track_clearance
-        arc1 = arc_path(a, -90, self.arc_segments)
-        arc2 = arc_path(90, a, self.arc_segments)
+        arc1 = arc_path(phi, -90, self.arc_segments)
+        arc2 = arc_path(90, phi, self.arc_segments)
         pos1 = (f_pos[0], -f_pos[1])
         pos2 = (t_pos[0], -t_pos[1])
-        a_rad = np.radians(a)
-        r_off = np.array((np.sin(a_rad), np.cos(a_rad)))
+        phi_rad = np.radians(phi)
+        r_off = np.array((np.sin(phi_rad), np.cos(phi_rad)))
         for i in range(track_count):
             c = (i - (track_count - 1) / 2) * d
             self.add_track_path(arc1 * (c + r), pos1 + off + (r, 0), layer)
             off_track = offset_path((np.array((0, 0)), np.array((0, conn_l))), c)
-            self.add_track_path(off_track, off + (f_arc[0], -f_arc[1]), layer, a)
+            self.add_track_path(off_track, off + (f_arc[0], -f_arc[1]), layer, phi)
             self.add_track_path(arc2 * (c + r), pos2 + off - r * r_off, layer)
 
     def add_track_path(self, path, offset, layer, rotation=0):
