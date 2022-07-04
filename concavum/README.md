@@ -77,7 +77,7 @@ pcbnew matrix-pcb/matrix-pcb-panel.kicad_pcb
 #### Ordering the PCBs and complementary components
 After exporting, you will find two zip files in the `gerber` subfolder: One for the interface PCB and one for the generated matrix PCB.
 
-The two PCB types require different thicknesses: 0.6mm for the matrix PCB and 1.6mm for the interface PCB. 
+The two PCB types require different thicknesses: 0.6mm for the matrix PCB and 1.6mm for the interface PCB.
 You need at least 2 boards of each type (one type of board for each half).
 
 > **Note:** For the matrix PCB, your PCB manufacturer has to support track widths and minimum clearances of 0.15mm each. In the special case of keyboards with the maximum number of rows, tracks and minimum clearances of 0.13mm each have to be supported.
@@ -104,13 +104,10 @@ The keyboard can now be closed up by screwing on the bottom plate and attaching 
 
 ## Building the firmware
 ### Setting up QMK
-> **Note:** Currently the RP2040 support is not yet merged to the master branch. For now you have to install the development version instead:
+> **Note:** Currently the RP2040 support is not yet merged to the master branch. For now you have to switch to the develop branch:
 > ```
-> python3 -m pip install --user qmk
-> git clone https://github.com/KarlK90/qmk_firmware/
-> cd qmk_firmware/
-> qmk config user.qmk_home=$(pwd)
-> git checkout feature/raspberry-pi-rp2040-support
+> cd /path/to/qmk
+> git checkout develop
 > make git-submodules
 > ```
 

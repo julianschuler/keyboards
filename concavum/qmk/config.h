@@ -53,8 +53,4 @@
 #define PERMISSIVE_HOLD
 #define IGNORE_MOD_TAP_INTERRUPT
 
-// disable unused modules
-#define NO_ACTION_MACRO
-#define NO_ACTION_FUNCTION
-
 #endif

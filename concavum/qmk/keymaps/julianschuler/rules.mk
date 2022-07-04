@@ -1,5 +1,5 @@
-# board setting
-MCU = RP2040
+# board variant: kb2040 or atmega32u4
+BOARD_VARIANT = atmega32u4
 
 # debounce options
 DEBOUNCE_TYPE = sym_eager_pk
@@ -23,3 +23,17 @@ ENCODER_ENABLE = no         # Enable the encoder
 COMBO_ENABLE = yes			# Enable key combos
 
 VPATH += keyboards/gboards
+
+
+# kb2040 specific settings
+ifeq ($(BOARD_VARIANT), kb2040)
+MCU = RP2040
+BOOTLOADER = rp2040
+endif
+
+# atmega32u4 specific settings
+ifeq ($(BOARD_VARIANT), atmega32u4)
+MCU = atmega32u4
+BOOTLOADER = atmel-dfu
+F_CPU = 16000000
+endif
