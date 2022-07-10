@@ -1,5 +1,5 @@
 # board variant: kb2040 or atmega32u4
-BOARD_VARIANT = atmega32u4
+BOARD_VARIANT = kb2040
 
 # debounce options
 DEBOUNCE_TYPE = sym_eager_pk
