@@ -2,11 +2,12 @@
 
 import os
 import sys
-from pcbnew import LoadBoard
 from shutil import make_archive
 from tempfile import TemporaryDirectory
-from kikit.fab.common import ensurePassingDrc
+
 from kikit.export import gerberImpl
+from kikit.fab.common import ensurePassingDrc
+from pcbnew import LoadBoard
 
 
 def export_compressed_gerber(board, zip_path):
