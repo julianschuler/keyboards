@@ -5,15 +5,17 @@
 // layer definitions
 #define _VL         0
 #define _QL         1
-#define _WL         2
-#define _SL         3
-#define _NL         4
-#define _FL         5
+#define _GL         2
+#define _LL         3
+#define _SL         4
+#define _NL         5
+#define _FL         6
 
 // layer switching keys
-#define QWERTZ      DF(_QL)
 #define VOU         DF(_VL)
-#define WASD        TG(_WL)
+#define QWERTZ      DF(_QL)
+#define GAME_L      TG(_GL)
+#define LNUM_L      MO(_LL)
 #define NUM_L       MO(_NL)
 #define SYM_L       MO(_SL)
 #define FN_L        MO(_FL)
@@ -89,7 +91,7 @@ KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,
 ),
 
 
-/* layer 2: wasd (for gaming)
+/* layer 1: gaming layer
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │ESC│TAB│ Q │ W │ E │ R │               │ T │ Z │ U │ I │ O │ P │
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
@@ -98,18 +100,38 @@ KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_MPLY,
  * │ALT│CTL│ Y │ X │ C │ V │   │       │   │ B │ N │ M │ , │ . │ - │
  * └───┴───┴───┴─┬─┴─┬─┴─┬─┴─┬─┴─┐   ┌─┴─┬─┴─┬─┴─┬─┴─┬─┴───┴───┴───┘
  *               │ 1 │   │   │   │   │   │   │   │GUI│
- *               └───┤ 2 │SPC│   │   │   │XXX│ENT├───┘
+ *               └───┤ 2 │SPC│NUM│   │   │XXX│ENT├───┘
  *                   └───┴───┴───┘   └───┴───┴───┘
  */
-[_WL] = LAYOUT(
+[_GL] = LAYOUT(
 KC_ESC,     KC_TAB,     DE_Q,       DE_W,       DE_E,       DE_R,                                           DE_T,       DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,
 KC_LCTL,    KC_LSFT,    DE_A,       DE_S,       DE_D,       DE_F,                                           DE_G,       DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,
 KC_LALT,    KC_LCTL,    DE_Y,       DE_X,       DE_C,       DE_V,       _______,                _______,    DE_B,       DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,
-                                        DE_1,       DE_2,       KC_SPC,     _______,        _______,    XXXXXXX,    KC_ENT,     KC_LGUI
+                                        DE_1,       DE_2,       KC_SPC,     LNUM_L,         _______,    XXXXXXX,    KC_ENT,     KC_LGUI
 ),
 
 
-/* layer 3: symbol layer (press symbol layer key to access)
+/* layer 3: left hand num layer (press number layer key in gaming layer to access)
+ * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
+ * │   │   │ 4 │ 5 │ 6 │   │               │   │   │   │   │   │   │
+ * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
+ * │   │ 0 │ 1 │ 2 │ 3 │   │               │   │   │   │   │   │   │
+ * ├───┼───┼───┼───┼───┼───┼───┐       ┌───┼───┼───┼───┼───┼───┼───┤
+ * │   │   │ 7 │ 8 │ 9 │   │   │       │   │   │   │   │   │   │   │
+ * └───┴───┴───┴─┬─┴─┬─┴─┬─┴─┬─┴─┐   ┌─┴─┬─┴─┬─┴─┬─┴─┬─┴───┴───┴───┘
+ *               │   │   │   │   │   │   │   │   │   │
+ *               └───┤   │   │NUM│   │FN │   │   ├───┘
+ *                   └───┴───┴───┘   └───┴───┴───┘
+ */
+[_LL] = LAYOUT(
+_______,    _______,    DE_4,       DE_5,       DE_6,       _______,                                       _______,    _______,    _______,    _______,    _______,    _______,
+_______,    DE_0,       DE_1,       DE_2,       DE_3,       _______,                                       _______,    _______,    _______,    _______,    _______,    _______,
+_______,    _______,    DE_7,       DE_8,       DE_9,       _______,    _______,                _______,   _______,    _______,    _______,    _______,    _______,    _______,
+                                        _______,    _______,    _______,    LNUM_L,         FN_L,       _______,    _______,    _______
+),
+
+
+/* layer 4: symbol layer (press symbol layer key to access)
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │ ° │ + │ < │ ' │ { │ ^ │               │ \ │ } │ & │ > │ - │ § │
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
@@ -129,7 +151,7 @@ DE_MICR,    DE_0,       DE_AT,      DE_DLR,     DE_LBRC,    DE_QUES,    _______,
 ),
 
 
-/* layer 4: number and movement layer (press number layer key to access)
+/* layer 5: number and movement layer (press number layer key to access)
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │C_G│C_A│BSP│ ᐃ │DEL│AF4│               │ * │ 7 │ 8 │ 9 │ : │ _ │
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
@@ -149,11 +171,11 @@ KC_LGUI,    KC_LCTL,    KC_INS,     KC_HOME,    KC_END,     KC_PGDN,    _______,
 ),
 
 
-/* layer 5: function keys (press symbol and number layer key together to access)
+/* layer 6: function keys (press symbol and number layer key together to access)
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │F1 │F2 │F3 │F4 │F5 │F6 │               │F7 │F8 │F9 │F10│F11│F12│
  * ├───┼───┼───┼───┼───┼───┤               ├───┼───┼───┼───┼───┼───┤
- * │WAS│PAU│PRE│PLA│NEX│BUP│               │GF1│GF2│GF3│GF4│GF5│GF6│
+ * │GAM│PAU│PRE│PLA│NEX│BUP│               │GF1│GF2│GF3│GF4│GF5│GF6│
  * ├───┼───┼───┼───┼───┼───┼───┐       ┌───┼───┼───┼───┼───┼───┼───┤
  * │RST│PSC│MUT│VDN│VUP│BDN│VOU│       │QWE│GF7│GF8│GF9│G10│G11│G12│
  * └───┴───┴───┴─┬─┴─┬─┴─┬─┴─┬─┴─┐   ┌─┴─┬─┴─┬─┴─┬─┴─┬─┴───┴───┴───┘
@@ -163,7 +185,7 @@ KC_LGUI,    KC_LCTL,    KC_INS,     KC_HOME,    KC_END,     KC_PGDN,    _______,
  */
 [_FL] = LAYOUT(
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,
-WASD,       KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,                                        GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6,
+GAME_L,     KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,                                        GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6,
 RESET,      KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    VOU,                    QWERTZ,     GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12,
                                         _______,    XXXXXXX,    XXXXXXX,    FN_L,           FN_L,       XXXXXXX,    XXXXXXX,    _______
 ),
