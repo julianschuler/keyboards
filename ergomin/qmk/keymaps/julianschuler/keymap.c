@@ -22,7 +22,6 @@
 
 
 // modifier keys
-/* #define L_SHIFT     KC_LSFT */
 #define L_SHIFT     OSM(MOD_LSFT)
 
 // kombination keys

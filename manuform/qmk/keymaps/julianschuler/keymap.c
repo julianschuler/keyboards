@@ -22,7 +22,7 @@
 
 
 // modifier keys
-#define L_SHIFT     KC_LSFT
+#define L_SHIFT     OSM(MOD_LSFT)
 #define L_CTRL      KC_LCTL
 #define R_CTRL      KC_RCTL
 #define L_GUI       KC_LGUI
