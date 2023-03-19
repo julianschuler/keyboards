@@ -60,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ├───┼───┼───┼───┼───┼───┤ ┌───┬───┬───┐ ├───┼───┼───┼───┼───┼───┤
  * │BSP│ C │ A │ E │ I │ Ü │ │PRE│PLA│NEX│ │ B │ T │ R │ N │ S │ J │
  * ├───┼───┼───┼───┼───┼───┤ ├───┼───┼───┤ ├───┼───┼───┼───┼───┼───┤
- * │ ß │ Z │ X │ , │ Y │ Ö │ │SLC│MUT│PAU│ │ P │ D │ W │ M │ K │ - │
+ * │ ß │ Z │ X │ , │ Y │ Ö │ │SCL│MUT│PAU│ │ P │ D │ W │ M │ K │ - │
  * └───┴───┴───┴───┴───┴───┘ └───┴───┴───┘ └───┴───┴───┴───┴───┴───┘
  *                   ┌───┬───┐           ┌───┬───┐
  *                   │CTL│   │           │   │GUI│
@@ -74,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_VL] = LAYOUT(
 KC_ESC,     DE_V,       DE_DOT,     DE_O,       DE_U,       DE_ADIA,                                        DE_Q,       DE_G,       DE_L,       DE_H,       DE_F,       DE_UNDS,
 KC_BSPC,    DE_C,       DE_A,       DE_E,       DE_I,       DE_UDIA,    KC_MPRV,    KC_MPLY,    KC_MNXT,    DE_B,       DE_T,       DE_R,       DE_N,       DE_S,       DE_J,
-SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_SLCK,    KC_MUTE,    KC_PAUS,    DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS,
+SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_SCRL,    KC_MUTE,    KC_PAUS,    DE_P,       DE_D,       DE_W,       DE_M,       DE_K,       DE_MINS,
 
                                                 TAB_CTL,    L_SHIFT,                                        KC_SPC,     ENT_GUI,
                                                     L_GUI,      NUM_L,                                  SYM_L,      L_GUI,
@@ -88,7 +88,7 @@ SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_SLCK,
  * ├───┼───┼───┼───┼───┼───┤ ┌───┬───┬───┐ ├───┼───┼───┼───┼───┼───┤
  * │BSP│ A │ S │ D │ F │ G │ │PRE│PLA│NEX│ │ H │ J │ K │ L │ Ö │ Ä │
  * ├───┼───┼───┼───┼───┼───┤ ├───┼───┼───┤ ├───┼───┼───┼───┼───┼───┤
- * │ALT│ Y │ X │ C │ V │ B │ │SLC│MUT│PAU│ │ N │ M │ , │ . │ - │ ß │
+ * │ALT│ Y │ X │ C │ V │ B │ │SCL│MUT│PAU│ │ N │ M │ , │ . │ - │ ß │
  * └───┴───┴───┴───┴───┴───┘ └───┴───┴───┘ └───┴───┴───┴───┴───┴───┘
  *                   ┌───┬───┐           ┌───┬───┐
  *                   │CTL│   │           │   │GUI│
@@ -102,7 +102,7 @@ SS_ALT,     DE_Z,       DE_X,       DE_COMM,    DE_Y,       DE_ODIA,    KC_SLCK,
 [_QL] = LAYOUT(
 KC_ESC,     DE_Q,       DE_W,       DE_E,       DE_R,       DE_T,                                           DE_Z,       DE_U,       DE_I,       DE_O,       DE_P,       DE_UDIA,
 KC_BSPC,    DE_A,       DE_S,       DE_D,       DE_F,       DE_G,       KC_MPRV,    KC_MPLY,    KC_MNXT,    DE_H,       DE_J,       DE_K,       DE_L,       DE_ODIA,    DE_ADIA,
-KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SLCK,    KC_MUTE,    KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,
+KC_LALT,    DE_Y,       DE_X,       DE_C,       DE_V,       DE_B,       KC_SCRL,    KC_MUTE,    KC_PAUS,    DE_N,       DE_M,       DE_COMM,    DE_DOT,     DE_MINS,    DE_SS,
 
                                                 TAB_CTL,    L_SHIFT,                                        KC_SPC,     ENT_GUI,
                                                     L_GUI,      NUM_L,                                  SYM_L,      L_GUI,
@@ -226,7 +226,7 @@ KC_LGUI,    KC_LCTL,    KC_INS,     KC_HOME,    KC_END,     KC_PGDN,    _______,
  * ┌───┬───┬───┬───┬───┬───┐               ┌───┬───┬───┬───┬───┬───┐
  * │F1 │F2 │F3 │F4 │F5 │F6 │               │F7 │F8 │F9 │F10│F11│F12│
  * ├───┼───┼───┼───┼───┼───┤ ┌───┬───┬───┐ ├───┼───┼───┼───┼───┼───┤
- * │GAM│PAU│PRE│PLA│NEX│BUP│ │   │RST│   │ │GF1│GF2│GF3│GF4│GF5│GF6│
+ * │GAM│PAU│PRE│PLA│NEX│BUP│ │   │QBT│   │ │GF1│GF2│GF3│GF4│GF5│GF6│
  * ├───┼───┼───┼───┼───┼───┤ ├───┼───┼───┤ ├───┼───┼───┼───┼───┼───┤
  * │XXX│PSC│MUT│VDN│VUP│BDN│ │VOU│   │QWE│ │GF7│GF8│GF9│G10│G11│G12│
  * └───┴───┴───┴───┴───┴───┘ └───┴───┴───┘ └───┴───┴───┴───┴───┴───┘
@@ -241,7 +241,7 @@ KC_LGUI,    KC_LCTL,    KC_INS,     KC_HOME,    KC_END,     KC_PGDN,    _______,
  */
 [_FL] = LAYOUT(
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                                          KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,
-GAME_L,     KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,    _______,    RESET,      _______,    GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6,
+GAME_L,     KC_PAUS,    KC_MPRV,    KC_MPLY,    KC_MNXT,    KC_BRIU,    _______,    QK_BOOT,    _______,    GUI_F1,     GUI_F2,     GUI_F3,     GUI_F4,     GUI_F5,     GUI_F6,
 XXXXXXX,    KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    VOU,        _______,    QWERTZ,     GUI_F7,     GUI_F8,     GUI_F9,     GUI_F10,    GUI_F11,    GUI_F12,
 
                                                 XXXXXXX,    XXXXXXX,                                        XXXXXXX,    XXXXXXX,

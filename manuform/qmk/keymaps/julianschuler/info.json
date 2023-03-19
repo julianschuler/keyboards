@@ -1,0 +1,9 @@
+{
+  "combo": {
+    "term": 25
+  },
+  "oneshot": {
+    "tap_toggle": 3,
+    "timeout": 200
+  }
+}
