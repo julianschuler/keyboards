@@ -1,12 +1,15 @@
 #include QMK_KEYBOARD_H
 #include "mcp23017.h"
 
+#define SECONDARY_ROW_PINS { (1<<7), (1<<4), (1<<3), (1<<2) }
+#define F_SCL 800000UL
+
 #define SPLIT_MATRIX_COLS (MATRIX_COLS / 2)
 
 typedef uint8_t mcp23017_pin_t;
 
 static const pin_t          row_pins[MATRIX_ROWS]           = MATRIX_ROW_PINS;
-static const pin_t          col_pins[SPLIT_MATRIX_COLS]     = MATRIX_COL_PINS;
+static const pin_t          col_pins[MATRIX_COLS]           = MATRIX_COL_PINS;
 static const mcp23017_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
 
 

@@ -1,9 +1,4 @@
-# board settings
-MCU = atmega32u4
-F_CPU = 16000000
-
-
-CUSTOM_MATRIX = lite
+DEBOUNCE_TYPE = sym_eager_pk
 
 SRC += matrix.c \
 	   mcp23017.c

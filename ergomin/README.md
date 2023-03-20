@@ -7,7 +7,7 @@ Like its predecessor and the ErgoDox it features an ergonomic layout with orthol
 The Ergomin is mainly intended as a cheaper and easier to build version of the Manuform that still retains most of the benefits while adding a few of its own.
 
 ## Parts list
-The ergomin uses a PCB to keep wiring neat and simple, despite the PCB and its complementary components the following parts are needed:
+The Ergomin uses a PCB to keep wiring neat and simple, despite the PCB and its complementary components the following parts are needed:
 * 48x keyboard switches (Cherry MX, Gateron, etc.)
 * 42x keycaps 1U
 * 6x keycaps 1.5U
@@ -41,11 +41,11 @@ To assemble the halves, take two PCBs and lay them down with different sides fac
 **Important: Only solder the SMD components to the top of each PCB! Otherwise the keyboard will neither work nor fit into the case!** 
 
 ### Testing the connections
-Now its time for the first tests. Connect the halves with the TRRS cable and connect the ergomin to your computer. Reset it using the onboard button on the left half and flash the firmware using
+Now its time for the first tests. Connect the halves with the TRRS cable and connect the Ergomin to your computer. Reset it using the onboard button on the left half and flash the firmware using
 ```
 qmk flash -kb ergomin -km default
 ```
-The ergomin should be recognized by your OS as a USB keyboard, now you can try to input characters by taking a jumper wire and carefully shorting the pads next to the diodes which are closest to each other.
+The Ergomin should be recognized by your OS as a USB keyboard, now you can try to input characters by taking a jumper wire and carefully shorting the pads next to the diodes which are closest to each other.
 
 ### Final assembly
 Disconnect the keyboard from your computer and remove the TRRS cable.
@@ -57,9 +57,9 @@ The keyboard can now be closed up using the bottom pieces of the case and the M3
 After attaching the keycaps and rubber feet, the build is completed.
 
 ## Reflashing the firmware
-When flashing e.g. a new keymap to the Ergomin, it has to be reset. This can be done by pressing the reset button as during the built or hitting a key with the RESET keycode. By default, this RESET keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner. 
+When flashing e.g. a new keymap to the Ergomin, it has to be put into the bootloader mode. This can be done by hitting a key with the `QK_BOOT` keycode or pressing the reset button as during the build. By default, this `QK_BOOT` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
 
-It is highly recommended to always include this RESET keycode somewhere in your custom keymap, as the physical reset button can't be reached anymore after the switches are soldered.
+It is highly recommended to always include this `QK_BOOT` keycode in any keymap you create as the physical reset button can't be reached anymore after the switches are soldered.
 
 ## Possible modifications
 ![Modified Ergomin with tenting feet](img/ergomin-tenting-feet.jpg)
