@@ -7,16 +7,6 @@ It can be adjusted to have 1-5 rows, 2-6 columns and 1-6 thumb keys per half and
 
 Each half has thus 2 PCBs: The automatically generated matrix PCB, which is dependent on key count, offsets, etc., and a generic interface PCB which can be used for all sizes. Both PCBs are connected internally using a FPC cable, the halves are connected externally through a TRRS cable.
 
-## Variants
-The Concavum comes in two versions: A KB2040 and an ATmega32u4 variant. They mainly differ in the microcontroller used, the default version using the KB2040 is highly recommended. The other version based on the ATmega32u4 requires really fine SMD soldering (e.g. 0.5mm pitch for the USB-C connector), uses a less capable microcontroller and is at the time of writing even more expensive.
-
-In addition, the KB2040 variant support both MCP23017 and MCP23018 port expander ICs for the right half, the ATmega32u4 variant only the MCP23017.
-
-Furthermore, due to the ongoing semiconductor shortage I wasn't able to verify that the ATmega32u4 version is actually working properly.
-
-![Interface PCB variants](img/concavum-interface-pcb-variants.jpg)
-*Interface PCB variants: KB2040 variant on the left side, ATmega32u4 variant on the right side.*
-
 ## Building the keyboard
 ### Parts list (excluding the PCBs and complementary components)
 The amount of switches and keycaps depends on the number of rows, columns and thumb keys.
@@ -35,8 +25,6 @@ Start by installing [OpenSCAD](https://openscad.org/downloads.html) if not alrea
 Open the file `case/concavum-case.scad` in OpenSCAD and switch to the Customizer (`Window > Customizer`). Select the preset with the name `keyboard-paramters` in the first drop down menu (the preview should now show a cluster with 6 columns and 3 rows).
 
 Now you can start adjusting the keyboard to your needs, the default values adjusted to my hands should provide a good starting point. Always save your changes to the preset `keyboard-parameters` as the values of this preset will be used for the automatic matrix PCB generation later.
-
-> **Note:** When building the ATmega32u4 variant, select `build_atmega32u4_variant` in the last section.
 
 ### Printing and testing the case
 When you are done with your modifications, render the Case using `F6` and export it as STL or AMF.
@@ -67,8 +55,6 @@ and afterwards export the gerber files for both the matrix and interface PCBs us
 python3 export-compressed-gerber.py
 ```
 
-> **Note:** When building the ATmega32u4 variant, use `python3 export-compressed-gerber 32u4` instead.
-
 When exporting the gerber files, a DRC is performed. If there is no output, everything worked as expected. If you still would like to inspect the generated matrix PCB, you can open the PCB file using PcbNew (the PCB editor of KiCad):
 ```
 pcbnew matrix-pcb/matrix-pcb-panel.kicad_pcb
@@ -90,7 +76,7 @@ To assemble the PCBs, take two interface and two matrix PCBs and lay them each d
 **Important: Only solder the SMD components to the top of each PCB! Otherwise the keyboard will not work!**
 
 ![Assembled PCBs](img/concavum-assembled-pcbs.jpg)
-*Assembled PCBs and FPC connectors needed for the whole keyboard, with the rails and tabs still connected for the left matrix PCB. The interface PCBs shown are from the ATmega32u4 variant.*
+*Assembled PCBs and FPC connectors needed for the whole keyboard, with the rails and tabs still connected for the left matrix PCB. The interface PCBs shown are from the deprecated ATmega32u4 variant.*
 
 Afterwards, you can carefully break off the rails and tabs of the matrix PCBs, ideally over an edge. You can now fit the matrix PCBs into the cases, the sides with the diodes and FPC connector facing outwards.
 The matrix PCB has to be bend during this procedure. Therefore, start to solder the switches at the top row and work your way down to the bottom rows and the thumb cluster.
@@ -98,14 +84,14 @@ The matrix PCB has to be bend during this procedure. Therefore, start to solder 
 Finally, you can add the FPC cables to connect the interface and matrix PCBs of each half and slide the interface PCBs into their dedicated holders.
 
 ![Fully assembled keyboard](img/concavum-fully-assembled.jpg)
-*Fully assembled keyboard without bottom plates, on the left a half with the ATmega32u4 variant is shown, on the right the KB2040 variant can be seen.*
+*Fully assembled keyboard without bottom plates, on the left a half with the (now deprecated) ATmega32u4 variant is shown, on the right the KB2040 variant can be seen.*
 
 The keyboard can now be closed up by screwing on the bottom plate and attaching the rubber feet.
 
 ## Building the firmware
 ### Setting up QMK
 The firmware is powered by QMK, [install QMK](https://docs.qmk.fm/#/newbs_getting_started) if not already done.
-After the installation, it is necassary to add a simlink to the `qmk` subfolder of this repository to the QMK `keyboards` directory, for linux e.g by
+After the installation, it is necessary to add a symlink to the `qmk` subfolder of this repository to the QMK `keyboards` directory, for linux e.g by
 ```
 ln -s /path/to/concavum/qmk /path/to/qmk/keyboards/concavum
 ```
@@ -120,8 +106,6 @@ Make sure to have a look at the excellent [QMK documentation](https://docs.qmk.f
 ### Adjusting the keymap
 After creating your first keymap, you can start by setting `MATRIX_ROWS`, `MATRIX_COLS` and `THUMB_KEYS` in `qmk/keymaps/<github_username>/config.h` according to your keyboard matrix.
 
-> **Note:** When building the ATmega32u4 variant, set `MCU = atmega32u4` in your `rules.mk`.
-
 Next, head over to `qmk/keymaps/<github_username>/keymap.c` and adjust the keymap to your liking. Make sure the amount of keys is correct, especially when you modified the above values compared to the default.
 
 When you are finished, you can connect the keyboard via USB.
@@ -130,15 +114,10 @@ Put the KB2040 into the bootloader mode by holding the boot button and tapping t
 qmk flash -kb concavum -km <github_username>
 ```
 
-> **Note:** New ATmega32u4 chips have the Atmel-DFU preflashed, the first flashing will work without reset.
-
 ### Reflashing the firmware
 When flashing e.g. a new keymap to the Concavum, it has to be put into the bootloader mode. This can be done by hitting a key with the `QK_BOOT` keycode or double tapping the reset button on the KB2040. By default, this `QK_BOOT` keycode can be activated by holding both outermost thumb keys and hitting the key in the lower left corner.
 
 It is highly recommended to keep this `QK_BOOT` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
-
-> **Note:** The ATmega32u4 variant doesn't have a physical reset button at all.
----
 
 ## License
 This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.

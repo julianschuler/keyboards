@@ -4,27 +4,14 @@
 #include "config_common.h"
 
 
-// board specific settings
-#if defined(__AVR_ATmega32U4__)
-    // atmega32u4 specific settings
-    // pin settings
-    #define ALL_MATRIX_ROW_PINS F0, D7, F7, F6, F5, F4
-    #define MATRIX_COL_PINS { D2, D3, D4, D5, D6, F1 }
-    // i2c frequency
-    #define F_SCL 800000UL
-#elif defined(MCU_RP)
-    // rp2040 specific settings
-    // pin settings
-    #define ALL_MATRIX_ROW_PINS GP9, GP10, GP19, GP20, GP18, GP26
-    #define MATRIX_COL_PINS { GP8, GP7, GP6, GP5, GP4, GP27 }
-    // i2c settings
-    #define I2C_DRIVER I2CD2
-    #define I2C1_SDA_PIN GP2
-    #define I2C1_SCL_PIN GP3
-    #define I2C1_CLOCK_SPEED 400000UL
-#else
-    #error MCU unsupported, supported MCUs: RP2040, atmega32u4.
-#endif
+// pin settings
+#define ALL_MATRIX_ROW_PINS GP9, GP10, GP19, GP20, GP18, GP26
+#define MATRIX_COL_PINS { GP8, GP7, GP6, GP5, GP4, GP27 }
+// i2c settings
+#define I2C_DRIVER I2CD2
+#define I2C1_SDA_PIN GP2
+#define I2C1_SCL_PIN GP3
+#define I2C1_CLOCK_SPEED 400000UL
 
 // matrix settings, do not change
 #define ALL_SECONDARY_ROW_PINS (1<<0), (1<<7), (1<<6), (1<<3), (1<<4), (1<<5)

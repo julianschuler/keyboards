@@ -110,8 +110,6 @@ fpc_connector_color = "#8F8F8F";
 
 
 /* [Rendering and export options] */
-// build the ATmega32u4 variant instead of the KB2040 variant
-build_atmega32u4_variant = false;
 // build key matrix PCB instead of the keyboard
 build_matrix_pcb = false;
 // adjust only if the shell calculation fails, small values are recommended
@@ -161,11 +159,11 @@ switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
 
 // interface PCB values (shouldn't be changed)
-i_pcb_size = build_atmega32u4_variant ? [30, 38, 1.6] : [36, 42, 1.6];
-i_pcb_offset = build_atmega32u4_variant ? [0, -0.2, 2] : [-2.2, -0.2, 2];
+i_pcb_size = [36, 42, 1.6];
+i_pcb_offset = [-2.2, -0.2, 2];
 i_pcb_mount_point_index = 3;
 i_pcb_mounting_hole_diameter = 2.2;
-i_pcb_mounting_hole_offset = build_atmega32u4_variant ? 2.5 : 3;
+i_pcb_mounting_hole_offset = 3;
 i_pcb_mounting_hole_clearance = 0.1;
 i_pcb_holder_width = 8;
 i_pcb_holder_thickness = 2;
@@ -175,10 +173,10 @@ i_pcb_holder_clearance = 0.2;
 usb_width = 9.2;
 usb_height = 3.4;
 usb_radius = 1.1;
-usb_offset = build_atmega32u4_variant ? 14.1 : 19.5;
+usb_offset = 19.5;
 jack_radius = 3.1;
 jack_offset = [5.3, 0.55];
-port_offset = [build_atmega32u4_variant ? 3.8 : 7.3, 0, 1.7];
+port_offset = [7.3, 0, 1.7];
 kb2040_pcb_thickness = 1.6;
 
 // build matrix PCB outline instead of the keyboard (will be overwritten externally)
@@ -670,7 +668,7 @@ module port_cutouts(left=true) {
     l = usb_height;
     r = usb_radius;
     o = usb_offset;
-    uz = build_atmega32u4_variant ? 0 : kb2040_pcb_thickness;
+    uz = kb2040_pcb_thickness;
     jr = jack_radius;
     jo = jack_offset;
     h = shell_thickness + 2 * e;
