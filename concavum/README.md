@@ -104,13 +104,6 @@ The keyboard can now be closed up by screwing on the bottom plate and attaching 
 
 ## Building the firmware
 ### Setting up QMK
-> **Note:** Currently the RP2040 support is not yet merged to the master branch. For now you have to switch to the develop branch:
-> ```
-> cd /path/to/qmk
-> git checkout develop
-> make git-submodules
-> ```
-
 The firmware is powered by QMK, [install QMK](https://docs.qmk.fm/#/newbs_getting_started) if not already done.
 After the installation, it is necassary to add a simlink to the `qmk` subfolder of this repository to the QMK `keyboards` directory, for linux e.g by
 ```
