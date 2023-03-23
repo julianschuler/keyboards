@@ -78,10 +78,10 @@ def generate_get_row_pins(rows, max_rows):
     """
     Generate the _GET_ROW_PINS macro for a given value of ROWS
     """
-    all_rows = [f"p{i:X}" for i in range(max_rows)]
+    all_rows = [f"p{i:X}" for i in range(max_rows + 1)]
     out = (
         f"#define _GET_ROW_PINS({', '.join(all_rows)})"
-        f" {{ {', '.join(all_rows[:rows])} }}\n"
+        f" {{ {', '.join(all_rows[:rows + 1])} }}\n"
     )
     return out
 
@@ -94,43 +94,43 @@ def generate_layout(rows, cols, thumb_keys, max_cols, indent, half_pad, col_pad)
     # macro arguments
     out = indent + "#define LAYOUT( \\\n"
     # for the finger rows
-    for row in range(rows - 1):
-        out += indent + (5 * ((max_cols - cols) // 2) + 6 - col_pad) * " "
-        for col in range(cols):
-            if col == cols // 2:
+    for row in range(rows):
+        out += indent + (5 * (max_cols - cols) + 6 - col_pad) * " "
+        for col in range(2 * cols):
+            if col == cols:
                 out += (half_pad + 2 * col_pad) * " "
             out += f"k{row:X}{col:X}, "
         out += "\\\n"
     # for the thumb row
-    out += indent + (5 * ((max_cols - thumb_keys) // 2) + 6) * " "
-    for t_key in range(thumb_keys):
-        if t_key == thumb_keys // 2:
+    out += indent + (5 * (max_cols - thumb_keys) + 6) * " "
+    for t_key in range(2 * thumb_keys):
+        if t_key == thumb_keys:
             out += half_pad * " "
-        out += f"k{rows - 1:X}{t_key:X}" + (", " if t_key < thumb_keys - 1 else " ")
+        out += f"k{rows:X}{t_key:X}" + (", " if t_key < 2 * thumb_keys - 1 else " ")
     out += "\\\n" + indent + ") { \\\n"
     # corresponding array entries
     # for the thumb row
-    num_xxx = (max_cols - thumb_keys) // 2
+    num_xxx = (max_cols - thumb_keys)
     out += indent + "    { "
     for i in range(num_xxx):
         out += "XXX, "
-    for t_key in range(thumb_keys):
-        if t_key == thumb_keys // 2:
+    for t_key in range(2 * thumb_keys):
+        if t_key == thumb_keys:
             out += half_pad * " "
-        out += f"k{rows - 1:X}{t_key:X}" + (", " if t_key < max_cols - 1 else " ")
+        out += f"k{rows:X}{t_key:X}" + (", " if t_key < 2 * max_cols - 1 else " ")
     for i in range(num_xxx):
         out += "XXX, " if i < num_xxx - 1 else "XXX "
     out += "}, \\\n"
     # for the finger rows
-    num_xxx = (max_cols - cols) // 2
-    for row in range(rows - 2, -1, -1):
+    num_xxx = max_cols - cols
+    for row in range(rows - 1, -1, -1):
         out += indent + "    { "
         for i in range(num_xxx):
             out += "XXX, "
-        for col in range(cols):
-            if col == cols // 2:
+        for col in range(2 * cols):
+            if col == cols:
                 out += half_pad * " "
-            out += f"k{row:X}{col:X}" + (", " if col < max_cols - 1 else " ")
+            out += f"k{row:X}{col:X}" + (", " if col < 2 * max_cols - 1 else " ")
         for i in range(num_xxx):
             out += "XXX, " if i < num_xxx - 1 else "XXX "
         out += "}, \\\n"
@@ -140,9 +140,8 @@ def generate_layout(rows, cols, thumb_keys, max_cols, indent, half_pad, col_pad)
 
 if __name__ == "__main__":
     # all valid ROWS, COLS and THUMB_KEYS values
-    row_vals = [1, 2, 3, 4, 5, 6]
-    col_vals = [2, 4, 6, 8, 10, 12]
-    thumb_vals = [2, 4, 6, 8, 10, 12]
+    row_vals = [1, 2, 3, 4, 5]
+    col_vals = thumb_vals = [1, 2, 3, 4, 5, 6]
     # indentation width for the generated file
     indent_width = 2
     # amount of padding between both halves in LAYOUT macros
