@@ -1,7 +1,4 @@
-MCU = RP2040
-BOOTLOADER = rp2040
-
-CUSTOM_MATRIX = lite
+DEBOUNCE_TYPE = sym_eager_pk
 
 SRC += matrix.c \
 	   mcp2301x.c

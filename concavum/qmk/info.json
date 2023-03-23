@@ -1,0 +1,34 @@
+{
+    "keyboard_name": "Concavum",
+    "url": "https://github.com/julianschuler/keyboards/tree/master/concavum",
+    "maintainer": "julianschuler",
+    "manufacturer": "QMK",
+
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+
+    "debounce": 15,
+    "diode_direction": "COL2ROW",
+    "matrix_pins": {
+        "custom": true,
+        "custom_lite": true,
+        "cols": ["GP8", "GP7", "GP6", "GP5", "GP4", "GP27", "GP30", "GP30", "GP30", "GP30", "GP30", "GP30"],
+        "rows": ["GP9", "GP10", "GP19", "GP20", "GP18", "GP26"]
+    },
+
+    "usb": {
+        "vid": "0xFEED",
+        "pid": "0xD6AF",
+        "device_version": "1.0.0",
+        "polling_interval": 1,
+        "force_nkro": true
+    },
+
+    "features": {
+        "extrakey": true,
+        "nkro": true
+    },
+    "tapping": {
+        "permissive_hold": true
+    }
+}

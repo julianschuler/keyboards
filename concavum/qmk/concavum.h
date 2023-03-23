@@ -9,11 +9,10 @@
 
 #define XXX KC_NO
 
-// define LAYOUT and _GET_ROW_PINS depending on
-// MATRIX_ROWS, MATRIX_COLS and THUMB_KEYS
-#if MATRIX_ROWS == 1
+// define LAYOUT and _GET_ROW_PINS depending on ROWS, COLS and THUMB_KEYS
+#if ROWS == 1
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -53,7 +52,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -93,7 +92,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -133,7 +132,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -173,7 +172,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -213,7 +212,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                      k00,     k01 \
@@ -254,11 +253,11 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
-#elif MATRIX_ROWS == 2
+#elif ROWS == 2
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0, p1 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                    k00,         k01, \
@@ -310,7 +309,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                               k00, k01,         k02, k03, \
@@ -362,7 +361,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                          k00, k01, k02,         k03, k04, k05, \
@@ -414,7 +413,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                     k00, k01, k02, k03,         k04, k05, k06, k07, \
@@ -466,7 +465,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                k00, k01, k02, k03, k04,         k05, k06, k07, k08, k09, \
@@ -518,7 +517,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
           k00, k01, k02, k03, k04, k05,         k06, k07, k08, k09, k0A, k0B, \
@@ -571,11 +570,11 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
-#elif MATRIX_ROWS == 3
+#elif ROWS == 3
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0, p1, p2 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                    k00,         k01, \
@@ -639,7 +638,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                               k00, k01,         k02, k03, \
@@ -703,7 +702,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                          k00, k01, k02,         k03, k04, k05, \
@@ -767,7 +766,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                     k00, k01, k02, k03,         k04, k05, k06, k07, \
@@ -831,7 +830,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                k00, k01, k02, k03, k04,         k05, k06, k07, k08, k09, \
@@ -895,7 +894,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
           k00, k01, k02, k03, k04, k05,         k06, k07, k08, k09, k0A, k0B, \
@@ -960,11 +959,11 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
-#elif MATRIX_ROWS == 4
+#elif ROWS == 4
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0, p1, p2, p3 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                    k00,         k01, \
@@ -1040,7 +1039,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                               k00, k01,         k02, k03, \
@@ -1116,7 +1115,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                          k00, k01, k02,         k03, k04, k05, \
@@ -1192,7 +1191,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                     k00, k01, k02, k03,         k04, k05, k06, k07, \
@@ -1268,7 +1267,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                k00, k01, k02, k03, k04,         k05, k06, k07, k08, k09, \
@@ -1344,7 +1343,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
           k00, k01, k02, k03, k04, k05,         k06, k07, k08, k09, k0A, k0B, \
@@ -1421,11 +1420,11 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
-#elif MATRIX_ROWS == 5
+#elif ROWS == 5
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0, p1, p2, p3, p4 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                    k00,         k01, \
@@ -1513,7 +1512,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                               k00, k01,         k02, k03, \
@@ -1601,7 +1600,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                          k00, k01, k02,         k03, k04, k05, \
@@ -1689,7 +1688,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                     k00, k01, k02, k03,         k04, k05, k06, k07, \
@@ -1777,7 +1776,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                k00, k01, k02, k03, k04,         k05, k06, k07, k08, k09, \
@@ -1865,7 +1864,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
           k00, k01, k02, k03, k04, k05,         k06, k07, k08, k09, k0A, k0B, \
@@ -1954,11 +1953,11 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
-#elif MATRIX_ROWS == 6
+#elif ROWS == 6
   #define _GET_ROW_PINS(p0, p1, p2, p3, p4, p5) { p0, p1, p2, p3, p4, p5 }
-  #if MATRIX_COLS == 2
+  #if COLS == 2
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                                    k00,         k01, \
@@ -2058,7 +2057,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 4
+  #elif COLS == 4
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                               k00, k01,         k02, k03, \
@@ -2158,7 +2157,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 6
+  #elif COLS == 6
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                          k00, k01, k02,         k03, k04, k05, \
@@ -2258,7 +2257,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 8
+  #elif COLS == 8
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                     k00, k01, k02, k03,         k04, k05, k06, k07, \
@@ -2358,7 +2357,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 10
+  #elif COLS == 10
     #if THUMB_KEYS == 2
       #define LAYOUT( \
                k00, k01, k02, k03, k04,         k05, k06, k07, k08, k09, \
@@ -2458,7 +2457,7 @@
     #else
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
-  #elif MATRIX_COLS == 12
+  #elif COLS == 12
     #if THUMB_KEYS == 2
       #define LAYOUT( \
           k00, k01, k02, k03, k04, k05,         k06, k07, k08, k09, k0A, k0B, \
@@ -2559,17 +2558,16 @@
       #error THUMB_KEYS is not in [2, 4, 6, 8, 10, 12].
     #endif
   #else
-    #error MATRIX_COLS is not in [2, 4, 6, 8, 10, 12].
+    #error COLS is not in [2, 4, 6, 8, 10, 12].
   #endif
 #else
-  #error MATRIX_ROWS is not in [1, 2, 3, 4, 5, 6].
+  #error ROWS is not in [1, 2, 3, 4, 5, 6].
 #endif
 
 // double define allows macros to work within GET_ROW_PINS
 #define GET_ROW_PINS(...) _GET_ROW_PINS(__VA_ARGS__)
 
 // select actually used row pins with previously defined macro
-#define MATRIX_ROW_PINS     GET_ROW_PINS(ALL_MATRIX_ROW_PINS)
 #define SECONDARY_ROW_PINS  GET_ROW_PINS(ALL_SECONDARY_ROW_PINS)
 
 #endif

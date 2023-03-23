@@ -1,13 +1,15 @@
 #include QMK_KEYBOARD_H
 #include "mcp2301x.h"
 
+#define ALL_SECONDARY_ROW_PINS (1<<0), (1<<7), (1<<6), (1<<3), (1<<4), (1<<5)
+
 #define SPLIT_MATRIX_COLS (MATRIX_COLS / 2)
 
 typedef uint8_t mcp2301x_pin_t;
 
-static const pin_t          row_pins[MATRIX_ROWS]           = MATRIX_ROW_PINS;
-static const pin_t          col_pins[MAX_MATRIX_COLS / 2]   = MATRIX_COL_PINS;
-static const mcp2301x_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
+static const pin_t          row_pins[MATRIX_ROWS]    = MATRIX_ROW_PINS;
+static const pin_t          col_pins[MATRIX_COLS]    = MATRIX_COL_PINS;
+static const mcp2301x_pin_t secondary_row_pins[ROWS] = SECONDARY_ROW_PINS;
 
 
 static void select_row(uint8_t row) {
@@ -44,7 +46,7 @@ static matrix_row_t read_cols(void) {
 
 void matrix_init_custom(void) {
     // initialize rows (set pins as input and enable internal pullups)
-    for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
+    for (uint8_t i = 0; i < ROWS; i++) {
         setPinInputHigh(row_pins[i]);
     }
     // initialize columns (set pins as input and enable internal pullups)
@@ -59,7 +61,7 @@ void matrix_init_custom(void) {
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     bool changed = false;
     // check for changes in each row
-    for (uint8_t current_row = 0; current_row < MATRIX_ROWS; current_row++) {
+    for (uint8_t current_row = 0; current_row < ROWS; current_row++) {
         matrix_row_t last_row_value = current_matrix[current_row];
         select_row(current_row);
         current_matrix[current_row] = read_cols();
