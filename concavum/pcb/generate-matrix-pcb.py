@@ -12,7 +12,6 @@ import pcbnew
 from kikit.panelize import (Origin, Panel, TabAnnotation, buildTabs,
                             getOriginCoord)
 from kikit.panelize_ui_impl import dummyFramingSubstrate
-from kikit.substrate import roundPoint
 from kikit.units import mm
 from pcbnew import B_Cu, F_Cu
 from shapely.geometry.linestring import LineString
@@ -112,6 +111,7 @@ class MatrixPcbGenerator:
         self.pad_width_min = 4.96 * mm
         self.arc_segments = 120
         self.tab_width = 10 * mm
+        self.min_line_length = 0.005 * mm
 
     def generate_board(self, board_template_file):
         """Generate the PCB using the given file as template"""
@@ -296,15 +296,10 @@ class MatrixPcbGenerator:
         dxf = dxfgrabber.readfile(dxf_file)
         for e in dxf.entities:
             if e.dxftype == "LINE":
-                start = to_point(
-                    roundPoint((off[0] + e.start[0] * mm,
-                               off[1] - e.start[1] * mm))
-                )
-                end = to_point(
-                    roundPoint((off[0] + e.end[0] * mm,
-                               off[1] - e.end[1] * mm))
-                )
-                self.draw_line(start, end, layer)
+                start = to_point((off[0] + e.start[0] * mm, off[1] - e.start[1] * mm))
+                end = to_point((off[0] + e.end[0] * mm, off[1] - e.end[1] * mm))
+                if np.linalg.norm(end - start) >= self.min_line_length:
+                    self.draw_line(start, end, layer)
 
     def draw_line(self, start, end, layer):
         """Draw a line to the given layer specified by its start and end point"""
