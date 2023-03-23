@@ -978,11 +978,11 @@ module col_connector(type, pos1, pos2) {
         r = abs(pos1.x - pos2.x) / 2 - d;
         l = abs(pos2.y - pos1.y) - 2 * r;
         translate(pos1) flip_x(type) {
-            rotate(-90) line(d, w);
+            translate([-e, 0]) rotate(-90) line(d + 2 * e, w);
             translate([d, -r]) arc(r, w);
-            translate([d + r, -r - l]) line(l, w);
+            translate([d + r, -r - l - e]) line(l + 2 * e, w);
             translate([2 * r + d, -r - l]) rotate(180) arc(r, w);
-            translate([2 * r + d, -2 * r - l]) rotate(-90) line(d, w);
+            translate([2 * r + d - e, -2 * r - l]) rotate(-90) line(d + 2 * e, w);
         }
     }
 }
