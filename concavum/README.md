@@ -41,7 +41,7 @@ python3 case/export-bottom-plate.py [output file name]
 where the file extension determines its type (e.g. `bottom-plate.amf` or `bottom-plate.dxf`). In case of cutting, chamfer the holes afterwards using a countersink drill bit to allow the screw heads to sit flush later.
 
 ### Generating the PCB
-To generate the matrix PCB, install [KiCad 6.0](https://www.kicad.org/download/) and [Python 3](https://www.python.org/downloads/). Afterwards, switch to the `pcb` subfolder and install the Python dependencies by executing
+To generate the matrix PCB, install [KiCad 7.0](https://www.kicad.org/download/) and [Python 3](https://www.python.org/downloads/). Afterwards, switch to the `pcb` subfolder and install the Python dependencies by executing
 ```
 python3 -m pip3 install -r requirements.txt
 ```

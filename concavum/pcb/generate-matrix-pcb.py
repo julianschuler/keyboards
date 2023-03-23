@@ -9,8 +9,7 @@ from tempfile import gettempdir
 import dxfgrabber
 import numpy as np
 import pcbnew
-from kikit.panelize import (Origin, Panel, TabAnnotation, buildTabs,
-                            getOriginCoord)
+from kikit.panelize import Origin, Panel, TabAnnotation, buildTabs, getOriginCoord
 from kikit.panelize_ui_impl import dummyFramingSubstrate
 from kikit.units import mm
 from pcbnew import B_Cu, F_Cu
@@ -60,8 +59,8 @@ def offset_path(path, offset):
 
 
 def to_point(pos):
-    """Return a wxPoint at the given position"""
-    return pcbnew.wxPoint(int(pos[0]), int(pos[1]))
+    """Return a point at the given position"""
+    return pcbnew.VECTOR2I(int(pos[0]), int(pos[1]))
 
 
 def arc_path(arc_angle, rotation, arc_segments):
@@ -189,11 +188,11 @@ class MatrixPcbGenerator:
         col_nets = [nets[f"COL{i+1}"] for i in range(self.max_cols)]
         # add keys to the finger cluster
         self.add_finger_cluster(
-            finger_vals, row_nets[1:], col_nets, col_conn_vals, fpc_index
+            finger_vals, nets, row_nets[1:], col_nets, col_conn_vals, fpc_index
         )
         # add keys to the thumb cluster
         self.add_thumb_cluster(
-            t_rot, t_off, t_vals, row_nets[0], col_nets, t_index, t_conn_pos
+            t_rot, t_off, t_vals, nets, row_nets[0], col_nets, t_index, t_conn_pos
         )
         # add tracks going through the column connectors
         track_counts_top = [
@@ -248,7 +247,7 @@ class MatrixPcbGenerator:
             )
 
     def add_finger_cluster(
-        self, finger_vals, row_nets, col_nets, col_conn_vals, fpc_index
+        self, finger_vals, nets, row_nets, col_nets, col_conn_vals, fpc_index
     ):
         """Add keys to the finger cluster"""
         off = self.origin_offset
@@ -257,13 +256,13 @@ class MatrixPcbGenerator:
             col_net = col_nets[self.max_cols - 1 - i]
             for j, pos in enumerate(col):
                 ref = f"SW{i+1}{j+1}"
-                self.add_key(ref, pos[:2] + off, row_nets[j], col_net)
+                self.add_key(ref, pos[:2] + off, nets[ref], row_nets[j], col_net)
                 self.add_row_track(col, col_conn_vals, i, j, B_Cu)
                 if j > 0:
                     self.add_col_track(pos[:2] + off, col[j - 1][:2] + off, F_Cu)
 
     def add_thumb_cluster(
-        self, t_rot, t_off, t_vals, row_net, col_nets, t_index, t_conn_pos
+        self, t_rot, t_off, t_vals, nets, row_net, col_nets, t_index, t_conn_pos
     ):
         """Add keys to the thumb cluster"""
         t_rot_rad = np.radians(t_rot)
@@ -276,7 +275,8 @@ class MatrixPcbGenerator:
                 )
             )
             col = self.max_cols - 1 - i
-            self.add_key(f"SW{i+1}", pos, row_net, col_nets[col], t_rot)
+            ref = f"SW{i+1}"
+            self.add_key(ref, pos, nets[ref], row_net, col_nets[col], t_rot)
             self.add_thumb_col_track(i, t_rot, t_vals, t_index, t_conn_pos, B_Cu)
             if i > 0:
                 self.add_thumb_row_track(
@@ -306,15 +306,18 @@ class MatrixPcbGenerator:
         seg.SetEnd(end)
         self.board.Add(seg)
 
-    def add_key(self, ref, pos, row_net, col_net, rotation=0):
+    def add_key(self, ref, pos, key_net, row_net, col_net, rotation=0):
         """Add a single key to a given (x, y) position"""
         key = pcbnew.FootprintLoad(self.footprint_path, self.key_footprint_name)
         pads = key.Pads()
         pads[1].SetNet(row_net)
         pads[2].SetNet(col_net)
         pads[3].SetNet(col_net)
+        pads[4].SetNet(key_net)
+        pads[5].SetNet(key_net)
+        pads[6].SetNet(key_net)
         key.SetReference(ref)
-        key.Rotate(pcbnew.wxPoint(0, 0), rotation * 10)
+        key.Rotate(to_point((0, 0)), pcbnew.EDA_ANGLE(rotation, pcbnew.DEGREES_T))
         key.SetPosition(to_point(pos))
         self.board.Add(key)
         self.add_key_tracks(pos, F_Cu, rotation)
@@ -910,7 +913,7 @@ class BoardPanelizer:
         """Add tabs and break-away panels for manufacturing"""
         # get tab parameters
         router_diameter, self.tab_width, tab_positions = panel_values
-        self.frame_offset = (router_diameter, None)
+        self.frame_offset_y = router_diameter
         # create a panel and add the board to it
         panel = Panel(panel_file)
         bounding_box = panel.appendBoard(
@@ -920,9 +923,13 @@ class BoardPanelizer:
             tolerance=1 * mm,
         )
         # calculate partition line from bounding box and a dummy for the frame
-        panel.buildPartitionLineFromBB(
-            dummyFramingSubstrate(panel.substrates, self.frame_offset)
-        )
+        preset = {
+            "framing": {
+                "type": "railstb",
+                "vspace": self.frame_offset_y,
+            }
+        }
+        panel.buildPartitionLineFromBB(dummyFramingSubstrate(panel.substrates, preset))
         # create tabs from given positions
         top_left = getOriginCoord(Origin.TopLeft, bounding_box)
         center = getOriginCoord(Origin.Center, bounding_box)
@@ -935,8 +942,8 @@ class BoardPanelizer:
         tabs, cuts = buildTabs(substrate, substrate.partitionLine, tab_annotations)
         panel.boardSubstrate.union(tabs)
         # add extra cuts along the frame for easier depaneling
-        y1 = top_left[1] - self.frame_offset[0]
-        y2 = bottom_left[1] + self.frame_offset[0]
+        y1 = top_left[1] - self.frame_offset_y
+        y2 = bottom_left[1] + self.frame_offset_y
         for cut in list(cuts):
             (x1, _), (x2, _) = cut.coords
             if x1 < x2:
@@ -954,7 +961,7 @@ class BoardPanelizer:
 
     def add_frame_text(self, board, top_left, center, bottom_left):
         """Add text to the frame"""
-        text_off = self.frame_offset[0] + self.frame_thickness / 2
+        text_off = self.frame_offset_y + self.frame_thickness / 2
         text1_pos = to_point((center[0], top_left[1] - text_off))
         text2_pos = to_point((center[0], bottom_left[1] + text_off))
         self.add_text(board, self.text1, text1_pos, pcbnew.F_SilkS)
