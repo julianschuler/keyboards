@@ -1,34 +1,48 @@
 {
-    "keyboard_name": "Ergomin",
-    "url": "https://github.com/julianschuler/keyboards/tree/master/ergomin",
-    "maintainer": "julianschuler",
-    "manufacturer": "QMK",
+  "keyboard_name": "Ergomin",
+  "url": "https://github.com/julianschuler/keyboards/tree/master/ergomin",
+  "maintainer": "julianschuler",
+  "manufacturer": "QMK",
 
-    "processor": "atmega32u4",
-    "bootloader": "atmel-dfu",
+  "processor": "atmega32u4",
+  "bootloader": "atmel-dfu",
 
-    "debounce": 15,
-    "diode_direction": "COL2ROW",
-    "matrix_pins": {
-        "custom": true,
-        "custom_lite": true,
-        "cols": ["D3", "D5", "D4", "D6", "D7", "B4", "F0", "F0", "F0", "F0", "F0", "F0" ],
-        "rows": ["D2", "C6", "C7", "E2" ]
-    },
+  "debounce": 15,
+  "diode_direction": "COL2ROW",
+  "matrix_pins": {
+    "custom": true,
+    "custom_lite": true,
+    "cols": [
+      "D3",
+      "D5",
+      "D4",
+      "D6",
+      "D7",
+      "B4",
+      "F0",
+      "F0",
+      "F0",
+      "F0",
+      "F0",
+      "F0"
+    ],
+    "rows": ["D2", "C6", "C7", "E2"]
+  },
 
-    "usb": {
-        "vid": "0xFEED",
-        "pid": "0xC6AF",
-        "device_version": "1.0.0",
-        "polling_interval": 1,
-        "force_nkro": true
-    },
+  "usb": {
+    "vid": "0xFEED",
+    "pid": "0xC6AF",
+    "device_version": "1.0.0",
+    "polling_interval": 1,
+    "force_nkro": true
+  },
 
-    "features": {
-        "extrakey": true,
-        "nkro": true
-    },
-    "tapping": {
-        "permissive_hold": true
-    }
+  "features": {
+    "extrakey": true,
+    "nkro": true
+  },
+
+  "tapping": {
+    "permissive_hold": true
+  }
 }
