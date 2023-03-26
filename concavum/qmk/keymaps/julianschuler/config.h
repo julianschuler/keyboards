@@ -6,9 +6,8 @@
 #define COLS 6         // number of columns per half
 #define THUMB_KEYS 3   // number of thumb keys per half
 
+// combo and caps word settings
 #define COMBO_TERM 25
-
-#define ONESHOT_TAP_TOGGLE 3
-#define ONESHOT_TIMEOUT 200
+#define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
 
 #endif

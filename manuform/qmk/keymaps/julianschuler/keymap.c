@@ -252,10 +252,10 @@ XXXXXXX,    KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    VOU,    
 
 
 
+// convert shift-backspace to control-backspace
 uint8_t mod_state;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch(keycode) {
-        // convert Shift-Backspace to Control-Backspace
         case KC_BSPC:
             mod_state = get_mods();
             static bool ctrl_bspc_registered;
@@ -278,4 +278,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return true;
     }
     return true;
+}
+
+// configure keys that continue caps word and are shifted by it
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        case DE_A ... DE_Z:
+        case DE_MINS:
+            add_weak_mods(MOD_BIT(KC_LSFT));
+            return true;
+        case DE_1 ... DE_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case DE_UNDS:
+            return true;
+        default:
+            return false;
+    }
 }
