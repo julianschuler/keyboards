@@ -214,26 +214,25 @@ function range(end) = [0 : end - 1];
 // helper function for creating indices for iterating a list
 function iter(list) = range(len(list));
 
-// function for calculing the sum of a list
+// function for calculating the sum of a list
 function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i + 1);
 
 // function for calculating the projection of a vector v onto the plane given
 // by the normal vector n
 function proj(v, n) = v - ((v * n) / (n * n)) * n;
 
-// function for rotating a vector
-function rotate_vec(angles, pos) = let(
+// function for calculating the rotation matrix given some angles
+function rotation_mat(angles) = let(
     sx = sin(angles.x),
     sy = sin(angles.y),
     sz = (len(angles) == 3) ? sin(angles.z) : 0,
     cx = cos(angles.x),
     cy = cos(angles.y),
-    cz = (len(angles) == 3) ? cos(angles.z) : 1,
-    R = [ [cz * cy,    cz * sy * sx - sz * cx,    cz * sy * cx + sz * sx],
-          [sz * cy,    sz * sy * sx + cz * cx,    sz * sy * cx - cz * sx],
-          [-sy,        cy * sx,                   cy * cx               ] ]
+    cz = (len(angles) == 3) ? cos(angles.z) : 1
 )
-    R * pos;
+    [ [cz * cy,    cz * sy * sx - sz * cx,    cz * sy * cx + sz * sx],
+      [sz * cy,    sz * sy * sx + cz * cx,    sz * sy * cx - cz * sx],
+      [-sy,        cy * sx,                   cy * cx               ] ];
 
 // function for performing a linear interpolation between two points
 // with 0 <= t <= 1, lerp(0, p0, p1) = p0 and lerp(1, p0, p1) = p1
@@ -350,17 +349,15 @@ thumb_mount_points = let(
     to = thumb_rim_top_offset,
     t_pos0 = thumb_vals[0][0],
     t_posm = thumb_vals[len(thumb_vals) - 1][0],
-    pos01 = rotate_vec(tilting_angle,
-        rotate_vec(thumb_rotation, t_pos0 + [-dx, -dy, 0]) + thumb_offset),
-    pos02 = rotate_vec(tilting_angle,
-        rotate_vec(thumb_rotation, t_pos0 + [dx + to, -dy, 0]) + thumb_offset),
-    posm1 = rotate_vec(tilting_angle,
-        rotate_vec(thumb_rotation, t_posm + [-dx, dy, 0]) + thumb_offset),
-    posm2 = rotate_vec(tilting_angle,
-        rotate_vec(thumb_rotation, t_posm + [dx + to, dy, 0]) + thumb_offset)
-    ) [
-        [pos01.x, pos01.y], [pos02.x, pos02.y], [posm2.x, posm2.y], [posm1.x, posm1.y]
-    ];
+    tilting_mat = rotation_mat(tilting_angle),
+    thumb_mat = rotation_mat(thumb_rotation),
+    pos01 = tilting_mat * (thumb_mat * (t_pos0 + [-dx, -dy, 0]) + thumb_offset),
+    pos02 = tilting_mat * (thumb_mat * (t_pos0 + [dx + to, -dy, 0]) + thumb_offset),
+    posm1 = tilting_mat * (thumb_mat * (t_posm + [-dx, dy, 0]) + thumb_offset),
+    posm2 = tilting_mat * (thumb_mat * (t_posm + [dx + to, dy, 0]) + thumb_offset)
+) [
+    [pos01.x, pos01.y], [pos02.x, pos02.y], [posm2.x, posm2.y], [posm1.x, posm1.y]
+];
 
 m_pcb_vals = [ for (i = iter(finger_vals))
     let (
@@ -436,22 +433,27 @@ thumb_connector_vals = let(
     // angles
     alpha = f_val[3],
     beta = t_val[1],
-    // value calculations
+    // rotation matrices
+    alpha_mat = rotation_mat([alpha, 0]),
+    beta_mat = rotation_mat([beta, 0]),
+    thumb_mat = rotation_mat(thumb_rotation),
+    thumb_beta_mat = thumb_mat * beta_mat,
+    // other value calculations
     dx = m_pcb_pad_size.x / 2,
     dy = fpc_offset.y + fpc_pad_size.y / 2,
     dz = switch_bottom_size.z,
     f_off = [
         -f_val[0].x - f_val[1].x, f_val[0].y + f_val[1].y, f_val[0].z + f_val[1].z
     ],
-    f_pos = f_off + rotate_vec([alpha, 0], [finger_anchor_offset, -dy, -dz]),
-    t_off = rotate_vec([beta, 0], [dx, -thumb_anchor_offset, -dz]),
-    t_pos = thumb_offset + rotate_vec(thumb_rotation, t_val[0] + t_off),
+    f_pos = f_off + alpha_mat * [finger_anchor_offset, -dy, -dz],
+    t_off = beta_mat * [dx, -thumb_anchor_offset, -dz],
+    t_pos = thumb_offset + thumb_mat * (t_val[0] + t_off),
     diff = f_pos - t_pos,
     // normal vectors for planes parallel to the finger and thumb key
-    n_f = rotate_vec([alpha, 0], [0, 0, 1]),
-    n_t = rotate_vec(thumb_rotation, rotate_vec([beta, 0], [0, 0, 1])),
+    n_f = alpha_mat * [0, 0, 1],
+    n_t = thumb_beta_mat * [0, 0, 1],
     // vector along the thumb key plane
-    v_t = rotate_vec(thumb_rotation, rotate_vec([beta, 0], [0, 1, 0])),
+    v_t = thumb_beta_mat * [0, 1, 0],
     // plane to project on, given by the average normal vector of both planes
     n_a = n_f + n_t,
     // normal vector for the plane going through v_t and n_a
@@ -460,11 +462,11 @@ thumb_connector_vals = let(
     v_i = cross(n_p, n_f),
     v_n = v_i / norm(v_i),
     // calculate arc angle
-    b = rotate_vec([alpha, 0], [0, 1, 0]),
+    b = alpha_mat * [0, 1, 0],
     phi = 180 - acos(b * v_n),
     // calculate radius
     b_a = proj(b, n_a),
-    c = rotate_vec(thumb_rotation, rotate_vec([beta, 0], [1, 0, 0])),
+    c = thumb_beta_mat * [1, 0, 0],
     c_a = proj(c, n_a),
     d = b_a * tan(phi / 2) + c_a,
     r = (diff * n_p) / (d * n_p),
@@ -488,9 +490,9 @@ thumb_connector_vals = let(
     pos_2d = m_pcb_vals[fpc_index][0] - [0, dy],
     f_pos_2d = [-pos_2d.x + finger_anchor_offset, pos_2d.y],
     f_arc_2d = f_pos_2d + [r * (1 - cos(phi)), -r * sin(phi)],
-    t_pos_2d = f_arc_2d + rotate_vec([0, 0, phi], [-r, -bezier_len - r, 0]),
-    t_off_2d = t_pos_2d + rotate_vec([0, 0, phi + 180],
-        m_pcb_thumb_vals[thumb_anchor_index] + [dx, -thumb_anchor_offset, 0])
+    t_pos_2d = f_arc_2d + rotation_mat([0, 0, phi]) * [-r, -bezier_len - r, 0],
+    t_off_2d = t_pos_2d + rotation_mat([0, 0, phi + 180])
+        * (m_pcb_thumb_vals[thumb_anchor_index] + [dx, -thumb_anchor_offset, 0])
 ) [
     r, phi, bezier_points,
     f_pos, t_pos, f_val, t_val, n_f, n_t,
