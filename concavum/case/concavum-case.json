@@ -44,7 +44,7 @@
             "thumb_rim_offset": "0",
             "thumb_rim_top_offset": "2",
             "thumb_rotation": "[30, 15, 80]",
-            "tilting_angle": "[15, -20]",
+            "tilting_angle": "[15, 20]",
             "visualize_bending": "true"
         }
     },

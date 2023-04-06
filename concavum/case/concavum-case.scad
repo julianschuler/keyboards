@@ -80,7 +80,7 @@ thumb_rim_offset = 0;
 thumb_rim_top_offset = 2;
 
 // keyboard tilting angle along X and Y
-tilting_angle = [15, -20];
+tilting_angle = [15, 20];
 
 // value the cluster is offset along the Z axis to create a valid keyboard
 height_offset = 43;
@@ -114,7 +114,7 @@ fpc_connector_color = "#8F8F8F";
 build_matrix_pcb = false;
 // adjust only if the shell calculation fails, small values are recommended
 shell_fn = 15;
-// minium angle, sensible default for 3D printing
+// minimum angle, sensible default for 3D printing
 $fa = 3;
 // minimum segment size, sensible default for 3D printing
 $fs = 0.01;
@@ -157,10 +157,11 @@ keycap_size = [18.4, 12.3, 7.7];
 switch_top_size = [15.6, 10, 6.6];
 switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
+plate_min_size = [16, 16];
 
 // interface PCB values (shouldn't be changed)
 i_pcb_size = [36, 42, 1.6];
-i_pcb_offset = [-2.2, -0.2, 2];
+i_pcb_offset = [2.2, -0.2, 2];
 i_pcb_mount_point_index = 3;
 i_pcb_mounting_hole_diameter = 2.2;
 i_pcb_mounting_hole_offset = 3;
@@ -175,8 +176,8 @@ usb_height = 3.4;
 usb_radius = 1.1;
 usb_offset = 19.5;
 jack_radius = 3.1;
-jack_offset = [5.3, 0.55];
-port_offset = [7.3, 0, 1.7];
+jack_offset = [-5.3, 0.55];
+port_offset = [-7.3, 0, 1.7];
 kb2040_pcb_thickness = 1.6;
 
 // build matrix PCB outline instead of the keyboard (will be overwritten externally)
@@ -349,7 +350,7 @@ thumb_mount_points = let(
     to = thumb_rim_top_offset,
     t_pos0 = thumb_vals[0][0],
     t_posm = thumb_vals[len(thumb_vals) - 1][0],
-    tilting_mat = rotation_mat(tilting_angle),
+    tilting_mat = rotation_mat([tilting_angle.x, -tilting_angle.y]),
     thumb_mat = rotation_mat(thumb_rotation),
     pos01 = tilting_mat * (thumb_mat * (t_pos0 + [-dx, -dy, 0]) + thumb_offset),
     pos02 = tilting_mat * (thumb_mat * (t_pos0 + [dx + to, -dy, 0]) + thumb_offset),
@@ -582,18 +583,17 @@ module key(size=1) {
 
 module keys() {
     if (show_keys && $preview) {
-        flip_x() for (i = iter(finger_vals)) {
-            vs = finger_vals[i];
-            for (j = iter(vs)) {
-                pos1 = vs[j][0];
-                pos2 = vs[j][1];
-                a1 = vs[j][2];
-                a2 = vs[j][3];
+        for (vs = finger_vals) {
+            for (v = vs) {
+                pos1 = v[0];
+                pos2 = v[1];
+                a1 = v[2];
+                a2 = v[3];
                 translate(pos1) rotate([0, a1])
                     translate(pos2) rotate([a2, 0]) key();
             }
         }
-        translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
+        flip_x() translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
             pos = v[0];
             a = v[1];
             pw = v[2];
@@ -606,14 +606,13 @@ module keys() {
 module interface_pcb() {
     if (show_interface_pcb && $preview) {
         pos = mount_points[i_pcb_mount_point_index];
-        x = -pos.x;
         y = pos.y - i_pcb_size.y / 2 - shell_thickness;
         z = i_pcb_size.z / 2;
         d = i_pcb_mounting_hole_diameter;
         o = i_pcb_mounting_hole_offset;
         h = i_pcb_size.z + 2 * e;
         fy = fpc_connector_offset.y;
-        translate([x, y, z] + i_pcb_offset) {
+        translate([pos.x, y, z] + i_pcb_offset) {
             color(interface_pcb_color) difference() {
                 cube(i_pcb_size, center=true);
                 translate([i_pcb_size.x / 2 - o, -i_pcb_size.y / 2 + o])
@@ -645,18 +644,17 @@ module switch_cutout() {
 
 module switch_cutouts() {
     translate([0, 0, height_offset]) rotate (tilting_angle) {
-        flip_x() for (i = iter(finger_vals)) {
-            vs = finger_vals[i];
-            for (j = iter(vs)) {
-                pos1 = vs[j][0];
-                pos2 = vs[j][1];
-                a1 = vs[j][2];
-                a2 = vs[j][3];
+        for (vs = finger_vals) {
+            for (v = vs) {
+                pos1 = v[0];
+                pos2 = v[1];
+                a1 = v[2];
+                a2 = v[3];
                 translate(pos1) rotate([0, a1])
                     translate(pos2) rotate([a2, 0]) switch_cutout();
             }
         }
-        translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
+        flip_x() translate(thumb_offset) rotate(thumb_rotation) for (v = thumb_vals) {
             pos = v[0];
             a = v[1];
             translate(pos) rotate([a, 0]) switch_cutout();
@@ -675,11 +673,10 @@ module port_cutouts(left=true) {
     jo = jack_offset;
     h = shell_thickness + 2 * e;
     pos = mount_points[i_pcb_mount_point_index];
-    x = -pos.x;
     y = pos.y - shell_thickness / 2 - i_pcb_offset.y;
     z = i_pcb_size.z;
-    translate([x, y, z] + i_pcb_offset + port_offset) rotate([90, 0]) if (left) {
-        translate([jo[0] - o, uz, 0]) minkowski() {
+    translate([pos.x, y, z] + i_pcb_offset + port_offset) rotate([90, 0]) if (left) {
+        translate([jo[0] + o, uz, 0]) minkowski() {
             cube([w - 2 * r, l - 2 * r, h - e], center=true);
             cylinder(e, r=r, center=true);
         }
@@ -705,8 +702,8 @@ module finger_cluster() {
     dy = key_distance.y;
     h = switch_top_size.z;
     s = home_row_index;
-    flip_x() intersection() {
-        translate([0, 0, height_offset]) rotate([tilting_angle.x, -tilting_angle.y])
+    intersection() {
+        translate([0, 0, height_offset]) rotate([tilting_angle.x, tilting_angle.y])
             for (i = iter(finger_vals)) {
                 vs = finger_vals[i];
                 l = (i == 0) ? true : finger_vals[i - 1][s][0].z
@@ -760,8 +757,8 @@ module finger_cluster() {
 module thumb_cluster() {
     dy = key_distance.y / 2;
     my = keycap_size.y / 2 + thumb_rim_offset;
-    intersection() {
-        translate([0, 0, height_offset]) rotate (tilting_angle)
+    flip_x() intersection() {
+        translate([0, 0, height_offset]) rotate ([tilting_angle.x, -tilting_angle.y])
             translate(thumb_offset) rotate(thumb_rotation)
                 for (i = iter(thumb_vals)) {
                     v = thumb_vals[i];
@@ -808,11 +805,11 @@ module bottom_plate() {
             finger_cluster();
             thumb_cluster();
         }
-        flip_x() for (v = nut_values) {
+        for (v = nut_values) {
             pos = mount_points[v[0]] + [v[2], 0];
             translate(pos) rotate(v[1]) translate([0, -t]) bolt_cutout();
         }
-        translate(v1 + dv) rotate(a) translate([t, 0]) bolt_cutout();
+        flip_x() translate(v1 + dv) rotate(a) translate([t, 0]) bolt_cutout();
     }
 }
 
@@ -834,7 +831,7 @@ module nut_holder(angle=0) {
 
 
 module nut_holders() {
-    flip_x() for (v = nut_values) {
+    for (v = nut_values) {
         pos = mount_points[v[0]] + [v[2], 0];
         a = v[1];
         translate(pos) nut_holder(a);
@@ -843,7 +840,7 @@ module nut_holders() {
     v2 = thumb_mount_points[3];
     dv = (v2 - v1) / 2;
     a = atan2(-dv.x, dv.y);
-    translate(v1 + dv) rotate(0) nut_holder(a + 90);
+    flip_x() translate(v1 + dv) nut_holder(a + 90);
 }
 
 
@@ -854,24 +851,23 @@ module i_pcb_holder() {
     h1 = i_pcb_offset.z - t;
     h2 = h1 + i_pcb_size.z;
     pos = mount_points[i_pcb_mount_point_index];
-    x1 = -pos.x + i_pcb_offset.x;
-    x2 = -mount_points[0].x;
+    x1 = pos.x + i_pcb_offset.x;
+    x2 = mount_points[0].x;
     y = pos.y + i_pcb_offset.y - i_pcb_size.y - shell_thickness - t;
-    w1 = i_pcb_size.x;
-    w2 = x2 - x1 + w1 / 2;
+    w1 = x1 - x2 + i_pcb_size.x / 2;
     d = i_pcb_mounting_hole_diameter - 2 * i_pcb_mounting_hole_clearance;
     o = i_pcb_mounting_hole_offset;
-    ox1 = x2 - w2 / 2;
+    ox1 = x2 + w1 / 2;
     ox2 = i_pcb_size.x / 2 - o;
-    translate([ox1, y + l1 / 2, h1 / 2]) cube([w2, l1 + 2 * e, h1], center=true);
-    translate([ox1, y - l2 / 2, h2 / 2]) cube([w2, l2, h2], center=true);
+    translate([ox1, y + l1 / 2, h1 / 2]) cube([w1, l1 + 2 * e, h1], center=true);
+    translate([ox1, y - l2 / 2, h2 / 2]) cube([w1, l2, h2], center=true);
     translate([x1 + ox2, y + o + t, h1 - e]) cylinder(d=d, h=i_pcb_size.z);
     translate([x1 - ox2, y + o + t, h1 - e]) cylinder(d=d, h=i_pcb_size.z);
 }
 
 
 module mount(left=true) {
-    translate([left ? -half_offset : half_offset, 0, 0]) flip_x(!left) {
+    translate([left ? -half_offset : half_offset, 0, 0]) flip_x(left) {
         difference() {
             // main body
             union() {
@@ -890,7 +886,7 @@ module mount(left=true) {
         interface_pcb();
         translate([0, 0, height_offset]) rotate (tilting_angle) {
             keys();
-            thumb_connector_visualisation();
+            flip_x() thumb_connector_visualisation();
         }
         if (show_bottom_plate && $preview) {
             translate([0, 0, -bottom_plate_thickness]) bottom_plate();
