@@ -521,15 +521,15 @@ bezier_visualisation_vertices = let(
 bezier_visualisation_faces = let(m = 4 * bending_visualisation_segs) [
     each [ for (i = [0 : 4 : m - 1])
         each [
-            [i,     i + 1, i + 5, i + 4],
-            [i + 1, i + 2, i + 6, i + 5],
-            [i + 2, i + 3, i + 7, i + 6],
-            [i + 3, i    , i + 4, i + 7],
+            [i + 1, i + 0, i + 4, i + 5],
+            [i + 2, i + 1, i + 5, i + 6],
+            [i + 3, i + 2, i + 6, i + 7],
+            [i + 0, i + 3, i + 7, i + 4],
         ]
     ],
     each [
-        [0, 1, 2, 3 ],
-        [m, m + 1, m + 2, m + 3]
+        [0, 1, 2, 3],
+        [m, m + 3, m + 2, m + 1]
     ]
 ];
 
