@@ -157,7 +157,7 @@ keycap_size = [18.4, 12.3, 7.7];
 switch_top_size = [15.6, 10, 6.6];
 switch_bottom_size = [14, 14, 5];
 plate_indent = 1.5;
-plate_min_size = [16, 16];
+plate_min_size = [17, 17];
 
 // interface PCB values (shouldn't be changed)
 i_pcb_size = [36, 42, 1.6];
@@ -298,6 +298,37 @@ finger_vals = [ for (i = range(column_count)) let (
     )
         [[x1, off[0], z1 + off[1]], [x2, y2, z2], a1, b2, md]
     ]
+];
+
+finger_cluster_vals = let (tilting_mat = rotation_mat(tilting_angle))
+[ for (vs = finger_vals)
+    [ for (v = vs) let (
+        pos1 = v[0],
+        pos2 = v[1],
+        a1 = v[2],
+        a2 = v[3],
+        a1_mat = rotation_mat([0, a1]),
+        a2_mat = rotation_mat([a2, 0]),
+        x = tilting_mat * a1_mat * a2_mat * [1, 0, 0],
+        y = tilting_mat * a1_mat * a2_mat * [0, 1, 0],
+        n = tilting_mat * a1_mat * a2_mat * [0, 0, 1],
+        c = tilting_mat * (pos1 + a1_mat * pos2),
+        dx = plate_min_size.x / 2 * x,
+        dy = plate_min_size.y / 2 * y
+        ) [
+            [c - dx - dy, c - dx + dy], [c + dx - dy, c + dx + dy], n
+        ]
+    ]
+];
+
+finger_cluster_vertices = [
+    for (vs = finger_cluster_vals) each 
+        [ for (v = vs) each v[0], for (v = vs) each v[1]]
+];
+
+finger_cluster_faces = let (n = 2 * row_count) [
+    for (i = range(2 * column_count - 1)) for (j = range(n - 1))
+        let (k = i * n + j) [k, k + 1, k + n + 1, k + n]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
