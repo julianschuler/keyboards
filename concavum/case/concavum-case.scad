@@ -273,6 +273,17 @@ function extra_width(i, j) = [ for (e = extra_widths)
     if (e[0] == i && e[1] == j) e[2], 0
 ][0];
 
+// helper function for calculating a circumference point
+function circumference_point(p1, p2, p3, p4, n1, n2) = let (
+    v1 = (p1 - p2) / norm(p1 - p2),
+    v2 = (p3 - p4) / norm(p3 - p4),
+    v3 = (p3 - p1),
+    first = (v1 + v2) * v3 < 0,
+    v4 = cross(v3, (first ? n1 : n2)),
+    v4_n = v4 / norm(v4),
+    w = v4_n + (first ? v1 : v2),
+    w_d = w * 2 / (w * v4_n)
+) w_d + (first ? p1 : p3);
 
 finger_vals = [ for (i = range(column_count)) let (
     h = switch_top_size.z,
@@ -323,7 +334,27 @@ finger_cluster_vals = let (tilting_mat = rotation_mat(tilting_angle))
 
 finger_cluster_vertices = [
     for (vs = finger_cluster_vals) each 
-        [ for (v = vs) each v[0], for (v = vs) each v[1]]
+        [ for (v = vs) each v[0], for (v = vs) each v[1]],
+    for (k = range(column_count - 1)) let (
+        vs1 = finger_cluster_vals[k][0],
+        vs2 = finger_cluster_vals[k + 1][0]
+    )
+        circumference_point(vs1[1][0], vs1[1][1], vs2[0][0], vs2[0][1], vs1[2], vs2[2]),
+    for (k = range(column_count - 1)) let (
+        vs1 = finger_cluster_vals[k][row_count - 1],
+        vs2 = finger_cluster_vals[k + 1][row_count - 1]
+    )
+        circumference_point(vs2[0][1], vs2[0][0], vs1[1][1], vs1[1][0], vs2[2], vs1[2]),
+    for (k = range(row_count - 1)) let (
+        vs1 = finger_cluster_vals[0][k],
+        vs2 = finger_cluster_vals[0][k + 1]
+    )
+        circumference_point(vs2[0][0], vs2[1][0], vs1[0][1], vs1[1][1], vs2[2], vs1[2]),
+    for (k = range(row_count - 1)) let (
+        vs1 = finger_cluster_vals[column_count - 1][k],
+        vs2 = finger_cluster_vals[column_count - 1][k + 1]
+    )
+        circumference_point(vs1[1][1], vs1[0][1], vs2[1][0], vs2[0][0], vs1[2], vs2[2]),
 ];
 
 finger_cluster_faces = let (n = 2 * row_count) [
