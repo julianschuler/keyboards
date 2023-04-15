@@ -213,6 +213,9 @@ assert(thumb_anchor_index >= 0 && thumb_anchor_index < thumb_key_count,
 // helper function for creating a list from 0 to end - 1
 function range(end) = [0 : end - 1];
 
+// helper function for creating a list from end - 1 to 0
+function rev_range(end) = [end - 1 : -1 : 0];
+
 // helper function for creating indices for iterating a list
 function iter(list) = range(len(list));
 
@@ -343,7 +346,7 @@ finger_cluster_vals = let (tilting_mat = rotation_mat(tilting_angle))
 
 finger_cluster_vertices = [
     for (vs = finger_cluster_vals) each 
-        [ for (v = vs) each v[0], for (v = vs) each v[1]],
+        [ for (v = vs) each v[0], for (v = vs) each v[1] ],
     let (vs = finger_cluster_vals[0][0]) 
         each corner_points(vs[0][1], vs[0][0], vs[1][0]),
     for (k = range(column_count - 1)) let (
@@ -353,25 +356,25 @@ finger_cluster_vertices = [
         circumference_point(vs1[1][0], vs1[1][1], vs2[0][0], vs2[0][1], vs1[2], vs2[2]),
     let (vs = finger_cluster_vals[column_count - 1][0])
         each corner_points(vs[0][0], vs[1][0], vs[1][1]),
-    for (k = range(column_count - 1)) let (
-        vs1 = finger_cluster_vals[k][row_count - 1],
-        vs2 = finger_cluster_vals[k + 1][row_count - 1]
-    )
-        circumference_point(vs2[0][1], vs2[0][0], vs1[1][1], vs1[1][0], vs2[2], vs1[2]),
-    let (vs = finger_cluster_vals[column_count - 1][row_count - 1])
-        each corner_points(vs[1][0], vs[1][1], vs[0][1]),
-    for (k = range(row_count - 1)) let (
-        vs1 = finger_cluster_vals[0][k],
-        vs2 = finger_cluster_vals[0][k + 1]
-    )
-        circumference_point(vs2[0][0], vs2[1][0], vs1[0][1], vs1[1][1], vs2[2], vs1[2]),
-    let (vs = finger_cluster_vals[0][row_count - 1])
-        each corner_points(vs[1][1], vs[0][1], vs[0][0]),
     for (k = range(row_count - 1)) let (
         vs1 = finger_cluster_vals[column_count - 1][k],
         vs2 = finger_cluster_vals[column_count - 1][k + 1]
     )
         circumference_point(vs1[1][1], vs1[0][1], vs2[1][0], vs2[0][0], vs1[2], vs2[2]),
+    let (vs = finger_cluster_vals[column_count - 1][row_count - 1])
+        each corner_points(vs[1][0], vs[1][1], vs[0][1]),
+    for (k = rev_range(column_count - 1)) let (
+        vs1 = finger_cluster_vals[k + 1][row_count - 1],
+        vs2 = finger_cluster_vals[k][row_count - 1]
+    )
+        circumference_point(vs1[0][1], vs1[0][0], vs2[1][1], vs2[1][0], vs1[2], vs2[2]),
+    let (vs = finger_cluster_vals[0][row_count - 1])
+        each corner_points(vs[1][1], vs[0][1], vs[0][0]),
+    for (k = rev_range(row_count - 1)) let (
+        vs1 = finger_cluster_vals[0][k + 1],
+        vs2 = finger_cluster_vals[0][k]
+    )
+        circumference_point(vs1[0][0], vs1[1][0], vs2[0][1], vs2[1][1], vs1[2], vs2[2])
 ];
 
 finger_cluster_faces = let (n = 2 * row_count) [
