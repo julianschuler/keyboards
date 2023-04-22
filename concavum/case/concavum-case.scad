@@ -303,6 +303,29 @@ function corner_points(p1, p2, p3) = let (
     [p2 + d * (v1 + c * v2), n, false]
 ];
 
+// helper function for calculating a delaunay triangulation for a simple polygon in 3D
+function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
+    f1 = (j1 == len(is1) - 1),
+    f2 = (j2 == len(is2) - 1),
+    p1 = points[is1[j1]],
+    p2 = points[is2[j2]],
+    i1 = is1[min(j1 + 1, len(is1) - 1)],
+    i2 = is2[min(j2 + 1, len(is2) - 1)],
+    c1 = points[i1],
+    c2 = points[i2],
+    v = (p2 - p1) / norm(p2 - p1),
+    v1a = (c1 - p1) / norm(c1 - p1),
+    v1b = (p2 - c1) / norm(p2 - c1),
+    v2a = (c2 - p1) / norm(c2 - p1),
+    v2b = (p2 - c2) / norm(p2 - c2),
+    max_cos1 = max(max(v * v1a, v * v1b), -v1a * v1b),
+    max_cos2 = max(max(v * v2a, v * v2b), -v2a * v2b),
+    first = max_cos1 <= max_cos2,
+    nj1 = j1 + ((!f1 && first) ? 1 : 0),
+    nj2 = j2 + ((!f2 && !first) ? 1 : 0),
+    f = [each faces, [is2[j2], is1[j1], first ? i1 : i2]]
+) (f1 && f2) ? faces : simple_delaunay(points, is1, is2, nj1, nj2, f);
+
 finger_vals = [ for (i = range(column_count)) let (
     h = switch_top_size.z,
     dx = key_distance.x,
@@ -409,6 +432,43 @@ finger_cluster_faces = let (
     // inner faces
     for (i = range(column_count)) for (j = range(n - 1))
         let (k = i * 2 * n + j) [k, k + 1, k + n + 1, k + n],
+    for (i = range(column_count - 1)) let (
+        is1 = [ for (j = range(n)) n + 2 * i * n + j ],
+        is2 = [ for (j = range(n)) 2 * (i + 1) * n + j ]
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
+    // bottom circumference faces
+    for (i = range(cols)) let (
+        off = 2 * n * cols,
+        first1 = circumference_points[i][2],
+        first2 = circumference_points[i + 1][2],
+        is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? 1 : 2)]) (2 * i + j) * n ],
+        is2 = [ off + i, off + i + 1 ]
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
+    // right circumference faces
+    for (i = range(rows)) let (
+        off = (2 * n + 1) * cols + 1,
+        first1 = circumference_points[i + cols + 1][2],
+        first2 = circumference_points[i + cols + 2][2],
+        is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? k - 1 : k)]) 
+            (2 * cols - 1) * n + (i * k) + j ],
+        is2 = [ off + i, off + i + 1 ]
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
+    // top circumference faces
+    for (i = range(cols)) let (
+        off = (2 * n + 1) * cols + rows + 2,
+        first1 = circumference_points[i + cols + rows + 2][2],
+        first2 = circumference_points[i + cols + rows + 3][2],
+        is1 = [ for (j = [((first1) ? 3 : 2) : -1 : ((first2) ? 1 : 0)]) (2 * (cols - 1 - i) + j) * n - 1 ],
+        is2 = [ off + i, off + i + 1 ]
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
+    // left circumference faces
+    for (i = range(rows)) let (
+        off = (2 * n + 2) * cols + rows + 3,
+        first1 = circumference_points[i + 2 * cols + rows + 3][2],
+        first2 = circumference_points[i + 2 * cols + rows + 4][2],
+        is1 = [ for (j = [((first1) ? k : k - 1) : -1 : ((first2) ? 0 : -1)]) ((rows - 1 - i) * k) + j ],
+        is2 = [ off + i, off + i + 1 ]
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2)
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
