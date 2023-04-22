@@ -468,7 +468,16 @@ finger_cluster_faces = let (
         first2 = circumference_points[i + 2 * cols + rows + 4][2],
         is1 = [ for (j = [((first1) ? k : k - 1) : -1 : ((first2) ? 0 : -1)]) ((rows - 1 - i) * k) + j ],
         is2 = [ off + i, off + i + 1 ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2)
+    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
+    // corner faces
+    let (
+        off = 2 * n * cols
+    ) each [
+        [0, off, off + 2 * (cols + rows) + 3],
+        [off - n, off + cols + 1, off + cols],
+        [off - 1, off + cols + rows + 2, off + cols + rows + 1],
+        [n - 1, off + 2 * cols + rows + 3, off + 2 * cols + rows + 2]
+    ]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
