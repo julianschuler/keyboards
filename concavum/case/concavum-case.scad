@@ -188,6 +188,8 @@ build_bottom_plate_outline = false;
 
 circumference_distance = 2;
 key_segments = 6;
+chamfer_depth = 10;
+chamfer_angle = 60;
 
 // assertions to ensure the validity of the input
 assert(len(finger_angles) >= column_count,
@@ -295,13 +297,25 @@ function circumference_point(p1, p2, p3, p4, n1, n2) = let (
 function corner_points(p1, p2, p3) = let (
     v1 = (p2 - p1) / norm(p2 - p1),
     v2 = (p2 - p3) / norm(p2 - p3),
-    n = cross(v1, v2),
+    n = cross(v2, v1),
     d = circumference_distance,
     c = tan(22.5)
 ) [
     [p2 + d * (c * v1 + v2), n, true],
     [p2 + d * (v1 + c * v2), n, false]
 ];
+
+// helper function for calculating a chamfer point
+function chamfer_point(p1, p2, p3, n) = let (
+    v1 = p2 - p1,
+    n1 = cross(v1, n),
+    n2 = cross(p3 - p2, n),
+    n1_n = n1 / norm(n1),
+    n3 = (n1_n + n2 / norm(n2)) / norm(n1 + n2),
+    n4 = cross(v1, n3),
+    dw = chamfer_depth * cos(chamfer_angle),
+    dh = chamfer_depth * sin(chamfer_angle)
+) p2 + n3 * dw / (n3 * n1_n) + n4 * dh / norm(n4);
 
 // helper function for calculating a delaunay triangulation for a simple polygon in 3D
 function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
@@ -420,14 +434,22 @@ finger_cluster_vertices = [
         for (v = vs) each v[0], for (v = vs) each v[1]
     ],
     // circumference points
-    each [ for (i = iter(circumference_points)) circumference_points[i][0] ]
+    each [ for (i = iter(circumference_points)) circumference_points[i][0] ],
+    // chamfer points
+    let (
+        cs = circumference_points,
+        m = len(cs)
+    ) for (i = iter(cs))
+        chamfer_point(cs[(i + m - 1) % m][0], cs[i][0], cs[(i + 1) % m][0], cs[i][1])
 ];
+
 
 finger_cluster_faces = let (
     cols = column_count,
     rows = row_count,
     k = key_segments,
-    n = k * rows
+    n = k * rows,
+    inner_off = 2 * n * cols
 ) [
     // inner faces
     for (i = range(column_count)) for (j = range(n - 1))
@@ -438,15 +460,14 @@ finger_cluster_faces = let (
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // bottom circumference faces
     for (i = range(cols)) let (
-        off = 2 * n * cols,
         first1 = circumference_points[i][2],
         first2 = circumference_points[i + 1][2],
         is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? 1 : 2)]) (2 * i + j) * n ],
-        is2 = [ off + i, off + i + 1 ]
+        is2 = [ inner_off + i, inner_off + i + 1 ]
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // right circumference faces
     for (i = range(rows)) let (
-        off = (2 * n + 1) * cols + 1,
+        off = inner_off + cols + 1,
         first1 = circumference_points[i + cols + 1][2],
         first2 = circumference_points[i + cols + 2][2],
         is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? k - 1 : k)]) 
@@ -455,7 +476,7 @@ finger_cluster_faces = let (
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // top circumference faces
     for (i = range(cols)) let (
-        off = (2 * n + 1) * cols + rows + 2,
+        off = inner_off + cols + rows + 2,
         first1 = circumference_points[i + cols + rows + 2][2],
         first2 = circumference_points[i + cols + rows + 3][2],
         is1 = [ for (j = [((first1) ? 3 : 2) : -1 : ((first2) ? 1 : 0)]) (2 * (cols - 1 - i) + j) * n - 1 ],
@@ -463,21 +484,26 @@ finger_cluster_faces = let (
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // left circumference faces
     for (i = range(rows)) let (
-        off = (2 * n + 2) * cols + rows + 3,
+        off = inner_off + 2 * cols + rows + 3,
         first1 = circumference_points[i + 2 * cols + rows + 3][2],
         first2 = circumference_points[i + 2 * cols + rows + 4][2],
         is1 = [ for (j = [((first1) ? k : k - 1) : -1 : ((first2) ? 0 : -1)]) ((rows - 1 - i) * k) + j ],
         is2 = [ off + i, off + i + 1 ]
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // corner faces
+    each [
+        [0, inner_off, inner_off + 2 * (cols + rows) + 3],
+        [inner_off - n, inner_off + cols + 1, inner_off + cols],
+        [inner_off - 1, inner_off + cols + rows + 2, inner_off + cols + rows + 1],
+        [n - 1, inner_off + 2 * cols + rows + 3, inner_off + 2 * cols + rows + 2]
+    ],
+    // chamfer faces
     let (
-        off = 2 * n * cols
-    ) each [
-        [0, off, off + 2 * (cols + rows) + 3],
-        [off - n, off + cols + 1, off + cols],
-        [off - 1, off + cols + rows + 2, off + cols + rows + 1],
-        [n - 1, off + 2 * cols + rows + 3, off + 2 * cols + rows + 2]
-    ]
+        cs = circumference_points,
+        m = len(cs),
+        o = inner_off
+    ) for (i = range(m))
+        [o + i, o + (i + 1) % m, o + m + (i + 1) % m, o + m + i]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
