@@ -82,9 +82,6 @@ thumb_rim_top_offset = 2;
 // keyboard tilting angle along X and Y
 tilting_angle = [15, 20];
 
-// value the cluster is offset along the Z axis to create a valid keyboard
-height_offset = 43;
-
 // value each half is offset along the X axis
 half_offset = 40;
 
@@ -188,8 +185,9 @@ build_bottom_plate_outline = false;
 
 circumference_distance = 2;
 key_segments = 6;
-chamfer_depth = 10;
-chamfer_angle = 60;
+chamfer_depths = [7, 10];
+first_chamfer_angle = 45;
+minimum_second_chamfer_angle = 35;
 
 // assertions to ensure the validity of the input
 assert(len(finger_angles) >= column_count,
@@ -228,6 +226,10 @@ function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i +
 // function for calculating the projection of a vector v onto the plane given
 // by the normal vector n
 function proj(v, n) = v - ((v * n) / (n * n)) * n;
+
+// function for calculating the minimum value at index i in a nested list
+function min_i(list, i, j=0, m=1e300) =
+    (j == len(list)) ? m : min_i(list, i, j + 1, min(m, list[j][i]));
 
 // function for calculating the rotation matrix given some angles
 function rotation_mat(angles) = let(
@@ -313,9 +315,17 @@ function chamfer_point(p1, p2, p3, n) = let (
     n1_n = n1 / norm(n1),
     n3 = (n1_n + n2 / norm(n2)) / norm(n1 + n2),
     n4 = cross(v1, n3),
-    dw = chamfer_depth * cos(chamfer_angle),
-    dh = chamfer_depth * sin(chamfer_angle)
-) p2 + n3 * dw / (n3 * n1_n) + n4 * dh / norm(n4);
+    d1 = chamfer_depths[0],
+    d2 = chamfer_depths[1],
+    dw = d1 * cos(first_chamfer_angle),
+    dh = d1 * sin(first_chamfer_angle),
+    v2 = n3 * dw / (n3 * n1_n) + dh * n4 / norm(n4),
+    v3 = v2 / norm(v2) - [0, 0, 1],
+    p = p2 + v2,
+    ca = v3 / norm(v3) * [0, 0, -1],
+    angle_too_small = ca > cos(minimum_second_chamfer_angle),
+    d3 = shell_thickness * sqrt(1 / (ca * ca) - 1)
+) [p, p + (angle_too_small ? [0, 0, -d3 - e] : d2 * v3 / norm(v3))];
 
 // helper function for calculating a delaunay triangulation for a simple polygon in 3D
 function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
@@ -428,21 +438,30 @@ circumference_points = let (last = key_segments - 1) [
         corner_points(vs[0][1], vs[0][0], vs[1][0])[0]
 ];
 
+chamfer_vals =  let (
+    cs = circumference_points,
+    m = len(cs)
+) [ for (i = iter(cs))
+    chamfer_point(cs[(i + m - 1) % m][0], cs[i][0], cs[(i + 1) % m][0], cs[i][1])
+];
+
+height_offset = -min_i([ for (i = iter(chamfer_vals)) chamfer_vals[i][1] ], 2) + e;
+
+chamfer_points = let (z = -height_offset - sum(chamfer_depths)) [
+    for (i = iter(chamfer_vals)) let (ps = chamfer_vals[i])
+        each [ps[0], ps[1], [ps[1].x, ps[1].y, z]]
+];
+
 finger_cluster_vertices = [
     // inner points
     for (vs = finger_cluster_vals) each [
         for (v = vs) each v[0], for (v = vs) each v[1]
     ],
     // circumference points
-    each [ for (i = iter(circumference_points)) circumference_points[i][0] ],
-    // chamfer points
-    let (
-        cs = circumference_points,
-        m = len(cs)
-    ) for (i = iter(cs))
-        chamfer_point(cs[(i + m - 1) % m][0], cs[i][0], cs[(i + 1) % m][0], cs[i][1])
+    for (i = iter(circumference_points)) circumference_points[i][0],
+    // chamfer points and side walls
+    each chamfer_points
 ];
-
 
 finger_cluster_faces = let (
     cols = column_count,
@@ -497,13 +516,21 @@ finger_cluster_faces = let (
         [inner_off - 1, inner_off + cols + rows + 2, inner_off + cols + rows + 1],
         [n - 1, inner_off + 2 * cols + rows + 3, inner_off + 2 * cols + rows + 2]
     ],
-    // chamfer faces
+    // chamfer and side wall faces
     let (
         cs = circumference_points,
         m = len(cs),
-        o = inner_off
-    ) for (i = range(m))
-        [o + i, o + (i + 1) % m, o + m + (i + 1) % m, o + m + i]
+        o1 = inner_off,
+        o2 = o1 + m
+    ) for (i = range(m)) each let (
+        i1 = (i + 1) % m,
+        i2 = o1 + m + 3 * i,
+        i3 = o1 + m + 3 * i1
+    ) [
+        [o1 + i, o1 + i1, i3, i2],
+        [i2, i3, i3 + 1, i2 + 1],
+        [i2 + 1, i3 + 1, i3 + 2, i2 + 2]
+    ]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
