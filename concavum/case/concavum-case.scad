@@ -227,6 +227,9 @@ function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i +
 // by the normal vector n
 function proj(v, n) = v - ((v * n) / (n * n)) * n;
 
+// function for normalizing a vector v
+function normalize(v) = v / norm(v);
+
 // function for calculating the minimum value at index i in a nested list
 function min_i(list, i, j=0, m=1e300) =
     (j == len(list)) ? m : min_i(list, i, j + 1, min(m, list[j][i]));
@@ -284,21 +287,20 @@ function extra_width(i, j) = [ for (e = extra_widths)
 
 // helper function for calculating a circumference point
 function circumference_point(p1, p2, p3, p4, n1, n2) = let (
-    v1 = (p1 - p2) / norm(p1 - p2),
-    v2 = (p3 - p4) / norm(p3 - p4),
+    v1 = normalize(p1 - p2),
+    v2 = normalize(p3 - p4),
     v3 = (p3 - p1),
     first = (v1 + v2) * v3 < 0,
     n = (first ? n1 : n2),
-    v4 = cross(v3, n),
-    v4_n = v4 / norm(v4),
-    w = v4_n + (first ? v1 : v2),
-    w_d = w * circumference_distance / (w * v4_n)
+    v4 = normalize(cross(v3, n)),
+    w = v4 + (first ? v1 : v2),
+    w_d = w * circumference_distance / (w * v4)
 ) [w_d + (first ? p1 : p3), n, first];
 
 // helper function for calculating points in a corner
 function corner_points(p1, p2, p3) = let (
-    v1 = (p2 - p1) / norm(p2 - p1),
-    v2 = (p2 - p3) / norm(p2 - p3),
+    v1 = normalize(p2 - p1),
+    v2 = normalize(p2 - p3),
     n = cross(v2, v1),
     d = circumference_distance,
     c = tan(22.5)
@@ -310,22 +312,20 @@ function corner_points(p1, p2, p3) = let (
 // helper function for calculating a chamfer point
 function chamfer_point(p1, p2, p3, n) = let (
     v1 = p2 - p1,
-    n1 = cross(v1, n),
-    n2 = cross(p3 - p2, n),
-    n1_n = n1 / norm(n1),
-    n3 = (n1_n + n2 / norm(n2)) / norm(n1 + n2),
-    n4 = cross(v1, n3),
+    n1 = normalize(cross(v1, n)),
+    n2 = normalize(cross(p3 - p2, n)),
+    n3 = normalize(n1 + n2),
+    n4 = normalize(cross(v1, n3)),
     d1 = chamfer_depths[0],
     d2 = chamfer_depths[1],
-    dw = d1 * cos(first_chamfer_angle),
-    dh = d1 * sin(first_chamfer_angle),
-    v2 = n3 * dw / (n3 * n1_n) + dh * n4 / norm(n4),
-    v3 = v2 / norm(v2) - [0, 0, 1],
-    p = p2 + v2,
-    ca = v3 / norm(v3) * [0, 0, -1],
+    fa = first_chamfer_angle,
+    v2 = normalize(n3 * cos(fa) / (n3 * n1) + sin(fa) * n4),
+    v3 = normalize(v2 - [0, 0, 1]),
+    p = p2 + d1 * v2,
+    ca = v3 * [0, 0, -1],
     angle_too_small = ca > cos(minimum_second_chamfer_angle),
     d3 = shell_thickness * sqrt(1 / (ca * ca) - 1)
-) [p, p + (angle_too_small ? [0, 0, -d3 - e] : d2 * v3 / norm(v3))];
+) [p, p + (angle_too_small ? [0, 0, -d3 - e] : d2 * v3)];
 
 // helper function for calculating a delaunay triangulation for a simple polygon in 3D
 function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
@@ -337,11 +337,11 @@ function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
     i2 = is2[min(j2 + 1, len(is2) - 1)],
     c1 = points[i1],
     c2 = points[i2],
-    v = (p2 - p1) / norm(p2 - p1),
-    v1a = (c1 - p1) / norm(c1 - p1),
-    v1b = (p2 - c1) / norm(p2 - c1),
-    v2a = (c2 - p1) / norm(c2 - p1),
-    v2b = (p2 - c2) / norm(p2 - c2),
+    v = normalize(p2 - p1),
+    v1a = normalize(c1 - p1),
+    v1b = normalize(p2 - c1),
+    v2a = normalize(c2 - p1),
+    v2b = normalize(p2 - c2),
     max_cos1 = max(max(v * v1a, v * v1b), -v1a * v1b),
     max_cos2 = max(max(v * v2a, v * v2b), -v2a * v2b),
     first = max_cos1 <= max_cos2,
@@ -693,8 +693,7 @@ thumb_connector_vals = let(
     // normal vector for the plane going through v_t and n_a
     n_p = cross(v_t, n_a),
     // vector along the intersection of the planes given by n_p and n_f
-    v_i = cross(n_p, n_f),
-    v_n = v_i / norm(v_i),
+    v_n = normalize(cross(n_p, n_f)),
     // calculate arc angle
     b = alpha_mat * [0, 1, 0],
     phi = 180 - acos(b * v_n),
@@ -744,8 +743,8 @@ bezier_visualisation_vertices = let(
         n = lerp(t, n_f, n_t),
         v = cross(n, tangent),
         u = cross(v, tangent),
-        w = v / norm(v) * thumb_connector_width / 2,
-        h = u / norm(u) * m_pcb_thickness
+        w = normalize(v) * thumb_connector_width / 2,
+        h = normalize(u) * m_pcb_thickness
     ) each [
         pos + w, pos - w, pos - w + h, pos + w + h
     ]
@@ -1014,7 +1013,7 @@ module thumb_cluster() {
                 d = sqrt(2) * thumb_chamfer[i];
                 dv1 = mp[(i + 1) % m] - pos;
                 dv2 = mp[(i + m - 1) % m] - pos;
-                dv = dv1 / norm(dv1) + dv2 / norm(dv2);
+                dv = normalize(dv1) + normalize(dv2);
                 a = atan2(-dv.x, dv.y);
                 translate([pos.x, pos.y, safe_height / 2 - e])
                     rotate(a) cube([2 * d, d, safe_height], center=true);
