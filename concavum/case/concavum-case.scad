@@ -120,7 +120,7 @@ $fs = 0.01;
 module __Customizer_Limit__() {}
 
 // Epsilon used in differences and intersections (shouldn't be changed)
-e = 0.01;
+e = 0.1;
 
 // Key matrix PCB values (shouldn't be changed)
 m_pcb_col_connector_width = 2;
@@ -229,9 +229,17 @@ function proj(v, n) = v - ((v * n) / (n * n)) * n;
 // Normalize a vector v
 function normalize(v) = v / norm(v);
 
+// Check if a value is in a list
+function in_list(v, vs, i=0) =
+    (i == len(vs)) ? false : ((v == vs[i]) ? true : in_list(v, vs, i + 1));
+
 // Calculate the minimum value at index i in a nested list
 function min_i(list, i, j=0, m=1e300) =
     (j == len(list)) ? m : min_i(list, i, j + 1, min(m, list[j][i]));
+
+// Calculate the maximum value at index i in a nested list
+function max_i(list, i, j=0, m=-1e300) =
+    (j == len(list)) ? m : max_i(list, i, j + 1, max(m, list[j][i]));
 
 // Calculate the rotation matrix given some angles
 function rotation_mat(angles) = let(
@@ -277,6 +285,29 @@ function bezier_curve_length(steps, p) = let (step_size = 1 / steps)
     )
         norm(p5 - p4)
     ]);
+
+// Offset a polyhedron by distance d
+function offset_polyhedron(vertices, faces, d) = let (
+    normals = polyhedron_normals(vertices, faces)
+) [ for (i = iter(vertices)) let (
+        fs = adjacent_faces(i, faces),
+        n = sum([ for (f = fs) normals[f] ], [0, 0, 0])
+    ) 
+        vertices[i] + n * d / (n * normals[fs[0]])
+];
+
+// Calculate the normal vectors of the faces of a polyhedron
+function polyhedron_normals(vertices, faces) = [ for (i = iter(faces)) let (
+    f = faces[i],
+    v2 = vertices[f[1]] - vertices[f[0]],
+    v1 = vertices[f[len(f) - 1]] - vertices[f[0]]
+    /* v1 = vertices[f[0]] - vertices[f[1]], */
+    /* v2 = vertices[f[2]] - vertices[f[1]] */
+) normalize(cross(v1, v2)) ];
+
+// Retrieve a list of indices of the adjacent faces of a vertex with index i
+function adjacent_faces(i, faces, fs=[], j=0) = (j == len(faces)) ? fs
+    : adjacent_faces(i, faces, in_list(i, faces[j]) ? [each fs, j] : fs, j + 1);
 
 // Retrieve the extra width for a given i and j
 function extra_width(i, j) = [ for (e = extra_widths)
@@ -519,13 +550,15 @@ finger_cluster_faces = let (
     // Chamfer and side wall faces
     for (i = range(m)) each let (
         i1 = (i + 1) % m,
-        i2 = o1 + m + 3 * i,
-        i3 = o1 + m + 3 * i1
+        i2 = inner_off + m + 3 * i,
+        i3 = inner_off + m + 3 * i1
     ) [
-        [o1 + i, o1 + i1, i3, i2],
+        [inner_off + i, inner_off + i1, i3, i2],
         [i2, i3, i3 + 1, i2 + 1],
         [i2 + 1, i3 + 1, i3 + 2, i2 + 2]
-    ]
+    ],
+    // Bottom face
+    [ for (i = iter(circumference_points)) inner_off + m + 3 * i + 2 ]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
