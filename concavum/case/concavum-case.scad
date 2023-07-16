@@ -299,15 +299,12 @@ function offset_polyhedron(vertices, faces, d) = let (
 // Calculate the normal vectors of the faces of a polyhedron
 function polyhedron_normals(vertices, faces) = [ for (i = iter(faces)) let (
     f = faces[i],
-    v2 = vertices[f[1]] - vertices[f[0]],
-    v1 = vertices[f[len(f) - 1]] - vertices[f[0]]
-    /* v1 = vertices[f[0]] - vertices[f[1]], */
-    /* v2 = vertices[f[2]] - vertices[f[1]] */
+    v1 = vertices[f[len(f) - 1]] - vertices[f[0]],
+    v2 = vertices[f[1]] - vertices[f[0]]
 ) normalize(cross(v1, v2)) ];
 
 // Retrieve a list of indices of the adjacent faces of a vertex with index i
-function adjacent_faces(i, faces, fs=[], j=0) = (j == len(faces)) ? fs
-    : adjacent_faces(i, faces, in_list(i, faces[j]) ? [each fs, j] : fs, j + 1);
+function adjacent_faces(i, faces) = [for (j = iter(faces)) if (in_list(i, faces[j])) j];
 
 // Retrieve the extra width for a given i and j
 function extra_width(i, j) = [ for (e = extra_widths)
@@ -541,12 +538,10 @@ finger_cluster_faces = let (
         is2 = [ off + i, off + i + 1 ]
     ) each simple_delaunay(finger_cluster_vertices, is1, is2),
     // Corner faces
-    each [
-        [0, inner_off, inner_off + 2 * (cols + rows) + 3],
-        [inner_off - n, inner_off + cols + 1, inner_off + cols],
-        [inner_off - 1, inner_off + cols + rows + 2, inner_off + cols + rows + 1],
-        [n - 1, inner_off + 2 * cols + rows + 3, inner_off + 2 * cols + rows + 2]
-    ],
+    [0, inner_off, inner_off + 2 * (cols + rows) + 3],
+    [inner_off - n, inner_off + cols + 1, inner_off + cols],
+    [inner_off - 1, inner_off + cols + rows + 2, inner_off + cols + rows + 1],
+    [n - 1, inner_off + 2 * cols + rows + 3, inner_off + 2 * cols + rows + 2],
     // Chamfer and side wall faces
     for (i = range(m)) each let (
         i1 = (i + 1) % m,
@@ -779,18 +774,14 @@ bezier_visualisation_vertices = let(
 ];
 
 bezier_visualisation_faces = let(m = 4 * bending_visualisation_segs) [
-    each [ for (i = [0 : 4 : m - 1])
-        each [
-            [i + 1, i + 0, i + 4, i + 5],
-            [i + 2, i + 1, i + 5, i + 6],
-            [i + 3, i + 2, i + 6, i + 7],
-            [i + 0, i + 3, i + 7, i + 4],
-        ]
+    for (i = [0 : 4 : m - 1]) each [
+        [i + 1, i + 0, i + 4, i + 5],
+        [i + 2, i + 1, i + 5, i + 6],
+        [i + 3, i + 2, i + 6, i + 7],
+        [i + 0, i + 3, i + 7, i + 4],
     ],
-    each [
-        [0, 1, 2, 3],
-        [m, m + 3, m + 2, m + 1]
-    ]
+    [0, 1, 2, 3],
+    [m, m + 3, m + 2, m + 1]
 ];
 
 
