@@ -223,6 +223,16 @@ function iter(list) = range(len(list));
 // Calculate the sum of a list
 function sum(list, s=0, i=0) = (i == len(list)) ? s : sum(list, s + list[i], i + 1);
 
+// Calculate the sum of a list with duplicate elements removed
+function deduplicated_sum(list, s=0, i=0, deduplicated_list=[]) =
+    (i == len(list)) ? s : let (
+        item = list[i],
+        is_duplicate = approx_in_list(item, deduplicated_list),
+        sum = is_duplicate ? s : s + item,
+        next_list = is_duplicate ? deduplicated_list : [each deduplicated_list, item]
+    )
+    deduplicated_sum(list, sum, i + 1, next_list);
+
 // Calculate the projection of a vector v onto the plane given by the normal vector n
 function proj(v, n) = v - ((v * n) / (n * n)) * n;
 
@@ -232,6 +242,10 @@ function normalize(v) = v / norm(v);
 // Check if a value is in a list
 function in_list(v, vs, i=0) =
     (i == len(vs)) ? false : ((v == vs[i]) ? true : in_list(v, vs, i + 1));
+
+// Check if a value is in a list
+function approx_in_list(v, vs, i=0) =
+    (i == len(vs)) ? false : ((norm(v - vs[i]) < 0.1) ? true : in_list(v, vs, i + 1));
 
 // Calculate the minimum value at index i in a nested list
 function min_i(list, i, j=0, m=1e300) =
@@ -291,7 +305,7 @@ function offset_polyhedron(vertices, faces, d) = let (
     normals = polyhedron_normals(vertices, faces)
 ) [ for (i = iter(vertices)) let (
         fs = adjacent_faces(i, faces),
-        n = sum([ for (f = fs) normals[f] ], [0, 0, 0])
+        n = deduplicated_sum([ for (f = fs) normals[f] ], [0, 0, 0])
     ) 
         vertices[i] + n * d / (n * normals[fs[0]])
 ];
@@ -1119,19 +1133,47 @@ module i_pcb_holder() {
 
 module mount(left=true) {
     translate([left ? -half_offset : half_offset, 0, 0]) flip_x(left) {
-        difference() {
-            // Main body
-            union() {
-                shell(shell_thickness, shell_fn) {
-                    finger_cluster();
-                    thumb_cluster();
+        if (left) {
+            difference() {
+                // Main body
+                union() {
+                    shell(shell_thickness, shell_fn) {
+                        finger_cluster();
+                        thumb_cluster();
+                    }
+                    nut_holders();
+                    i_pcb_holder();
                 }
-                nut_holders();
-                i_pcb_holder();
+                // Cutouts
+                switch_cutouts();
+                port_cutouts(left);
             }
-            // Cutouts
-            switch_cutouts();
-            port_cutouts(left);
+        } else {
+            normals = polyhedron_normals(finger_cluster_vertices, finger_cluster_faces);
+            faces = finger_cluster_faces;
+            vertices = finger_cluster_vertices;
+
+            difference() {
+                translate([0, 0, height_offset])
+                    polyhedron(finger_cluster_vertices, finger_cluster_faces, convexity = 4);
+
+                union() {
+                    if (calculate_shell) {
+                        offset_vertices = offset_polyhedron(
+                        finger_cluster_vertices, finger_cluster_faces, -shell_thickness);
+                        translate([0, 0, height_offset])
+                            polyhedron(offset_vertices, finger_cluster_faces, convexity = 4);
+                    }
+                    cs = [ for (i = iter(chamfer_vals)) chamfer_vals[i][1] ];
+                    min_x = min_i(cs, 0);
+                    max_x = max_i(cs, 0);
+                    min_y = min_i(cs, 1);
+                    max_y = max_i(cs, 1);
+                    z = sum(chamfer_depths) + e;
+                    translate([min_x - e, min_y - e, -z])
+                        cube([max_x - min_x + 2 * e, max_y - min_y + 2 * e, z]);
+                }
+            }
         }
         // Preview elements
         interface_pcb();
