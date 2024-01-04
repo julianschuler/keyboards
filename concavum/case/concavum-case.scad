@@ -193,8 +193,8 @@ assert(len(finger_angles) >= column_count,
 assert(len(finger_offset) >= column_count,
     "Finger column offset list has to have at least as many entries as columns."
 );
-for (i = iter(finger_angles)) {
-    assert(finger_angles[i] > 0, "Finger well angles have to be greater 0.");
+for (finger_angle = finger_angles) {
+    assert(finger_angle > 0, "Finger well angles have to be greater 0.");
 }
 assert(thumb_angle > 0, "Thumb well angle has to be greater than 0.");
 assert(home_row_index >= 0 && home_row_index < row_count,
