@@ -82,6 +82,9 @@ thumb_rim_top_offset = 2;
 // Keyboard tilting angle along X and Y
 tilting_angle = [15, 20];
 
+// Value the cluster is offset along the Z axis to create a valid keyboard
+height_offset = 43;
+
 // Value each half is offset along the X axis
 half_offset = 40;
 
@@ -129,7 +132,7 @@ m_pcb_pad_size = [13, 14];
 m_pcb_thickness = 0.6;
 m_pcb_router_diameter = 2;
 
-// Fpc connector values (shouldn't be changed)
+// FPC connector values (shouldn't be changed)
 fpc_index = 1;
 fpc_pad_size = [19, 4];
 fpc_offset = [0, 7.9];
@@ -183,12 +186,6 @@ build_matrix_pcb_outline = false;
 build_bottom_plate = false;
 build_bottom_plate_outline = false;
 
-circumference_distance = 2;
-key_segments = 6;
-chamfer_depths = [7, 10];
-first_chamfer_angle = 45;
-minimum_second_chamfer_angle = 35;
-
 // Assertions to ensure the validity of the input
 assert(len(finger_angles) >= column_count,
     "Finger well angle list has to have at least as many entries as columns."
@@ -228,18 +225,6 @@ function proj(v, n) = v - ((v * n) / (n * n)) * n;
 
 // Normalize a vector v
 function normalize(v) = v / norm(v);
-
-// Check if a value is in a list
-function in_list(v, vs, i=0) =
-    (i == len(vs)) ? false : ((v == vs[i]) ? true : in_list(v, vs, i + 1));
-
-// Calculate the minimum value at index i in a nested list
-function min_i(list, i, j=0, m=1e300) =
-    (j == len(list)) ? m : min_i(list, i, j + 1, min(m, list[j][i]));
-
-// Calculate the maximum value at index i in a nested list
-function max_i(list, i, j=0, m=-1e300) =
-    (j == len(list)) ? m : max_i(list, i, j + 1, max(m, list[j][i]));
 
 // Calculate the rotation matrix given some angles
 function rotation_mat(angles) = let(
@@ -286,96 +271,10 @@ function bezier_curve_length(steps, p) = let (step_size = 1 / steps)
         norm(p5 - p4)
     ]);
 
-// Offset a polyhedron by distance d
-function offset_polyhedron(vertices, faces, d) = let (
-    normals = polyhedron_normals(vertices, faces)
-) [ for (i = iter(vertices)) let (
-        fs = adjacent_faces(i, faces),
-        n = sum([ for (f = fs) normals[f] ], [0, 0, 0])
-    ) 
-        vertices[i] + n * d / (n * normals[fs[0]])
-];
-
-// Calculate the normal vectors of the faces of a polyhedron
-function polyhedron_normals(vertices, faces) = [ for (i = iter(faces)) let (
-    f = faces[i],
-    v1 = vertices[f[len(f) - 1]] - vertices[f[0]],
-    v2 = vertices[f[1]] - vertices[f[0]]
-) normalize(cross(v1, v2)) ];
-
-// Retrieve a list of indices of the adjacent faces of a vertex with index i
-function adjacent_faces(i, faces) = [for (j = iter(faces)) if (in_list(i, faces[j])) j];
-
 // Retrieve the extra width for a given i and j
 function extra_width(i, j) = [ for (e = extra_widths)
     if (e[0] == i && e[1] == j) e[2], 0
 ][0];
-
-// Calculate a circumference point
-function circumference_point(p1, p2, p3, p4, n1, n2) = let (
-    v1 = normalize(p1 - p2),
-    v2 = normalize(p3 - p4),
-    v3 = (p3 - p1),
-    first = (v1 + v2) * v3 < 0,
-    n = (first ? n1 : n2),
-    v4 = normalize(cross(v3, n)),
-    w = v4 + (first ? v1 : v2),
-    w_d = w * circumference_distance / (w * v4)
-) [w_d + (first ? p1 : p3), n, first];
-
-// Calculate points in a corner from a given position
-function corner_points(p1, p2, p3) = let (
-    v1 = normalize(p2 - p1),
-    v2 = normalize(p2 - p3),
-    n = cross(v2, v1),
-    d = circumference_distance,
-    c = tan(22.5)
-) [
-    [p2 + d * (c * v1 + v2), n, true],
-    [p2 + d * (v1 + c * v2), n, false]
-];
-
-// Calculating the chamfer from a given position
-function chamfer_points(p1, p2, p3, n) = let (
-    v1 = p2 - p1,
-    n1 = normalize(cross(v1, n)),
-    n2 = normalize(cross(p3 - p2, n)),
-    n3 = normalize(n1 + n2),
-    n4 = normalize(cross(v1, n3)),
-    d1 = chamfer_depths[0],
-    d2 = chamfer_depths[1],
-    fa = first_chamfer_angle,
-    v2 = normalize(n3 * cos(fa) / (n3 * n1) + sin(fa) * n4),
-    v3 = normalize(v2 - [0, 0, 1]),
-    p = p2 + d1 * v2,
-    ca = v3 * [0, 0, -1],
-    angle_too_small = ca > cos(minimum_second_chamfer_angle),
-    d3 = shell_thickness * sqrt(1 / (ca * ca) - 1)
-) [p, p + (angle_too_small ? [0, 0, -d3 - e] : d2 * v3)];
-
-// Calculate a delaunay triangulation for a simple polygon in 3D
-function simple_delaunay(points, is1, is2, j1 = 0, j2 = 0, faces = []) = let (
-    f1 = (j1 == len(is1) - 1),
-    f2 = (j2 == len(is2) - 1),
-    p1 = points[is1[j1]],
-    p2 = points[is2[j2]],
-    i1 = is1[min(j1 + 1, len(is1) - 1)],
-    i2 = is2[min(j2 + 1, len(is2) - 1)],
-    c1 = points[i1],
-    c2 = points[i2],
-    v = normalize(p2 - p1),
-    v1a = normalize(c1 - p1),
-    v1b = normalize(p2 - c1),
-    v2a = normalize(c2 - p1),
-    v2b = normalize(p2 - c2),
-    max_cos1 = max(max(v * v1a, v * v1b), -v1a * v1b),
-    max_cos2 = max(max(v * v2a, v * v2b), -v2a * v2b),
-    first = max_cos1 <= max_cos2,
-    nj1 = j1 + ((!f1 && first) ? 1 : 0),
-    nj2 = j2 + ((!f2 && !first) ? 1 : 0),
-    f = [each faces, [is2[j2], is1[j1], first ? i1 : i2]]
-) (f1 && f2) ? faces : simple_delaunay(points, is1, is2, nj1, nj2, f);
-
 
 finger_vals = [ for (i = range(column_count)) let (
     h = switch_top_size.z,
@@ -401,159 +300,6 @@ finger_vals = [ for (i = range(column_count)) let (
     )
         [[x1, off[0], z1 + off[1]], [x2, y2, z2], a1, b2, md]
     ]
-];
-
-finger_cluster_vals = let (
-    tilting_mat = rotation_mat(tilting_angle),
-    k = key_segments
-) [ for (vs = finger_vals)
-    [ for (v = vs) let (
-        pos1 = v[0],
-        pos2 = v[1],
-        a1 = v[2],
-        a2 = v[3],
-        a1_mat = rotation_mat([0, a1]),
-        a2_mat = rotation_mat([a2, 0]),
-        x = tilting_mat * a1_mat * a2_mat * [1, 0, 0],
-        y = tilting_mat * a1_mat * a2_mat * [0, 1, 0],
-        n = tilting_mat * a1_mat * a2_mat * [0, 0, 1],
-        c = tilting_mat * (pos1 + a1_mat * pos2),
-        dx = plate_min_size.x / 2 * x,
-        dy = plate_min_size.y / 2 * y
-        ) [
-            [ for (i = range(k)) c - dx + dy * (2 * i / (k - 1) - 1) ],
-            [ for (i = range(k)) c + dx + dy * (2 * i / (k - 1) - 1) ],
-            n
-        ]
-    ]
-];
-
-circumference_points = let (last = key_segments - 1) [
-    // Bottom
-    let (vs = finger_cluster_vals[0][0])
-        corner_points(vs[0][1], vs[0][0], vs[1][0])[1],
-    for (k = range(column_count - 1)) let (
-        vs1 = finger_cluster_vals[k][0],
-        vs2 = finger_cluster_vals[k + 1][0]
-    )
-        circumference_point(vs1[1][0], vs1[1][last], vs2[0][0], vs2[0][last], vs1[2], vs2[2]),
-    // Right
-    let (vs = finger_cluster_vals[column_count - 1][0])
-        each corner_points(vs[0][0], vs[1][0], vs[1][1]),
-    for (k = range(row_count - 1)) let (
-        vs1 = finger_cluster_vals[column_count - 1][k],
-        vs2 = finger_cluster_vals[column_count - 1][k + 1]
-    )
-        circumference_point(vs1[1][last], vs1[0][last], vs2[1][0], vs2[0][0], vs1[2], vs2[2]),
-    // Top
-    let (vs = finger_cluster_vals[column_count - 1][row_count - 1])
-        each corner_points(vs[1][0], vs[1][last], vs[0][last]),
-    for (k = rev_range(column_count - 1)) let (
-        vs1 = finger_cluster_vals[k + 1][row_count - 1],
-        vs2 = finger_cluster_vals[k][row_count - 1]
-    )
-        circumference_point(vs1[0][last], vs1[0][0], vs2[1][last], vs2[1][0], vs1[2], vs2[2]),
-    // Left
-    let (vs = finger_cluster_vals[0][row_count - 1])
-        each corner_points(vs[1][last], vs[0][last], vs[0][0]),
-    for (k = rev_range(row_count - 1)) let (
-        vs1 = finger_cluster_vals[0][k + 1],
-        vs2 = finger_cluster_vals[0][k]
-    )
-        circumference_point(vs1[0][0], vs1[1][0], vs2[0][last], vs2[1][last], vs1[2], vs2[2]),
-    let (vs = finger_cluster_vals[0][0])
-        corner_points(vs[0][1], vs[0][0], vs[1][0])[0]
-];
-
-chamfer_vals =  let (
-    cs = circumference_points,
-    m = len(cs)
-) [ for (i = iter(cs))
-    chamfer_points(cs[(i + m - 1) % m][0], cs[i][0], cs[(i + 1) % m][0], cs[i][1])
-];
-
-height_offset = -min_i([ for (i = iter(chamfer_vals)) chamfer_vals[i][1] ], 2) + e;
-
-chamfer_points = let (z = -height_offset - sum(chamfer_depths)) [
-    for (i = iter(chamfer_vals)) let (ps = chamfer_vals[i])
-        each [ps[0], ps[1], [ps[1].x, ps[1].y, z]]
-];
-
-finger_cluster_vertices = [
-    // Inner points
-    for (vs = finger_cluster_vals) each [
-        for (v = vs) each v[0], for (v = vs) each v[1]
-    ],
-    // Circumference points
-    for (i = iter(circumference_points)) circumference_points[i][0],
-    // Chamfer points and side walls
-    each chamfer_points
-];
-
-finger_cluster_faces = let (
-    cols = column_count,
-    rows = row_count,
-    k = key_segments,
-    n = k * rows,
-    m = len(circumference_points),
-    inner_off = 2 * n * cols
-) [
-    // Inner faces
-    for (i = range(column_count)) for (j = range(n - 1))
-        let (k = i * 2 * n + j) [k, k + 1, k + n + 1, k + n],
-    for (i = range(column_count - 1)) let (
-        is1 = [ for (j = range(n)) n + 2 * i * n + j ],
-        is2 = [ for (j = range(n)) 2 * (i + 1) * n + j ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
-    // Bottom circumference faces
-    for (i = range(cols)) let (
-        first1 = circumference_points[i][2],
-        first2 = circumference_points[i + 1][2],
-        is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? 1 : 2)]) (2 * i + j) * n ],
-        is2 = [ inner_off + i, inner_off + i + 1 ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
-    // Right circumference faces
-    for (i = range(rows)) let (
-        off = inner_off + cols + 1,
-        first1 = circumference_points[i + cols + 1][2],
-        first2 = circumference_points[i + cols + 2][2],
-        is1 = [ for (j = [((first1) ? -1 : 0) : ((first2) ? k - 1 : k)])
-            (2 * cols - 1) * n + (i * k) + j ],
-        is2 = [ off + i, off + i + 1 ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
-    // Top circumference faces
-    for (i = range(cols)) let (
-        off = inner_off + cols + rows + 2,
-        first1 = circumference_points[i + cols + rows + 2][2],
-        first2 = circumference_points[i + cols + rows + 3][2],
-        is1 = [ for (j = [((first1) ? 3 : 2) : -1 : ((first2) ? 1 : 0)]) (2 * (cols - 1 - i) + j) * n - 1 ],
-        is2 = [ off + i, off + i + 1 ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
-    // Left circumference faces
-    for (i = range(rows)) let (
-        off = inner_off + 2 * cols + rows + 3,
-        first1 = circumference_points[i + 2 * cols + rows + 3][2],
-        first2 = circumference_points[i + 2 * cols + rows + 4][2],
-        is1 = [ for (j = [((first1) ? k : k - 1) : -1 : ((first2) ? 0 : -1)]) ((rows - 1 - i) * k) + j ],
-        is2 = [ off + i, off + i + 1 ]
-    ) each simple_delaunay(finger_cluster_vertices, is1, is2),
-    // Corner faces
-    [0, inner_off, inner_off + 2 * (cols + rows) + 3],
-    [inner_off - n, inner_off + cols + 1, inner_off + cols],
-    [inner_off - 1, inner_off + cols + rows + 2, inner_off + cols + rows + 1],
-    [n - 1, inner_off + 2 * cols + rows + 3, inner_off + 2 * cols + rows + 2],
-    // Chamfer and side wall faces
-    for (i = range(m)) each let (
-        i1 = (i + 1) % m,
-        i2 = inner_off + m + 3 * i,
-        i3 = inner_off + m + 3 * i1
-    ) [
-        [inner_off + i, inner_off + i1, i3, i2],
-        [i2, i3, i3 + 1, i2 + 1],
-        [i2 + 1, i3 + 1, i3 + 2, i2 + 2]
-    ],
-    // Bottom face
-    [ for (i = iter(circumference_points)) inner_off + m + 3 * i + 2 ]
 ];
 
 thumb_vals = [ for (i = range(thumb_key_count)) let (
