@@ -9,8 +9,7 @@
 
 #define MCP2301X_ADDR (0x20 << 1)
 #define MCP2301X_TIMEOUT 50
-#define MCP2301X_STARTUP_DELAY 1000
-
+#define MCP2301X_STARTUP_DELAY 200
 
 void mcp2301x_init(void);
 uint8_t mcp2301x_read_port(void);
