@@ -1,6 +1,6 @@
 #include QMK_KEYBOARD_H
-#include "keymap_german.h"
-#include "g/keymap_combo.h"
+#include "sendstring_german.h"
+#include "combos.h"
 
 // layer definitions
 #define _VL         0
@@ -191,16 +191,21 @@ QK_BOOT,    KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,            
 };
 
 
+// disable combos at startup
+void keyboard_post_init_user() {
+    combo_disable();
+}
 
-// convert shift-backspace to control-backspace
+// custom keycode handling
 uint8_t mod_state;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode) {
+    switch (keycode) {
+        // convert shift-backspace to control-backspace
         case KC_BSPC:
             mod_state = get_mods();
             static bool ctrl_bspc_registered;
             if (record->event.pressed) {
-                if (mod_state & MOD_MASK_SHIFT) {
+                if (mod_state & MOD_MASK_SHIFT || is_combo_enabled()) {
                     del_mods(MOD_MASK_SHIFT);
                     register_code16(LCTL(KC_BSPC));
                     ctrl_bspc_registered = true;
@@ -216,6 +221,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return true;
+        // enable combos while space is pressed
+        case KC_SPC:
+            if (record->event.pressed) {
+                tap_code(KC_SPC);
+                space_present = true;
+                combo_enable();
+            }
+            else {
+                combo_disable();
+            }
+            return false;
     }
     return true;
 }
