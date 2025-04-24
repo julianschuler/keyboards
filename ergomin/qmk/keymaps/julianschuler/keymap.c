@@ -1,53 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "keymap_german.h"
-#include "g/keymap_combo.h"
-
-// layer definitions
-#define _VL         0
-#define _QL         1
-#define _GL         2
-#define _LL         3
-#define _SL         4
-#define _NL         5
-#define _FL         6
-
-// layer switching keys
-#define VOU         DF(_VL)
-#define QWERTZ      DF(_QL)
-#define GAME_L      TG(_GL)
-#define LNUM_L      MO(_LL)
-#define NUM_L       MO(_NL)
-#define SYM_L       MO(_SL)
-#define FN_L        MO(_FL)
-
-
-// modifier keys
-#define L_SHIFT     OSM(MOD_LSFT)
-
-// combination keys
-#define SFT_TAB     LSFT(KC_TAB)
-#define CTL_ALT     LCTL(KC_LALT)
-#define CTL_SFT     LCTL(KC_LSFT)
-#define CTL_GUI     LCTL(KC_LGUI)
-#define ALT_F4      LALT(KC_F4)
-
-#define GUI_F1      LGUI(KC_F1)
-#define GUI_F2      LGUI(KC_F2)
-#define GUI_F3      LGUI(KC_F3)
-#define GUI_F4      LGUI(KC_F4)
-#define GUI_F5      LGUI(KC_F5)
-#define GUI_F6      LGUI(KC_F6)
-#define GUI_F7      LGUI(KC_F7)
-#define GUI_F8      LGUI(KC_F8)
-#define GUI_F9      LGUI(KC_F9)
-#define GUI_F10     LGUI(KC_F10)
-#define GUI_F11     LGUI(KC_F11)
-#define GUI_F12     LGUI(KC_F12)
-
-#define TAB_CTL     LCTL_T(KC_TAB)
-#define ENT_GUI     LGUI_T(KC_ENT)
-#define SS_ALT      LALT_T(DE_SS)
-
+#include "shared/keymap.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* layer 0: vou
@@ -189,50 +142,3 @@ QK_BOOT,    KC_PSCR,    KC_MUTE,    KC_VOLD,    KC_VOLU,    KC_BRID,    VOU,    
                                         _______,    XXXXXXX,    XXXXXXX,    FN_L,           FN_L,       XXXXXXX,    XXXXXXX,    _______
 ),
 };
-
-
-
-// convert shift-backspace to control-backspace
-uint8_t mod_state;
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode) {
-        case KC_BSPC:
-            mod_state = get_mods();
-            static bool ctrl_bspc_registered;
-            if (record->event.pressed) {
-                if (mod_state & MOD_MASK_SHIFT) {
-                    del_mods(MOD_MASK_SHIFT);
-                    register_code16(LCTL(KC_BSPC));
-                    ctrl_bspc_registered = true;
-                    set_mods(mod_state);
-                    return false;
-                }
-            }
-            else {
-                if (ctrl_bspc_registered) {
-                    unregister_code16(LCTL(KC_BSPC));
-                    ctrl_bspc_registered = false;
-                    return false;
-                }
-            }
-            return true;
-    }
-    return true;
-}
-
-// configure keys that continue caps word and are shifted by it
-bool caps_word_press_user(uint16_t keycode) {
-    switch (keycode) {
-        case DE_A ... DE_Z:
-        case DE_MINS:
-            add_weak_mods(MOD_BIT(KC_LSFT));
-            return true;
-        case DE_1 ... DE_0:
-        case KC_BSPC:
-        case KC_DEL:
-        case DE_UNDS:
-            return true;
-        default:
-            return false;
-    }
-}

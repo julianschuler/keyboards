@@ -36,7 +36,7 @@
 #define SUBS A_ENUM
 #define TOGG A_ENUM
 enum combos {
-#include "combos.def"
+#include "shared/combos.def"
 };
 
 // Bake combos into mem
@@ -56,7 +56,7 @@ enum combos {
 #define SUBS A_COMB
 #define TOGG A_COMB
 combo_t key_combos[] = {
-#include "combos.def"
+#include "shared/combos.def"
 };
 #undef COMB
 #undef SUBS
@@ -76,7 +76,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   }
 
   switch (combo_index) {
-#include "combos.def"
+#include "shared/combos.def"
   }
 }
 #undef COMB
