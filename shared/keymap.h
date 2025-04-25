@@ -1,7 +1,13 @@
 #pragma once
 
+uint8_t mod_state;
+bool space_present = false;
+bool chords_enabled = false;
+
 #include "sendstring_german.h"
 #include "shared/combos.h"
+
+#define SYMBOL_COMBOS 36
 
 // layer definitions
 #define _VL         0
@@ -52,13 +58,7 @@
 #define ENT_GUI     LGUI_T(KC_ENT)
 #define SS_ALT      LALT_T(DE_SS)
 
-// disable combos at startup
-void keyboard_post_init_user() {
-    combo_disable();
-}
-
 // custom keycode handling
-uint8_t mod_state;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // convert shift-backspace to control-backspace
@@ -66,7 +66,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             mod_state = get_mods();
             static bool ctrl_bspc_registered;
             if (record->event.pressed) {
-                if (mod_state & MOD_MASK_SHIFT || is_combo_enabled()) {
+                if (mod_state & MOD_MASK_SHIFT || chords_enabled) {
                     del_mods(MOD_MASK_SHIFT);
                     register_code16(LCTL(KC_BSPC));
                     ctrl_bspc_registered = true;
@@ -82,19 +82,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return true;
-        // enable combos while space is pressed
+        // enable chords while space is pressed
         case KC_SPC:
             if (record->event.pressed) {
                 tap_code(KC_SPC);
                 space_present = true;
-                combo_enable();
+                chords_enabled = true;
             }
             else {
-                combo_disable();
+                chords_enabled = false;
             }
             return false;
     }
     return true;
+}
+
+bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
+    return ((combo_index < SYMBOL_COMBOS) != chords_enabled);
+}
+
+uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
+    if (combo_index < SYMBOL_COMBOS) {
+        return 15;
+    } else {
+        return 100;
+    }
 }
 
 // configure keys that continue caps word and are shifted by it
