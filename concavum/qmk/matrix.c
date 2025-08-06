@@ -1,17 +1,17 @@
 #include QMK_KEYBOARD_H
-#include "mcp23018.h"
+#include "pca9555.h"
 
-#define MCP23018_ADDRESS 0b0100000
+#define PCA9555_ADDRESS 0b0100000
 
 #define ALL_SECONDARY_ROW_PINS (1<<0), (1<<7), (1<<6), (1<<3), (1<<4), (1<<5)
 
 #define SPLIT_MATRIX_COLS (MATRIX_COLS / 2)
 
-typedef uint8_t mcp23018_pin_t;
+typedef uint8_t pca9555_pin_t;
 
 static const pin_t          row_pins[MATRIX_ROWS]        = MATRIX_ROW_PINS;
 static const pin_t          col_pins[MATRIX_COLS]        = MATRIX_COL_PINS;
-static const mcp23018_pin_t secondary_row_pins[ROWS + 1] = SECONDARY_ROW_PINS;
+static const pca9555_pin_t secondary_row_pins[ROWS + 1] = SECONDARY_ROW_PINS;
 
 
 static void select_row(uint8_t row) {
@@ -20,7 +20,7 @@ static void select_row(uint8_t row) {
     gpio_write_pin_low(row_pins[row]);
     // select port expander row
     uint8_t port = ~secondary_row_pins[row];
-    mcp23018_set_output(MCP23018_ADDRESS, mcp23018_PORTA, port);
+    pca9555_set_output(PCA9555_ADDRESS, PCA9555_PORT0, port);
 }
 
 
@@ -41,7 +41,7 @@ static matrix_row_t read_cols(void) {
     }
     // read columns of the right side
     uint8_t port = 0xFF;
-    mcp23018_read_pins(MCP23018_ADDRESS, mcp23018_PORTB, &port);
+    pca9555_read_pins(PCA9555_ADDRESS, PCA9555_PORT1, &port);
     state |= ~port << SPLIT_MATRIX_COLS;
     return state;
 }
@@ -57,9 +57,9 @@ void matrix_init_custom(void) {
         gpio_set_pin_input_high(col_pins[i]);
     }
     // initialize the port expander
-    mcp23018_init(MCP23018_ADDRESS);
-    mcp23018_set_config(MCP23018_ADDRESS, mcp23018_PORTA, ALL_OUTPUT);
-    mcp23018_set_config(MCP23018_ADDRESS, mcp23018_PORTB, ALL_INPUT);
+    pca9555_init(PCA9555_ADDRESS);
+    pca9555_set_config(PCA9555_ADDRESS, PCA9555_PORT0, ALL_OUTPUT);
+    pca9555_set_config(PCA9555_ADDRESS, PCA9555_PORT1, ALL_INPUT);
 }
 
 

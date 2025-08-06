@@ -1,3 +1,3 @@
 VPATH += drivers/gpio
-SRC += matrix.c mcp23018.c
+SRC += matrix.c pca9555.c
 I2C_DRIVER_REQUIRED = yes
