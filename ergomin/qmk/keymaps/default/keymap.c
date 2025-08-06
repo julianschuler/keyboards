@@ -20,7 +20,7 @@
 // modifier keys
 #define L_SHIFT     KC_LSFT
 
-// kombination keys
+// combination keys
 #define SFT_TAB     LSFT(KC_TAB)
 #define CTL_ALT     LCTL(KC_LALT)
 #define CTL_SFT     LCTL(KC_LSFT)

@@ -24,7 +24,7 @@
 #define L_GUI       KC_LGUI
 #define L_ALT       KC_LALT
 
-// kombination keys
+// combination keys
 #define SFT_TAB     LSFT(KC_TAB)
 #define CTL_ALT     LCTL(KC_LALT)
 #define CTL_SFT     LCTL(KC_LSFT)
