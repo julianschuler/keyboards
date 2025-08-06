@@ -7,10 +7,16 @@
   "processor": "RP2040",
   "bootloader": "rp2040",
 
-  "debounce": 15,
+  "usb": {
+    "vid": "0xFEED",
+    "pid": "0xD6AF",
+    "device_version": "1.0.0",
+    "polling_interval": 1,
+    "force_nkro": true
+  },
+
   "diode_direction": "COL2ROW",
   "matrix_pins": {
-    "custom": true,
     "custom_lite": true,
     "cols": [
       "GP8",
@@ -29,12 +35,9 @@
     "rows": ["GP9", "GP10", "GP19", "GP20", "GP18", "GP26"]
   },
 
-  "usb": {
-    "vid": "0xFEED",
-    "pid": "0xD6AF",
-    "device_version": "1.0.0",
-    "polling_interval": 1,
-    "force_nkro": true
+  "debounce": 15,
+  "build": {
+      "debounce_type": "sym_eager_pk"
   },
 
   "features": {
