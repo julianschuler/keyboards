@@ -1,4 +1,3 @@
-SRC += matrix.c \
-	   mcp2301x.c
-
-QUANTUM_LIB_SRC += i2c_master.c
+VPATH += drivers/gpio
+SRC += matrix.c mcp23018.c
+I2C_DRIVER_REQUIRED = yes

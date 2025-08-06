@@ -1,31 +1,33 @@
 #include QMK_KEYBOARD_H
-#include "mcp23017.h"
+#include "mcp23018.h"
+
+#define MCP23018_ADDRESS 0b0100000
 
 #define SECONDARY_ROW_PINS { (1<<7), (1<<4), (1<<3), (1<<2) }
 #define F_SCL 800000UL
 
 #define SPLIT_MATRIX_COLS (MATRIX_COLS / 2)
 
-typedef uint8_t mcp23017_pin_t;
+typedef uint8_t mcp23018_pin_t;
 
 static const pin_t          row_pins[MATRIX_ROWS]           = MATRIX_ROW_PINS;
 static const pin_t          col_pins[MATRIX_COLS]           = MATRIX_COL_PINS;
-static const mcp23017_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
+static const mcp23018_pin_t secondary_row_pins[MATRIX_ROWS] = SECONDARY_ROW_PINS;
 
 
 static void select_row(uint8_t row) {
     // select primary row
-    setPinOutput(row_pins[row]);
-    writePinLow(row_pins[row]);
+    gpio_set_pin_output(row_pins[row]);
+    gpio_write_pin_low(row_pins[row]);
     // select port expander row
     uint8_t port = ~secondary_row_pins[row];
-    mcp23017_write_port(port);
+    mcp23018_set_output(MCP23018_ADDRESS, mcp23018_PORTA, port);
 }
 
 
 static void unselect_row(uint8_t row) {
     // only the primary row has to be unselected explicitly
-    setPinInputHigh(row_pins[row]);
+    gpio_set_pin_input_high(row_pins[row]);
 }
 
 
@@ -39,8 +41,9 @@ static matrix_row_t read_cols(void) {
         state |= pin_state ? 0 : (MATRIX_ROW_SHIFTER << col_index);
     }
     // read columns of the right side
-    matrix_row_t port = ~mcp23017_read_port();
-    state |= port << SPLIT_MATRIX_COLS;
+    uint8_t port = 0xFF;
+    mcp23018_read_pins(MCP23018_ADDRESS, mcp23018_PORTB, &port);
+    state |= ~port << SPLIT_MATRIX_COLS;
     return state;
 }
 
@@ -48,14 +51,16 @@ static matrix_row_t read_cols(void) {
 void matrix_init_custom(void) {
     // initialize rows (set pins as input and enable internal pullups)
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
-        setPinInputHigh(row_pins[i]);
+        gpio_set_pin_input_high(row_pins[i]);
     }
     // initialize columns (set pins as input and enable internal pullups)
     for (uint8_t i = 0; i < SPLIT_MATRIX_COLS; i++) {
-        setPinInputHigh(col_pins[i]);
+        gpio_set_pin_input_high(col_pins[i]);
     }
-    // initialize the port expander pins in a similar way
-    mcp23017_init();
+    // initialize the port expander
+    mcp23018_init(MCP23018_ADDRESS);
+    mcp23018_set_config(MCP23018_ADDRESS, mcp23018_PORTA, ALL_OUTPUT);
+    mcp23018_set_config(MCP23018_ADDRESS, mcp23018_PORTB, ALL_INPUT);
 }
 
 
