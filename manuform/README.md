@@ -50,5 +50,5 @@ Also, connect the encoder to D2, D3 and GND.
 Cut out/order the bottom plate and use a countersink bit to allow the countersunk screws to sit flush. After screwing on the bottom plate and attaching the rubber feet, the build is completed.
 
 ## License
-This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
+This project is licensed under the MIT license, see [`LICENSE.txt`](../LICENSE.txt) for further information.
 

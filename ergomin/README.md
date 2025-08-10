@@ -66,4 +66,4 @@ It is highly recommended to always include this `QK_BOOT` keycode in any keymap 
 To increase the ergonomics, tenting feet may be added. I modified [these foldable tenting feet](https://www.thingiverse.com/thing:4491679) by increasing their length (to increase the tenting angle) and adding a cutout to still access the screws. Due to the "No Derivatives"-flag in the model license I am unfortunately not able to share my modified version. The modifications can still be done in a few minutes directly in PrusaSlicer and the feet afterwards printed and glued to the bottom of the case.
 
 ## License
-This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
+This project is licensed under the MIT license, see [`LICENSE.txt`](../LICENSE.txt) for further information.

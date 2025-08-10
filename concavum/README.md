@@ -120,4 +120,5 @@ When flashing e.g. a new keymap to the Concavum, it has to be put into the bootl
 It is highly recommended to keep this `QK_BOOT` keycode in any keymap you create as the physical reset button can only be accessed with the bottom plate removed.
 
 ## License
-This project is licensed under the MIT license, see [`LICENSE.txt`](LICENSE.txt) for further information.
+
+This project is licensed under the MIT license, see [`LICENSE.txt`](../LICENSE.txt) for further information.
