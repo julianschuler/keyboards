@@ -52,7 +52,7 @@
 			)
 		)
 	)
-	(attr through_hole)
+	(attr smd)
 	(fp_line
 		(start -8.95 -2.5)
 		(end -8.95 2.5)
@@ -217,12 +217,11 @@
 		(layers "*.Cu" "*.Mask")
 		(uuid "6b5c4a97-012c-40ec-af96-d19373ec0a70")
 	)
-	(pad "G" thru_hole circle
-		(at -4.65 2.65 90)
-		(size 2.5 2.5)
-		(drill 1.7)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
+	(pad "G" smd roundrect
+		(at -4.65 3.3 90)
+		(size 2.6 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
 		(uuid "61a4272e-201d-4a96-9e79-c802913b5de6")
 	)
 	(pad "R" smd roundrect
@@ -239,12 +238,11 @@
 		(roundrect_rratio 0.25)
 		(uuid "d110bd26-d8b8-48f8-ba8f-a38199a00c51")
 	)
-	(pad "S" thru_hole circle
-		(at -4.65 -2.05 90)
-		(size 2.5 2.5)
-		(drill 1.7)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
+	(pad "S" smd roundrect
+		(at -4.65 -3.3 90)
+		(size 2.6 1.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
 		(uuid "5e9e60b8-e5dc-46f9-946d-298fd0ffcaa6")
 	)
 	(pad "T" smd roundrect
