@@ -21,6 +21,7 @@
 
   "diode_direction": "COL2ROW",
   "matrix_pins": {
+    "custom": true,
     "custom_lite": true,
     "cols": [
       "D3",
