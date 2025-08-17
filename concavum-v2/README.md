@@ -22,12 +22,14 @@ You can find a detailed parts list in the file `bom.csv` in the export.
 
 ### Case
 
-The case of the Concavum is 3D printed.
-You can find the files to print in the `case` folder of the export.
-Both halves should be printed in the export orientation and using supports.
+The case of the Concavum is 3D printed, you can find the corresponding files in the `case` subfolder of the export.
+Since both halves are symmetric, only the 3D printing files for the right half are included in the export.
+Mirror the files along the X axis in your slicer to print the left half.
+
+The cases of both halves should be printed in the default orientation and using support material.
 For my build, I used [Prusament PETG Galaxy Black](https://www.prusa3d.com/product/prusament-petg-prusa-galaxy-black-1kg/).
 
-The bottom plates may either be printed or laser cut.
+The bottom plates may either be 3D printed or laser cut.
 Currently, the customizer only exports a 3D printing file for the bottom plate.
 You can use [OpenSCAD](https://openscad.org/) with the provided `bottom_plate_to_dxf.scad` script to generate a DXF file for laser cutting:
 
@@ -35,9 +37,7 @@ You can use [OpenSCAD](https://openscad.org/) with the provided `bottom_plate_to
 openscad -o bottom_plate.dxf bottom_plate_to_dxf.scad
 ```
 
-Note that the bottom plate is the same for both halves.
-It has to be printed or cut twice, ideally mirrored.
-For my build, I ordered the bottom plates to be laser cut out of 3mm aluminum.
+For my build, I ordered the bottom plates to be laser cut out of 3mm thick aluminum sheet.
 
 ### PCBs
 
@@ -64,7 +64,7 @@ kikit panelize -p kikit_parameters.json matrix_pcb.kicad_pcb matrix_pcb_panelize
 
 The two PCB types require different thicknesses.
 When ordering, select 0.6mm for the matrix PCB and 1.6mm for the interface PCB.
-You need at least 2 boards of each type, one of each type of board for each half.
+You need at least 2 boards of each type, one of each type per half.
 
 ### Assembly
 
@@ -72,21 +72,20 @@ First, install the heat set inserts into the provided holes.
 Add the key switches to the case, making sure that the orientation of the pins is aligned with the holes in the matrix PCB.
 
 Next, assemble the interface and matrix PCBs.
-Solder a KB2040, TRRS and FFC connector to both interface PCBs.
-Select the side of the interface PCB by connecting either the left or right two pads of the solder jumper.
+All PCBs are designed to be assembled from only one side.
+Lay down two pairs of interface and matrix PCBs with different sides facing up in each pair.
+Solder all components on the top facing sides of each PCB, leaving the respective bottom sides unpopulated.
+The assembled PCBs should be symmetric to each other.
 
-Lay down two matrix PCBs with different sides facing up and solder the diodes and FFC connectors.
-**Important: Only solder the components to one side of each matrix PCB!**
 Afterwords, carefully break off the tabs of the matrix PCBs.
-
 Insert the matrix PCBs into the cases such that the sides with the diodes and FFC connector face outwards.
 For each half, solder the matrix PCB to all keys, pushing it against each key while soldering.
 Start with the home row and work your way up and down the columns and to the thumb cluster.
 
-Finally, connect the interface and matrix PCBs of each half using the FFC cables and push the interface PCBs into their dedicated holders.
+Finally, connect the interface and matrix PCBs of each half using the FFC cables and insert the interface PCBs into their dedicated holders.
 
-Chamfer the bottom plate holes until the screws are flush with it using a chamfer bit.
-The keyboard can now be closed up by screwing on the bottom plate and attaching the rubber feet.
+Use a chamfer bit to create countersinks in the bottom plate holes to make the screws sit flush with them.
+Screw on the bottom plate and attach the rubber feet to finish the build.
 
 ## Firmware
 
