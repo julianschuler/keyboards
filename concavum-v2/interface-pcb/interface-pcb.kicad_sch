@@ -1410,6 +1410,156 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:D_Zener"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D_Zener"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Zener diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "D_Zener_0_1"
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27) (xy -0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0) (xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_Zener_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -3826,7 +3976,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "159007fa-6ec2-405d-852a-3d3db4fdde27")
-		(property "Reference" "R2"
+		(property "Reference" "R1"
 			(at 125.73 93.9799 0)
 			(effects
 				(font
@@ -3880,7 +4030,7 @@
 		(instances
 			(project "interface-pcb"
 				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
-					(reference "R2")
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -4395,6 +4545,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:D_Zener")
+		(at 123.19 80.01 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7da25bc3-be26-447d-a869-bf21afd2da34")
+		(property "Reference" "D1"
+			(at 125.73 78.7399 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2.5V"
+			(at 125.73 81.2799 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_MiniMELF"
+			(at 123.19 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 123.19 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Zener diode"
+			(at 123.19 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "dea2897a-1bf7-46d4-ae30-e10ccff0d29b")
+		)
+		(pin "2"
+			(uuid "6d152b57-2052-483f-9b4a-0303cd72b173")
+		)
+		(instances
+			(project ""
+				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
+					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 222.25 58.42 0)
 		(unit 1)
@@ -4454,76 +4674,6 @@
 			(project "interface-pcb"
 				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
 					(reference "#PWR06")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 123.19 80.01 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8b679e1e-35ab-47b7-9954-b8fef94e276b")
-		(property "Reference" "R1"
-			(at 125.73 78.7399 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 125.73 81.2799 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 121.412 80.01 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 123.19 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 123.19 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "14ed9fef-57fe-4fac-82be-a322eb3abd5d")
-		)
-		(pin "2"
-			(uuid "41105182-f000-4187-8ac6-8cf4577fbddb")
-		)
-		(instances
-			(project ""
-				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
-					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -4606,7 +4756,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "94ed8da2-2dae-44d1-9e0f-fec9115d49b1")
-		(property "Reference" "R4"
+		(property "Reference" "R2"
 			(at 252.73 93.9799 0)
 			(effects
 				(font
@@ -4660,7 +4810,7 @@
 		(instances
 			(project "interface-pcb"
 				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
-					(reference "R4")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -4888,17 +5038,17 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 250.19 80.01 0)
+		(lib_id "Device:D_Zener")
+		(at 250.19 80.01 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "c246283c-1b18-4ccf-b140-03f6287cb435")
-		(property "Reference" "R3"
-			(at 252.73 78.7399 0)
+		(uuid "ced13332-3947-4e3a-8676-8ad17f1b33cc")
+		(property "Reference" "D2"
+			(at 252.73 78.7399 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4906,8 +5056,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
-			(at 252.73 81.2799 0)
+		(property "Value" "2.5V"
+			(at 252.73 81.2799 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4915,8 +5065,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 248.412 80.01 90)
+		(property "Footprint" "Diode_SMD:D_MiniMELF"
+			(at 250.19 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4933,7 +5083,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
+		(property "Description" "Zener diode"
 			(at 250.19 80.01 0)
 			(effects
 				(font
@@ -4943,15 +5093,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "2ed7aec1-6829-4d88-a138-1e04c086bf85")
+			(uuid "f88d3f63-0853-4fac-b90d-55dce56082b0")
 		)
 		(pin "2"
-			(uuid "da632ab6-3d62-4244-bfa7-cbcb93e1ca92")
+			(uuid "4bdfb912-6035-4277-98d0-942a7b8ab1bf")
 		)
 		(instances
 			(project "interface-pcb"
 				(path "/9538e4ed-27e6-4c37-b989-9859dc0d49e8"
-					(reference "R3")
+					(reference "D2")
 					(unit 1)
 				)
 			)
