@@ -36,6 +36,9 @@
       "GP20"
     ]
   },
+  "bootmagic": {
+    "matrix": [3, 0]
+  },
   "split": {
     "enabled": true,
     "handedness": {
@@ -61,7 +64,10 @@
           "GP6"
         ]
       }
-    }
+    },
+    "bootmagic": {
+      "matrix": [7, 5]
+    },
   },
 
   "debounce": 15,
@@ -70,6 +76,7 @@
   },
 
   "features": {
+    "bootmagic": true,
     "extrakey": true,
     "nkro": true
   },

@@ -118,11 +118,13 @@ Repeat the same process for the right half.
 
 ### Reflashing
 
-To for example update the keymap, the firmware has to be reflashed. In most cases just reflashing the left half is sufficient.
+To for example update the keymap, the firmware has to be reflashed.
+When QMK is running on the Concavum, there are multiple ways to put the keyboard into DFU mode for reflashing:
 
-If QMK is already flashed to the keyboard, it can also be put into DFU mode using a key with the `QK_BOOT` keycode or by double tapping the reset button on the KB2040.
-
-It is highly recommended to add a `QK_BOOT` keycode your keymap since the physical reset button is only accessible with the bottom plate removed.
+- Press a key with the `QK_BOOT` keycode (not present in the default keymap)
+- For the left half: Hold down the top left key when plugging the left half in
+- For the right half: Hold down the top right key when plugging the right half in
+- Double tap the reset button on the KB2040 (requires removing the bottom plate)
 
 ## License
 
