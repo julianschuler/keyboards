@@ -6,6 +6,7 @@ bool chords_enabled = false;
 
 #include "sendstring_german.h"
 #include "shared/combos.h"
+#include "keymap_introspection.h"
 
 #define SYMBOL_COMBOS 36
 
@@ -58,6 +59,14 @@ bool chords_enabled = false;
 #define ENT_GUI     LGUI_T(KC_ENT)
 #define SS_ALT      LALT_T(DE_SS)
 
+void reset_combos(void) {
+    for (uint16_t index = 0; index < combo_count(); ++index) {
+        combo_t *combo = combo_get(index);
+        combo->disabled = 0;
+        combo->state = 0;
+    }
+}
+
 // custom keycode handling
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -105,7 +114,7 @@ uint16_t get_combo_term(uint16_t combo_index, combo_t *combo) {
     if (combo_index < SYMBOL_COMBOS) {
         return 15;
     } else {
-        return 100;
+        return 500;
     }
 }
 

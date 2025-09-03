@@ -1,2 +1,7 @@
 #include "symbols.def"
-#include "chords.def"
+// #include "chords.def"
+
+SUBS(dot, SS_TAP(X_BSPC)". ", DE_DOT)
+SUBS(comma, SS_TAP(X_BSPC)", ", DE_COMM)
+SUBS(unds, SS_TAP(X_BSPC)"_", DE_UNDS)
+SUBS(dash, SS_TAP(X_BSPC)"-", DE_MINS)
