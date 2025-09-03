@@ -1734,7 +1734,7 @@
 				)
 			)
 		)
-		(property "Value" "2.5V"
+		(property "Value" "3.6V"
 			(at 3.35 0 180)
 			(layer "F.SilkS")
 			(uuid "5d8e998e-603d-415a-b143-18b3e1b6be3c")
@@ -3405,7 +3405,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "2.5V"
+		(property "Value" "3.6V"
 			(at 3.4 0 0)
 			(layer "B.SilkS")
 			(uuid "317a351c-f917-476e-be21-2183b9387b16")
