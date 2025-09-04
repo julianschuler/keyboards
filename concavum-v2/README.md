@@ -78,11 +78,18 @@ Solder all components on the top facing sides of each PCB, leaving the respectiv
 The assembled PCBs should be symmetric to each other.
 
 Afterwords, carefully break off the tabs of the matrix PCBs.
+
+![Assembled PCBs](img/concavum-v2-assembled-pcbs.jpg)
+*Picture of the assembled matrix and interface PCBs for both halves, with the tabs of the left matrix PCB still connected. The FFC cables connecting the matrix and interface PCBs within each half are shown below the right matrix PCB.*
+
 Insert the matrix PCBs into the cases such that the sides with the diodes and FFC connector face outwards.
 For each half, solder the matrix PCB to all keys, pushing it against each key while soldering.
 Start with the home row and work your way up and down the columns and to the thumb cluster.
 
 Finally, connect the interface and matrix PCBs of each half using the FFC cables and insert the interface PCBs into their dedicated holders.
+
+![Fully assembled keyboard](img/concavum-v2-fully-assembled.jpg)
+*Picture of the fully assembled keyboard without bottom plates. Depending on the thumb cluster position, introducing a loop into the FFC cables as shown in the picture may be necessary to avoid kinks in the cables.*
 
 Use a chamfer bit to create countersinks in the bottom plate holes to make the screws sit flush with them.
 Screw on the bottom plate and attach the rubber feet to finish the build.
