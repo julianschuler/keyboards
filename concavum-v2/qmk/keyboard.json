@@ -50,24 +50,24 @@
     "matrix_pins": {
       "right": {
         "cols": [
-          "GP9",
-          "GP10",
-          "GP19",
-          "GP20",
+          "GP4",
+          "GP27",
+          "GP26",
           "GP18",
-          "GP26"
+          "GP20",
+          "GP19"
         ],
         "rows": [
-          "GP27",
-          "GP4",
-          "GP5",
-          "GP6"
+          "GP10",
+          "GP9",
+          "GP8",
+          "GP7"
         ]
       }
     },
     "bootmagic": {
       "matrix": [7, 5]
-    },
+    }
   },
 
   "debounce": 15,
