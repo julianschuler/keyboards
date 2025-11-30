@@ -56,7 +56,8 @@ Start by [installing the KiKit backend](https://yaqwsx.github.io/KiKit/latest/in
 kikit panelize -p kikit_parameters.json matrix_pcb.kicad_pcb matrix_pcb_panelized.kicad_pcb
 ```
 
-> **Tip:** You can also use KiKit to generate the gerber files from the KiCad files:
+> [!TIP]
+> You can also use KiKit to generate the gerber files from the KiCad files:
 > ```sh
 > kikit export gerber matrix_pcb_panelized.kicad_pcb matrix_pcb
 > kikit export gerber interface_pcb.kicad_pcb interface_pcb
